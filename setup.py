@@ -3,7 +3,7 @@ from setuptools import setup
 with open("README.md", "rb") as file:
     readme = file.read().decode("utf-8")
 
-setup(name='pymagic_autogui',
+setup(name='pymagic-autogui',
       version='0.0.1',
       description='Automate end-to-end and exploratory testing',
       long_description=readme,
@@ -11,7 +11,7 @@ setup(name='pymagic_autogui',
       url='https://github.com/IntegraSDL/pymagic-autogui',
       author='vsysoev',
       license='MIT',
-      packages=['pymagic_autogui'],
+      packages=['pymagic-autogui'],
       python_requires=">=3.7",
       install_requires=[
           'pyautogui',
