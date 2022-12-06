@@ -1,7 +1,6 @@
 import pytest
-from testtools import recognizeText, findFuzzyText, findRegExpText
+from pymagic_autogui.pymagic_autogui import recognizeText, findFuzzyText, findRegExpText
 from PIL import Image
-
 results = []
 def test_recognizeText():
     global results
