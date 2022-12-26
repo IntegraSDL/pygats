@@ -1,7 +1,6 @@
 import pytest
-from testtools import recognizeText, findFuzzyText, findRegExpText
+from pygats.pygats import recognizeText, findFuzzyText, findRegExpText
 from PIL import Image
-
 results = []
 def test_recognizeText():
     global results
