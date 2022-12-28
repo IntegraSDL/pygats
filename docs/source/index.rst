@@ -1,24 +1,24 @@
-$project
+pyGATs
 ========
 
 **This library is in development process. API is not stabilized yet. It will
 be completly changed soon.**
 
 
-$project is python3 library which combines power of pyautogui, opencv, tesseract, 
+pyGATs tis python3 library which combines power of pyautogui, opencv, tesseract, 
 markdown and other staff to automate end-to-end and exploratorytesting.
 
 This library might be used to automate testing process with Xvbf and docker.
 
-$project depends on pyautogui, pytesseract, opencv and others. Please see section
+pyGATs depends on pyautogui, pytesseract, opencv and others. Please see section
 dependencies in pyproject.toml file.,
 by providing a basic explanation of how to do it easily.
 
 Look how easy it is to use:
 
-    import project
+    import pygats
     # Get your stuff done
-    project.do_stuff()
+    pygats.do_stuff()
 
 Features
 --------
@@ -32,15 +32,15 @@ Features
 Installation
 ------------
 
-Install $project by running:
+Install pyGATs by running:
 
-    install project
+    install pygats
 
 Contribute
 ----------
 
-- Issue Tracker: github.com/IntegraSDL/$project/issues
-- Source Code: github.com/IntegraSDL/$project
+- Issue Tracker: github.com/IntegraSDL/pygats/issues
+- Source Code: github.com/IntegraSDL/pygats
 
 Support
 -------
