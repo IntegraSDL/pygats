@@ -40,6 +40,9 @@ def platformSpecificImage(img):
 
 
 def test(msg):
+    """
+    Begin of test. Dump msg as name of the test
+    """
     global StepIndex
     global suiteName
     print()
