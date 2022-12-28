@@ -1,5 +1,8 @@
 # pyGATs
 
+[![Pylint](https://github.com/IntegraSDL/pygats/actions/workflows/pylint.yml/badge.svg)](https://github.com/IntegraSDL/pygats/actions/workflows/pylint.yml)
+[![Python package](https://github.com/IntegraSDL/pygats/actions/workflows/python-package.yml/badge.svg)](https://github.com/IntegraSDL/pygats/actions/workflows/python-package.yml)
+
 **This library is in development process. API is not stabilized yet. It will
 be completly changed soon.**
 
