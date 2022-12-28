@@ -11,3 +11,17 @@ This library might be used to automate testing process with Xvbf and docker.
 
 pyGATs depends on pyautogui, pytesseract, opencv and others. Please see section
 dependencies in pyproject.toml file.
+
+
+## How to test
+
+```
+python3 -m pytest
+```
+
+## Build documentation
+
+```
+cd docs
+make html
+```
