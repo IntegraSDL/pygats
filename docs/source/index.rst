@@ -39,8 +39,8 @@ Install pyGATs by running:
 Contribute
 ----------
 
-- Issue Tracker: github.com/IntegraSDL/pygats/issues
-- Source Code: github.com/IntegraSDL/pygats
+- Issue Tracker: https://github.com/IntegraSDL/pygats/issues
+- Source Code: https://github.com/IntegraSDL/pygats
 
 Support
 -------
