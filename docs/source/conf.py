@@ -1,7 +1,3 @@
-# Configuration file for the Sphinx documentation builder.
-
-# -- Project information
-
 project = 'pyGATs'
 copyright = '2022, Vladimir Sysoev'
 author = 'Vladimir Sysoev'
