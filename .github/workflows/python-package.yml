@@ -25,8 +25,12 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
+        sudo apt-get install -y xvfb x11-apps python3-tk 
+        sudo apt-get install -y scrot tesseract-ocr tesseract-ocr-rus fluxbox
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
+        python -m pip install Pillow==6.2.1 pyautogui python-xlib opencv-python
+        python -m pip install pytesseract levenshtein
         python -m pip install --editable .
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
@@ -35,6 +39,11 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Prepare virtual frame buffer
+      run: |
+        Xvfb -shmem -screen 0 1280x1024x24 &
+        export LANG=ru_RU.UTF-8
+        DISPLAY=:0 fluxbox -display :0 &
     - name: Test with pytest
       run: |
-        python -m pytest
+        DISPLAY=:0 python -m pytest
