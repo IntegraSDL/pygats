@@ -20,6 +20,6 @@ jobs:
         pip install pylint
         pip install Pillow==6.2.1 pyautogui python-xlib opencv-python
         pip install pytesseract levenshtein
-   - name: Analysing the code with pylint
+    - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
