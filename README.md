@@ -2,6 +2,7 @@
 
 [![Pylint](https://github.com/IntegraSDL/pygats/actions/workflows/pylint.yml/badge.svg)](https://github.com/IntegraSDL/pygats/actions/workflows/pylint.yml)
 [![Python package](https://github.com/IntegraSDL/pygats/actions/workflows/python-package.yml/badge.svg)](https://github.com/IntegraSDL/pygats/actions/workflows/python-package.yml)
+[![Upload Python Package](https://github.com/IntegraSDL/pygats/actions/workflows/python-publish.yml/badge.svg)](https://github.com/IntegraSDL/pygats/actions/workflows/python-publish.yml)
 
 **This library is in development process. API is not stabilized yet. It will
 be completly changed soon.**
