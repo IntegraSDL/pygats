@@ -1,41 +1,52 @@
-import pyautogui
+"""
+pyGATs tis python3 library which combines power of pyautogui, opencv, tesseract,
+markdown and other staff to automate end-to-end and exploratorytesting.
+"""
 import time
 import sys
 import subprocess
 import os
-import signal
 import string
 import random
 import inspect
+import re
+import pyautogui
 import pytesseract
 from PIL import Image
-from Levenshtein import median, ratio
-import re
+from Levenshtein import ratio
 import cv2 as cv
 import numpy as np
 
-platform = ''
-TestsPassed = []
-TestsFailed = []
-StepIndex = 0
-ScreenshotIndex = 0
-OutputPath = 'output'
-suiteName = ''
+PLATFORM = ''
+TESTS_PASSED = []
+TESTS_FAILED = []
+STEP_INDEX = 0
+SCREENSHOT_INDEX = 0
+OUTPUT_PATH = 'output'
+SUITE_NAME = ''
 
 
 class TestException(Exception):
+    """
+    Test exception class stores msg and screenshot when error occurs
+    """
     def __init__(self, img, msg):
         self.image = img
         self.message = msg
 
 
-def platformSpecificImage(img):
-    if platform != '':
+def platform_specific_image(img):
+    """
+    function returns platform specific path to the image. If screenshot has
+    platform specifics it shoult be separated in different images. Name of
+    image contains platform name picName.PLATFORM.ext
+    """
+    if PLATFORM != '':
         splitted = img.split('.')
         if len(splitted) == 2:
-            specificImagePath = splitted[0]+'.'+platform + '.' + splitted[1]
-            if os.path.exists(specificImagePath):
-                return specificImagePath
+            specific_image_path = splitted[0]+'.'+PLATFORM + '.' + splitted[1]
+            if os.path.exists(specific_image_path):
+                return specific_image_path
     return img
 
 
@@ -43,45 +54,53 @@ def test(msg):
     """
     Begin of test. Dump msg as name of the test
     """
-    global StepIndex
-    global suiteName
+    global STEP_INDEX
     print()
     print(f'### {msg}')
     print()
-    StepIndex = 0
-    imgPath = os.path.join(OutputPath, 'initial-state.png')
-    pyautogui.screenshot(imgPath)
-    relativePath = imgPath.split(os.path.sep)
-    tmpPath = os.path.join('', *relativePath[1:])
-    print(f'Начальное состояние')
+    STEP_INDEX = 0
+    img_path = os.path.join(OUTPUT_PATH, 'initial-state.png')
+    pyautogui.screenshot(img_path)
+    relative_path = img_path.split(os.path.sep)
+    tmp_path = os.path.join('', *relative_path[1:])
+    print('Начальное состояние')
     print()
-    print(f'![Начальное состояние]({tmpPath})')
+    print(f'![Начальное состояние]({tmp_path})')
 
 
-def check(msg, f=None):
+def check(msg, func=None):
+    """
+    Prints message as check block
+    """
     print()
     print(f'{msg}')
-    if f is not None:
+    if func is not None:
         print('```')
-        print(inspect.getsource(f))
+        print(inspect.getsource(func))
         print('```')
-        return f()
+        return func()
     return None
 
 
 def suite(name, desc):
-    global suiteName
+    """
+    function prints test suite name in reports
+    """
+    global SUITE_NAME
     print()
-    suiteName = name
+    SUITE_NAME = name
     print(f'## {desc}')
 
 
-def step(msg, img=None):
-    global StepIndex
-    StepIndex += 1
-    ScreenshotIndex = 0
+def step(msg):
+    """
+    function prints step name and starts new screenshot index
+    """
+    global STEP_INDEX, SCREENSHOT_INDEX
+    STEP_INDEX += 1
+    SCREENSHOT_INDEX = 0
     print()
-    print(f'Шаг {StepIndex}: {msg}')
+    print(f'Шаг {STEP_INDEX}: {msg}')
     print()
 
 
@@ -90,85 +109,90 @@ def screenshot(rect=None):
     Return value is PIL.Image
     image is stored in output path as screenshotIndex
     """
-    global ScreenshotIndex
-    imgPath = os.path.join(
-        OutputPath, f'step-{StepIndex}-{ScreenshotIndex}-passed.png')
-    ScreenshotIndex += 1
-    img = pyautogui.screenshot(imgPath, region=rect)
-    relativePath = imgPath.split(os.path.sep)
-    tmpPath = os.path.join('', *relativePath[1:])
-    print(f'![Снимок экрана]({tmpPath})')
+    global SCREENSHOT_INDEX
+    img_path = os.path.join(
+        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
+    SCREENSHOT_INDEX += 1
+    img = pyautogui.screenshot(img_path, region=rect)
+    relative_path = img_path.split(os.path.sep)
+    tmp_path = os.path.join('', *relative_path[1:])
+    print(f'![Снимок экрана]({tmp_path})')
     print()
     return img
 
 
-def logImage(img, msg='Снимок экрана'):
+def log_image(img, msg='Снимок экрана'):
     """Function log img with msg into report
     image is stored in output path as screenshotIndex
     """
-    global ScreenshotIndex
-    imgPath = os.path.join(
-        OutputPath, f'step-{StepIndex}-{ScreenshotIndex}-passed.png')
-    ScreenshotIndex += 1
-    img.save(imgPath)
-    relativePath = imgPath.split(os.path.sep)
-    tmpPath = os.path.join('', *relativePath[1:])
-    print(f'![{msg}]({tmpPath})')
+    global SCREENSHOT_INDEX
+    img_path = os.path.join(
+        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
+    SCREENSHOT_INDEX += 1
+    img.save(img_path)
+    relative_path = img_path.split(os.path.sep)
+    tmp_path = os.path.join('', *relative_path[1:])
+    print(f'![{msg}]({tmp_path})')
     print()
     return img
 
 
 def passed():
-    global suiteName
-    imgPath = os.path.join(OutputPath, f'step-{StepIndex}-passed.png')
-    pyautogui.screenshot(imgPath)
-    relativePath = imgPath.split(os.path.sep)
-    tmpPath = os.path.join('', *relativePath[1:])
-    print(f'![Успешно]({tmpPath})')
+    """
+    function prints passed information after test case
+    """
+    img_path = os.path.join(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
+    pyautogui.screenshot(img_path)
+    relative_path = img_path.split(os.path.sep)
+    tmp_path = os.path.join('', *relative_path[1:])
+    print(f'![Успешно]({tmp_path})')
     print()
     print('**Успешно**')
     print()
 
 
 def failed(img=pyautogui.screenshot(), msg='Тест не успешен'):
+    """
+    function generates excpetion while error occurs
+    """
     raise TestException(img, msg)
 
 
-def checkImage(img, timeout=1):
+def check_image(img, timeout=1):
     """Check if image is located on screen. Timeout in second waiting image to occure"""
-    img = platformSpecificImage(img)
+    img = platform_specific_image(img)
     step(f'Проверка отображения {img} ...')
     try:
         while timeout > 0:
-            if locateOnScreen(img) is not None:
+            if locate_on_screen(img) is not None:
                 passed()
                 return
             timeout -= 1
             time.sleep(1)
-    except:
+    except: # pylint: disable=bare-except
         print('Exception')
         failed(img, 'Изображение не найдено')
     failed(img, 'Изображение не найдено')
 
 
-def locateOnScreen(img):
+def locate_on_screen(img):
     """Function return coord of image located on screen. If not found returnes None"""
-    img = platformSpecificImage(img)
+    img = platform_specific_image(img)
     coord = pyautogui.locateOnScreen(img, confidence=0.5)
     print(f'Изображение найдено в координатах {coord}')
     return coord
 
 
-def moveToCoord(x, y):
+def move_to_coord(x, y):
     """Function moves mouse to coord x,y"""
     step(f'Переместить указатель мыши в координаты {x},{y}')
     pyautogui.moveTo(x, y)
     passed()
 
 
-def moveTo(img):
+def move_to(img):
     """Function move mouse to img"""
-    img = platformSpecificImage(img)
+    img = platform_specific_image(img)
     step(f'Переместить указатель мыши на изображение {img} ...')
     center = pyautogui.locateCenterOnScreen(img, confidence=0.8)
     if center is None:
@@ -182,14 +206,16 @@ def moveTo(img):
     return True
 
 
-def clickRightButton():
+def click_right_button():
+    """function clicks right mouse button"""
     step('Нажать правую кнопку мыши ...')
     pyautogui.click(button='right')
     print(f'Текущая позиция указателя мыши {pyautogui.position()}')
     passed()
 
 
-def clickLeftButton():
+def click_left_button():
+    """function clicks left button of mouse"""
     step('Нажать левую кнопку мыши ...')
     pyautogui.click(button='left')
     print(f'Текущая позиция указателя мыши {pyautogui.position()}')
@@ -197,23 +223,24 @@ def clickLeftButton():
 
 
 def click(btn, area=''):
-    btn = platformSpecificImage(btn)
-    area = platformSpecificImage(area)
+    """function clicks button in area"""
+    btn = platform_specific_image(btn)
+    area = platform_specific_image(area)
     step(f'Нажать кнопку мыши {btn} ...')
     if area == '':
         center = pyautogui.locateCenterOnScreen(btn, confidence=0.8)
         print(f'Кнопка найдена с центром в координатах {center}')
     else:
         print(" area " + area)
-        areaLocation = pyautogui.locateOnScreen(area, confidence=0.9)
-        if areaLocation is None:
+        area_location = pyautogui.locateOnScreen(area, confidence=0.9)
+        if area_location is None:
             failed(area, 'Изображение не найдено')
         box = pyautogui.locate(btn, area, confidence=0.8)
         if box is None:
             failed(area, 'Изображение не найдено')
 
-        x = areaLocation.left + box.left + box.width/2
-        y = areaLocation.top + box.top + box.height/2
+        x = area_location.left + box.left + box.width/2
+        y = area_location.top + box.top + box.height/2
         center = pyautogui.Point(x, y)
     if center is None:
         failed(btn, 'Изображение не найдено')
@@ -228,25 +255,37 @@ def click(btn, area=''):
     passed()
 
 
-def ctrlWithKey(key):
+def ctrl_with_key(key):
+    """
+    function presses key with ctrl key
+    """
     step(f'Нажать клавишу ctrl+{key}')
     pyautogui.hotkey('ctrl', key)
     passed()
 
 
-def altWithKey(key):
+def alt_with_key(key):
+    """
+    function presses alt+key
+    """
     step(f'Нажать клавишу alt+{key}')
     pyautogui.hotkey('alt', key)
     passed()
 
 
-def dragTo(x, y):
+def drag_to(x, y):
+    """
+    drag something to coordinates x, y
+    """
     step(f'Переместить в координаты {x}, {y} ...')
     pyautogui.dragTo(x, y, button='left', duration=0.5)
     passed()
 
 
 def move(x, y):
+    """
+    function moves mouse pointer to x,y coordinates
+    """
     step(f'Относительное перемещение указателя мыши x={x}, y={y} ...')
     print(f'из координат {pyautogui.position()}')
     pyautogui.move(x, y)
@@ -255,6 +294,10 @@ def move(x, y):
 
 
 def keyboard(message):
+    """
+    function types message on keboard with 0.1 sec delay of each simbol
+    At the end <Enter> is pressed
+    """
     step(f'Набрать на клавиатуре и нажать <Enter>: {message} ...')
     pyautogui.write(message, 0.1)
     pyautogui.press('enter')
@@ -264,73 +307,81 @@ def keyboard(message):
 def press(key, n=1):
     """Function press keys n times"""
     step(f'Нажать {key} {n} раз')
-    for i in range(n):
+    for _ in range(n):
         pyautogui.press(key)
 
 
 def typewrite(message):
+    """function types keys on keboard"""
     step(f'Набрать на клавиатуре {message} ...')
     pyautogui.write(message)
     passed()
 
 
-def setUp(exec, outLog, errLog):
-    print(f'## Подготовка стенда к работе')
-    print(f'{exec} ...')
+def setup(cmd, out_log, err_log):
+    """Setup test suite before execute test cases"""
+    print('## Подготовка стенда к работе')
+    print(f'{cmd} ...')
     env = os.environ.copy()
-    testProc = subprocess.Popen(
-        [exec], stderr=errLog, stdout=outLog, env=env, cwd=os.path.dirname(exec))
-    time.sleep(1)
-    if testProc is not None:
-        passed()
-    return testProc
+    with subprocess.Popen(
+        [cmd], stderr=err_log,
+        stdout=out_log, env=env,
+        cwd=os.path.dirname(cmd)) as testProc:
+        time.sleep(1)
+        if testProc is not None:
+            passed()
+        return testProc
 
 
-def tearDown(testProc):
+def teardown(test_proc):
+    """Tear down test suite after all test cases done"""
     print('## Завершение работы стенда')
-    altWithKey('f4')
-    testProc.kill()
+    alt_with_key('f4')
+    test_proc.kill()
     passed()
 
 
-def printTestSummary(passed, failed):
+def print_test_summary(list_passed, list_failed):
+    """Functions print tests summary for executed suites"""
     print()
-    print(f'## Результаты тестирования')
-    print(f'Тесты завершенные успешно:')
-    for t in passed:
+    print('## Результаты тестирования')
+    print('Тесты завершенные успешно:')
+    for t in list_passed:
         print('* ', t)
     print()
-    print(f'Тесты завершенные неуспешно:')
-    for t in failed:
+    print('Тесты завершенные неуспешно:')
+    for t in list_failed:
         print('* ', t)
     print()
     print('**Всего выполнено**')
     print()
     print(
-        'Успешно: {:04d} / Неуспешно: {:04d}'.format(len(passed), len(failed)))
+        'Успешно: {:04d} / Неуспешно: {:04d}'.format(len(list_passed), len(list_failed))) # pylint: disable=consider-using-f-string
     print()
 
 
-def checkText(img, txt, lang):
+def check_text(img, txt, lang):
+    """Checks if text (txt) exists on image (img) printed with language (lang) """
     step(f'Проверка отображения текста {txt} на изображении {img}...')
-    x, y, width, height, flag = findText(img, txt, lang=lang)
+    _, _, _, _, flag = findText(img, txt, lang=lang)
     if flag:
         passed()
         return
     failed(img, f'{txt} не найден на изображении')
 
 
-def checkTextOnScreen(txt, lang):
+def check_text_on_screen(txt, lang):
+    """Checks if text (txt) exists on the screen"""
     step(f'Проверка отображения текста {txt} на экране ...')
     img = pyautogui.screenshot()
-    x, y, width, height, flag = findText(img, txt, lang=lang)
+    _, _, _, _, flag = findText(img, txt, lang=lang)
     if not flag:
         failed(img, f'{txt} не найден на экране')
     passed()
-    return
 
 
 def clickText(text, lang, button='left', skip=0):
+    """Finds text on screen and press mouse button on it"""
     step(f'Нажать текст {text} экране кнопкой {button}...')
     x, y, width, height, found = findTextOnScreen(text, lang, skip)
     if not found:
@@ -346,6 +397,7 @@ def clickText(text, lang, button='left', skip=0):
 
 
 def recognizeTextWithData(img, lang):
+    """Functions recognize all texts on the image with Tesseract"""
     return pytesseract.image_to_data(img, lang)
 
 # DEPRICATED: this function will be removed
@@ -354,6 +406,7 @@ def recognizeTextWithData(img, lang):
 
 
 def combineWordsInLines(lines):
+    """Functions combines words recognized on screan into lines"""
     for i in range(1, len(lines)-1):
         splitted = lines[i].split('\t')
         if len(splitted) != 12:
@@ -368,11 +421,12 @@ def combineWordsInLines(lines):
 
 
 def combineLines(lines):
+    """Function translate lines from Tesseract output format into result tuple"""
     result = []
     for i in range(1, len(lines)-1):
         splitted = lines[i].split('\t')
         if len(splitted) != 12:
-            return
+            return result
         x = int(splitted[6])
         y = int(splitted[7])
         w = int(splitted[8])
@@ -389,6 +443,7 @@ def combineLines(lines):
 
 
 def findText(img, text, lang, skip=0):
+    """Function finds text in image with Tesseract"""
     recognized = pytesseract.image_to_data(img, lang).split('\n')
     combineWordsInLines(recognized)
     retTup = (-1, -1, -1, -1, False)
@@ -397,8 +452,8 @@ def findText(img, text, lang, skip=0):
         if len(splitted) == 12:
             if splitted[11].find(text) != -1:
                 print("Найден текст " + splitted[11])
-                x = int(splitted[6]) + int(splitted[8])/2
-                y = int(splitted[7]) + int(splitted[9])/2
+                #x = int(splitted[6]) + int(splitted[8])/2
+                #y = int(splitted[7]) + int(splitted[9])/2
                 retTup = (int(splitted[6]), int(splitted[7]), int(
                     splitted[8]), int(splitted[9]), True)
                 if skip <= 0:
@@ -410,11 +465,18 @@ def findText(img, text, lang, skip=0):
                         splitted[6])+int(splitted[8]), int(splitted[7])+int(splitted[9])))
                     croppedTup = findTextCropped(cropped, text, lang)
                     if croppedTup[4]:
-                        return (croppedTup[0]+int(splitted[6]), croppedTup[1]+int(splitted[7]), croppedTup[2], croppedTup[3], croppedTup[4])
+                        return (croppedTup[0]+int(splitted[6]),
+                                croppedTup[1]+int(splitted[7]),
+                                croppedTup[2],
+                                croppedTup[3],
+                                croppedTup[4])
     return retTup
 
 
 def recognizeText(img, lang):
+    """Function recognizes text in image with Tesseract and combine
+    lines to tuple and return lists
+    """
     recognized = pytesseract.image_to_data(img, lang).split('\n')
     result = combineLines(recognized)
     return list(set(result))
@@ -438,8 +500,8 @@ def findFuzzyText(recognizedList, search):
             s = l[4]
             if len(s) > lSearch:
                 for i in range(0, len(s)-lSearch):
-                    slice = s[i:i+lSearch]
-                    r = ratio(search, slice, score_cutoff=0.8)
+                    slice_for_search = s[i:i+lSearch]
+                    r = ratio(search, slice_for_search, score_cutoff=0.8)
                     if r > 0.0:
                         result.append(l)
     return list(set(result))
@@ -464,6 +526,9 @@ def findRegExpText(recognizedList, regexp):
 
 
 def findTextCropped(img, text, lang, skip=0):
+    """Find text in image. Several passes are used.
+    First time found area with text on image and then
+    every area passed through recongintion again to improve recognition results"""
     recognized = pytesseract.image_to_data(img, lang).split('\n')
     combineWordsInLines(recognized)
     retTup = (-1, -1, -1, -1, False)
@@ -472,8 +537,8 @@ def findTextCropped(img, text, lang, skip=0):
         if len(splitted) == 12:
             if splitted[11].find(text) != -1:
                 print(f'Найден текст {splitted[11]}')
-                x = int(splitted[6]) + int(splitted[8])/2
-                y = int(splitted[7]) + int(splitted[9])/2
+                #x = int(splitted[6]) + int(splitted[8])/2
+                #y = int(splitted[7]) + int(splitted[9])/2
                 retTup = (int(splitted[6]), int(splitted[7]), int(
                     splitted[8]), int(splitted[9]), True)
                 if skip <= 0:
@@ -483,6 +548,7 @@ def findTextCropped(img, text, lang, skip=0):
 
 
 def findTextOnScreen(text, lang, skip=0):
+    """Function finds text on the screen"""
     step(f'Поиск текста {text} на экране ...')
     img = pyautogui.screenshot()
     return findText(img, text, lang, skip)
@@ -529,47 +595,47 @@ def drawContours(img, cnts):
 
 
 def randomString(stringLength):
+    """Generate randomized string of acsii letters"""
     letters = string.ascii_letters + ' _' + string.digits
-    return ''.join(random.choice(letters) for i in range(stringLength))
+    return ''.join(random.choice(letters) for _ in range(stringLength))
 
 
 def run(funcs, counter=1, output='output'):
-    global OutputPath, suiteName
+    """Execute test suite (list of test cases) one by one"""
+    global OUTPUT_PATH
     try:
         os.makedirs(output)
-    except:
+    except: # pylint: disable=bare-except
         pass
-    for i in range(counter):
+    for _ in range(counter):
         for f in funcs:
             testName = f.__name__
             try:
-                os.makedirs(os.path.join(output, suiteName, testName))
-            except:
+                os.makedirs(os.path.join(output, SUITE_NAME, testName))
+            except: # pylint: disable=bare-except
                 pass
             try:
-                OutputPath = os.path.join(output, suiteName, testName)
+                OUTPUT_PATH = os.path.join(output, SUITE_NAME, testName)
                 f()
-                TestsPassed.append(os.path.join(suiteName, testName))
+                TESTS_PASSED.append(os.path.join(SUITE_NAME, testName))
                 imgPath = os.path.join(
-                    output, suiteName, testName, 'test-passed.png')
+                    output, SUITE_NAME, testName, 'test-passed.png')
                 pyautogui.screenshot(imgPath)
                 relativePath = imgPath.split(os.path.sep)
                 tmpPath = os.path.join('', *relativePath[1:])
                 print(f'![Тест пройден]({tmpPath})')
                 print()
-                print(f'**Тест пройден**')
-                pass
+                print('**Тест пройден**')
             except TestException as e:
                 imgPath = os.path.join(
-                    output, suiteName, testName, 'test-failed.png')
+                    output, SUITE_NAME, testName, 'test-failed.png')
                 pyautogui.screenshot(imgPath)
                 print(f'\n> Error : {e.message}\n')
                 relativePath = imgPath.split(os.path.sep)
                 tmpPath = os.path.join('', *relativePath[1:])
                 print(f'![Тест не пройден]({tmpPath})')
                 print()
-                print("**Тест не пройден**")
-                TestsFailed.append(os.path.join(suiteName, testName))
-                pass
+                print('**Тест не пройден**')
+                TESTS_FAILED.append(os.path.join(SUITE_NAME, testName))
 
-    printTestSummary(TestsPassed, TestsFailed)
+    print_test_summary(TESTS_PASSED, TESTS_FAILED)
