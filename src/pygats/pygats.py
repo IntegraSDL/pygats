@@ -25,6 +25,33 @@ SCREENSHOT_INDEX = 0
 OUTPUT_PATH = 'output'
 SUITE_NAME = ''
 
+class MarkdownFormatter:
+    """MD formatter for caption"""
+    def print_header(self, msg):
+        """Print markdown header message"""
+        print()
+        print(f'### {msg}')
+        print()
+
+    def print_para(self, msg):
+        """Print markdown paragraph"""
+        print()
+        print(f'Step {STEP_INDEX}: {msg}')
+        print()
+
+    def print_footer(self, msg):
+        """Print footer message"""
+        print()
+        print(f'{msg}')
+        print()
+
+
+class Context: # pylint: disable=too-few-public-methods
+    """Context stores information about"""
+    formatter = None
+    def __init__(self, frmtr):
+        self.formatter = frmtr
+
 
 class TestException(Exception):
     """
@@ -50,22 +77,20 @@ def platform_specific_image(img):
     return img
 
 
-def test(msg):
+def begin_test(ctx, msg):
     """
     Begin of test. Dump msg as name of the test
     """
     global STEP_INDEX
-    print()
-    print(f'### {msg}')
-    print()
+    ctx.formatter.print_header(msg)
     STEP_INDEX = 0
-    img_path = os.path.join(OUTPUT_PATH, 'initial-state.png')
-    pyautogui.screenshot(img_path)
-    relative_path = img_path.split(os.path.sep)
-    tmp_path = os.path.join('', *relative_path[1:])
-    print('Начальное состояние')
-    print()
-    print(f'![Начальное состояние]({tmp_path})')
+    # img_path = os.path.join(OUTPUT_PATH, 'initial-state.png')
+    # pyautogui.screenshot(img_path)
+    # relative_path = img_path.split(os.path.sep)
+    # tmp_path = os.path.join('', *relative_path[1:])
+    # print('Начальное состояние')
+    # print()
+    # print(f'![Начальное состояние]({tmp_path})')
 
 
 def check(msg, func=None):
@@ -92,16 +117,14 @@ def suite(name, desc):
     print(f'## {desc}')
 
 
-def step(msg):
+def step(ctx, msg):
     """
     function prints step name and starts new screenshot index
     """
     global STEP_INDEX, SCREENSHOT_INDEX
     STEP_INDEX += 1
     SCREENSHOT_INDEX = 0
-    print()
-    print(f'Шаг {STEP_INDEX}: {msg}')
-    print()
+    ctx.formatter.print_para(msg)
 
 
 def screenshot(rect=None):
