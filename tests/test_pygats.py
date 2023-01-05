@@ -6,7 +6,7 @@ from pygats.pygats import Context, begin_test, MarkdownFormatter, step
 @pytest.fixture
 def formatter_fixture():
     """formatter fixture for markdown"""
-    return MarkdownFormatter() 
+    return MarkdownFormatter()
 
 
 def test_formatter(formatter_fixture, capsys): # pylint: disable=redefined-outer-name
