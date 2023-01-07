@@ -45,6 +45,11 @@ class MarkdownFormatter:
         print(f'{msg}')
         print()
 
+    def print_code(self, code):
+        """Print formatted code"""
+        print('```')
+        print(code)
+        print('```')
 
 class Context: # pylint: disable=too-few-public-methods
     """Context stores information about"""
@@ -93,16 +98,13 @@ def begin_test(ctx, msg):
     # print(f'![Начальное состояние]({tmp_path})')
 
 
-def check(msg, func=None):
+def check(ctx, msg, func=None):
     """
     Prints message as check block
     """
-    print()
-    print(f'{msg}')
+    ctx.formatter.print_para(f'{msg}')
     if func is not None:
-        print('```')
-        print(inspect.getsource(func))
-        print('```')
+        ctx.formatter.print_code(inspect.getsource(func))
         return func()
     return None
 
