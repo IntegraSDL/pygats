@@ -25,6 +25,38 @@ SCREENSHOT_INDEX = 0
 OUTPUT_PATH = 'output'
 SUITE_NAME = ''
 
+class MarkdownFormatter:
+    """MD formatter for caption"""
+    def print_header(self, msg):
+        """Print markdown header message"""
+        print()
+        print(f'### {msg}')
+        print()
+
+    def print_para(self, msg):
+        """Print markdown paragraph"""
+        print()
+        print(f'Step {STEP_INDEX}: {msg}')
+        print()
+
+    def print_footer(self, msg):
+        """Print footer message"""
+        print()
+        print(f'{msg}')
+        print()
+
+    def print_code(self, code):
+        """Print formatted code"""
+        print('```')
+        print(code)
+        print('```')
+
+class Context: # pylint: disable=too-few-public-methods
+    """Context stores information about"""
+    formatter = None
+    def __init__(self, frmtr):
+        self.formatter = frmtr
+
 
 class TestException(Exception):
     """
@@ -50,34 +82,29 @@ def platform_specific_image(img):
     return img
 
 
-def test(msg):
+def begin_test(ctx, msg):
     """
     Begin of test. Dump msg as name of the test
     """
     global STEP_INDEX
-    print()
-    print(f'### {msg}')
-    print()
+    ctx.formatter.print_header(msg)
     STEP_INDEX = 0
-    img_path = os.path.join(OUTPUT_PATH, 'initial-state.png')
-    pyautogui.screenshot(img_path)
-    relative_path = img_path.split(os.path.sep)
-    tmp_path = os.path.join('', *relative_path[1:])
-    print('Начальное состояние')
-    print()
-    print(f'![Начальное состояние]({tmp_path})')
+    # img_path = os.path.join(OUTPUT_PATH, 'initial-state.png')
+    # pyautogui.screenshot(img_path)
+    # relative_path = img_path.split(os.path.sep)
+    # tmp_path = os.path.join('', *relative_path[1:])
+    # print('Начальное состояние')
+    # print()
+    # print(f'![Начальное состояние]({tmp_path})')
 
 
-def check(msg, func=None):
+def check(ctx, msg, func=None):
     """
     Prints message as check block
     """
-    print()
-    print(f'{msg}')
+    ctx.formatter.print_para(f'{msg}')
     if func is not None:
-        print('```')
-        print(inspect.getsource(func))
-        print('```')
+        ctx.formatter.print_code(inspect.getsource(func))
         return func()
     return None
 
@@ -92,16 +119,14 @@ def suite(name, desc):
     print(f'## {desc}')
 
 
-def step(msg):
+def step(ctx, msg):
     """
     function prints step name and starts new screenshot index
     """
     global STEP_INDEX, SCREENSHOT_INDEX
     STEP_INDEX += 1
     SCREENSHOT_INDEX = 0
-    print()
-    print(f'Шаг {STEP_INDEX}: {msg}')
-    print()
+    ctx.formatter.print_para(msg)
 
 
 def screenshot(rect=None):
@@ -158,10 +183,10 @@ def failed(img=pyautogui.screenshot(), msg='Тест не успешен'):
     raise TestException(img, msg)
 
 
-def check_image(img, timeout=1):
+def check_image(ctx, img, timeout=1):
     """Check if image is located on screen. Timeout in second waiting image to occure"""
     img = platform_specific_image(img)
-    step(f'Проверка отображения {img} ...')
+    step(ctx, f'Проверка отображения {img} ...')
     try:
         while timeout > 0:
             if locate_on_screen(img) is not None:
@@ -183,17 +208,17 @@ def locate_on_screen(img):
     return coord
 
 
-def move_to_coord(x, y):
+def move_to_coord(ctx, x, y):
     """Function moves mouse to coord x,y"""
-    step(f'Переместить указатель мыши в координаты {x},{y}')
+    step(ctx, f'Переместить указатель мыши в координаты {x},{y}')
     pyautogui.moveTo(x, y)
     passed()
 
 
-def move_to(img):
+def move_to(ctx, img):
     """Function move mouse to img"""
     img = platform_specific_image(img)
-    step(f'Переместить указатель мыши на изображение {img} ...')
+    step(ctx, f'Переместить указатель мыши на изображение {img} ...')
     center = pyautogui.locateCenterOnScreen(img, confidence=0.8)
     if center is None:
         failed(img, 'Изображение не найдено')
@@ -206,27 +231,27 @@ def move_to(img):
     return True
 
 
-def click_right_button():
+def click_right_button(ctx):
     """function clicks right mouse button"""
-    step('Нажать правую кнопку мыши ...')
+    step(ctx, 'Нажать правую кнопку мыши ...')
     pyautogui.click(button='right')
     print(f'Текущая позиция указателя мыши {pyautogui.position()}')
     passed()
 
 
-def click_left_button():
+def click_left_button(ctx):
     """function clicks left button of mouse"""
-    step('Нажать левую кнопку мыши ...')
+    step(ctx, 'Нажать левую кнопку мыши ...')
     pyautogui.click(button='left')
     print(f'Текущая позиция указателя мыши {pyautogui.position()}')
     passed()
 
 
-def click(btn, area=''):
+def click(ctx, btn, area=''):
     """function clicks button in area"""
     btn = platform_specific_image(btn)
     area = platform_specific_image(area)
-    step(f'Нажать кнопку мыши {btn} ...')
+    step(ctx, f'Нажать кнопку мыши {btn} ...')
     if area == '':
         center = pyautogui.locateCenterOnScreen(btn, confidence=0.8)
         print(f'Кнопка найдена с центром в координатах {center}')
@@ -255,65 +280,65 @@ def click(btn, area=''):
     passed()
 
 
-def ctrl_with_key(key):
+def ctrl_with_key(ctx, key):
     """
     function presses key with ctrl key
     """
-    step(f'Нажать клавишу ctrl+{key}')
+    step(ctx, f'Нажать клавишу ctrl+{key}')
     pyautogui.hotkey('ctrl', key)
     passed()
 
 
-def alt_with_key(key):
+def alt_with_key(ctx, key):
     """
     function presses alt+key
     """
-    step(f'Нажать клавишу alt+{key}')
+    step(ctx, f'Нажать клавишу alt+{key}')
     pyautogui.hotkey('alt', key)
     passed()
 
 
-def drag_to(x, y):
+def drag_to(ctx, x, y):
     """
     drag something to coordinates x, y
     """
-    step(f'Переместить в координаты {x}, {y} ...')
+    step(ctx, f'Переместить в координаты {x}, {y} ...')
     pyautogui.dragTo(x, y, button='left', duration=0.5)
     passed()
 
 
-def move(x, y):
+def move(ctx, x, y):
     """
     function moves mouse pointer to x,y coordinates
     """
-    step(f'Относительное перемещение указателя мыши x={x}, y={y} ...')
+    step(ctx, f'Относительное перемещение указателя мыши x={x}, y={y} ...')
     print(f'из координат {pyautogui.position()}')
     pyautogui.move(x, y)
     print(f'новые координаты {pyautogui.position()}')
     passed()
 
 
-def keyboard(message):
+def keyboard(ctx, message):
     """
     function types message on keboard with 0.1 sec delay of each simbol
     At the end <Enter> is pressed
     """
-    step(f'Набрать на клавиатуре и нажать <Enter>: {message} ...')
+    step(ctx, f'Набрать на клавиатуре и нажать <Enter>: {message} ...')
     pyautogui.write(message, 0.1)
     pyautogui.press('enter')
     passed()
 
 
-def press(key, n=1):
+def press(ctx, key, n=1):
     """Function press keys n times"""
-    step(f'Нажать {key} {n} раз')
+    step(ctx, f'Нажать {key} {n} раз')
     for _ in range(n):
         pyautogui.press(key)
 
 
-def typewrite(message):
+def typewrite(ctx, message):
     """function types keys on keboard"""
-    step(f'Набрать на клавиатуре {message} ...')
+    step(ctx, f'Набрать на клавиатуре {message} ...')
     pyautogui.write(message)
     passed()
 
@@ -333,10 +358,10 @@ def setup(cmd, out_log, err_log):
         return testProc
 
 
-def teardown(test_proc):
+def teardown(ctx, test_proc):
     """Tear down test suite after all test cases done"""
     print('## Завершение работы стенда')
-    alt_with_key('f4')
+    alt_with_key(ctx, 'f4')
     test_proc.kill()
     passed()
 
@@ -360,9 +385,9 @@ def print_test_summary(list_passed, list_failed):
     print()
 
 
-def check_text(img, txt, lang):
+def check_text(ctx, img, txt, lang):
     """Checks if text (txt) exists on image (img) printed with language (lang) """
-    step(f'Проверка отображения текста {txt} на изображении {img}...')
+    step(ctx, f'Проверка отображения текста {txt} на изображении {img}...')
     _, _, _, _, flag = findText(img, txt, lang=lang)
     if flag:
         passed()
@@ -370,9 +395,9 @@ def check_text(img, txt, lang):
     failed(img, f'{txt} не найден на изображении')
 
 
-def check_text_on_screen(txt, lang):
+def check_text_on_screen(ctx, txt, lang):
     """Checks if text (txt) exists on the screen"""
-    step(f'Проверка отображения текста {txt} на экране ...')
+    step(ctx, f'Проверка отображения текста {txt} на экране ...')
     img = pyautogui.screenshot()
     _, _, _, _, flag = findText(img, txt, lang=lang)
     if not flag:
@@ -380,9 +405,9 @@ def check_text_on_screen(txt, lang):
     passed()
 
 
-def clickText(text, lang, button='left', skip=0):
+def clickText(ctx, text, lang, button='left', skip=0):
     """Finds text on screen and press mouse button on it"""
-    step(f'Нажать текст {text} экране кнопкой {button}...')
+    step(ctx, f'Нажать текст {text} экране кнопкой {button}...')
     x, y, width, height, found = findTextOnScreen(text, lang, skip)
     if not found:
         failed(msg=f'{text} не найден на экране')
@@ -547,9 +572,9 @@ def findTextCropped(img, text, lang, skip=0):
     return retTup
 
 
-def findTextOnScreen(text, lang, skip=0):
+def findTextOnScreen(ctx, text, lang, skip=0):
     """Function finds text on the screen"""
-    step(f'Поиск текста {text} на экране ...')
+    step(ctx, f'Поиск текста {text} на экране ...')
     img = pyautogui.screenshot()
     return findText(img, text, lang, skip)
 
@@ -576,9 +601,9 @@ def filterRectSorted(cnts):
     return cnts2
 
 
-def findContours(img, fltr=repeater):
+def findContours(ctx, img, fltr=repeater):
     """Function finds contours by cv and filter them with filter"""
-    step('Поиск контуров с применением селектора')
+    step(ctx, 'Поиск контуров с применением селектора')
     npImg = np.array(img)
     gray = cv.cvtColor(npImg, cv.COLOR_BGR2GRAY)
     _, thresh = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
