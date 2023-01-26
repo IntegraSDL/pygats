@@ -34,5 +34,3 @@ class MarkdownFormatter:
         """Print image path"""
         print(f'![Screenshot]({img_path})')
         print()
- 
-
