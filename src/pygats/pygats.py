@@ -25,32 +25,6 @@ SCREENSHOT_INDEX = 0
 OUTPUT_PATH = 'output'
 SUITE_NAME = ''
 
-class MarkdownFormatter:
-    """MD formatter for caption"""
-    def print_header(self, msg):
-        """Print markdown header message"""
-        print()
-        print(f'### {msg}')
-        print()
-
-    def print_para(self, msg):
-        """Print markdown paragraph"""
-        print()
-        print(f'Step {STEP_INDEX}: {msg}')
-        print()
-
-    def print_footer(self, msg):
-        """Print footer message"""
-        print()
-        print(f'{msg}')
-        print()
-
-    def print_code(self, code):
-        """Print formatted code"""
-        print('```')
-        print(code)
-        print('```')
-
 class Context: # pylint: disable=too-few-public-methods
     """Context stores information about"""
     formatter = None
@@ -87,7 +61,7 @@ def begin_test(ctx, msg):
     Begin of test. Dump msg as name of the test
     """
     global STEP_INDEX
-    ctx.formatter.print_header(msg)
+    ctx.formatter.print_header(3, msg)
     STEP_INDEX = 0
     # img_path = os.path.join(OUTPUT_PATH, 'initial-state.png')
     # pyautogui.screenshot(img_path)
@@ -109,14 +83,14 @@ def check(ctx, msg, func=None):
     return None
 
 
-def suite(name, desc):
+def suite(ctx, name, desc):
     """
     function prints test suite name in reports
     """
     global SUITE_NAME
     print()
     SUITE_NAME = name
-    print(f'## {desc}')
+    ctx.formatter.print_header(2, desc)
 
 
 def step(ctx, msg):
@@ -126,10 +100,11 @@ def step(ctx, msg):
     global STEP_INDEX, SCREENSHOT_INDEX
     STEP_INDEX += 1
     SCREENSHOT_INDEX = 0
+    msg = f'Step {STEP_INDEX}: {msg}'
     ctx.formatter.print_para(msg)
 
 
-def screenshot(rect=None):
+def screenshot(ctx, rect=None):
     """Function takes screenshot limited by rect rectangle
     Return value is PIL.Image
     image is stored in output path as screenshotIndex
@@ -141,8 +116,7 @@ def screenshot(rect=None):
     img = pyautogui.screenshot(img_path, region=rect)
     relative_path = img_path.split(os.path.sep)
     tmp_path = os.path.join('', *relative_path[1:])
-    print(f'![Снимок экрана]({tmp_path})')
-    print()
+    ctx.formatter.print_img(tmp_path)
     return img
 
 

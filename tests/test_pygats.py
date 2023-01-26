@@ -1,30 +1,29 @@
 """Module with library tests"""
+import os
 import pytest
-from pygats.pygats import Context, begin_test, MarkdownFormatter, step, check
+from pygats.pygats import Context, screenshot
+from pygats.formatters import MarkdownFormatter as MD
 #from PIL import Image
 
-@pytest.fixture
-def formatter_fixture():
+def setup_module():
+    """Setup module to prepare testing environment"""
+    try:
+        os.mkdir('output')
+    except FileExistsError:
+        pass
+
+
+@pytest.fixture(name='formatter')
+def fixture_formatter():
     """formatter fixture for markdown"""
-    return MarkdownFormatter()
+    return MD()
 
 
-def test_formatter(formatter_fixture, capsys): # pylint: disable=redefined-outer-name
-    """Test formatter"""
-    ctx = Context(formatter_fixture)
+def test_screenshot(formatter, capsys):
+    """test screenshot"""
+    ctx = Context(formatter)
     assert ctx
-    begin_test(ctx, 'First message')
+    screenshot(ctx)
     cptrd = capsys.readouterr()
-    assert cptrd.out == '\n### First message\n\n'
-
-    step(ctx, 'Hello world')
-    cptrd = capsys.readouterr()
-    assert cptrd.out == '\nStep 1: Hello world\n\n'
-
-
-def test_check(formatter_fixture): # pylint: disable=redefined-outer-name
-    """Test check function"""
-    ctx = Context(formatter_fixture)
-    assert ctx
-    result = check(ctx, 'Hello world', None)
-    assert result is None
+    print(cptrd.out)
+    assert cptrd.out == '![Screenshot](step-1-0-passed.png)\n\n'
