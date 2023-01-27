@@ -11,6 +11,7 @@ import random
 import inspect
 import re
 import pyautogui
+import pyperclip
 import pytesseract
 from PIL import Image
 from Levenshtein import ratio
@@ -310,11 +311,18 @@ def press(ctx, key, n=1):
         pyautogui.press(key)
 
 
-def typewrite(ctx, message):
+def typewrite(ctx, message, lang='eng'):
     """function types keys on keboard"""
-    step(ctx, f'Набрать на клавиатуре {message} ...')
-    pyautogui.write(message)
-    passed()
+    if lang != 'eng':
+        buffer = pyperclip.paste()
+        pyperclip.copy(message)
+        pyautogui.hotkey('ctrl', 'v')
+        pyperclip.copy(buffer)
+        passed()
+    else:    
+        step(ctx, f'Набрать на клавиатуре {message} ...')
+        pyautogui.write(message)
+        passed()
 
 
 def setup_test_env(cmd, out_log, err_log):
