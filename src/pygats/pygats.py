@@ -311,9 +311,9 @@ def press(ctx, key, n=1):
         pyautogui.press(key)
 
 
-def typewrite(ctx, message, lang='en'):
+def typewrite(ctx, message, lang='eng'):
     """function types keys on keboard"""
-    if lang == 'rus':
+    if lang != 'eng':
         buffer = pyperclip.paste()
         pyperclip.copy(message)
         pyautogui.hotkey('ctrl', 'v')
