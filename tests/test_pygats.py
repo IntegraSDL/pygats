@@ -28,13 +28,12 @@ def test_screenshot(formatter, capsys):
     print(cptrd.out)
     assert cptrd.out == '![Screenshot](step-1-0-passed.png)\n\n'
 
-def test_setup(formatter, capsys):
+def test_setup(formatter):
     """test issue #29 setup doesn't return until process is done"""
     ctx = Context(formatter)
     assert ctx
-    out = open('output/stdout.txt', 'w')
-    err = open('output/stderr.txt', 'w')
-    p = setup_test_env('python3', out, err)
-    assert p
-    teardown_test_env(ctx, p)
-
+    with open('output/stdout.txt', 'w', encoding='utf-8') as out:
+        with open('output/stderr.txt', 'w', encoding='utf-8') as err:
+            p = setup_test_env('python3', out, err)
+            assert p
+            teardown_test_env(ctx, p)
