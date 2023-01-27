@@ -319,7 +319,7 @@ def typewrite(ctx, message, lang='eng'):
         pyautogui.hotkey('ctrl', 'v')
         pyperclip.copy(buffer)
         passed()
-    else:    
+    else:
         step(ctx, f'Набрать на клавиатуре {message} ...')
         pyautogui.write(message)
         passed()
