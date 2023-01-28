@@ -4,7 +4,6 @@ markdown and other staff to automate end-to-end and exploratorytesting.
 """
 import time
 import sys
-import subprocess
 import os
 import string
 import random

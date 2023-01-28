@@ -4,8 +4,8 @@ import pytest
 from pygats.misc import setup_test_env, teardown_test_env
 from pygats.pygats import Context
 from pygats.formatters import MarkdownFormatter as MD
-#from PIL import Image
 
+# pylint: disable=R0801
 def setup_module():
     """Setup module to prepare testing environment"""
     try:

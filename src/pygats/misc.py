@@ -1,5 +1,6 @@
 """
-This module consists of miscellaneous functions of pyGATs. These functions might be removed from library in future
+This module consists of miscellaneous functions of pyGATs.
+These functions might be removed from library in future.
 """
 import time
 import subprocess
