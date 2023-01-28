@@ -3,7 +3,7 @@ copyright = '2022, Vladimir Sysoev'
 author = 'Vladimir Sysoev'
 
 release = '0.0'
-version = '0.0.1'
+version = '0.0.3'
 
 # -- General configuration
 
