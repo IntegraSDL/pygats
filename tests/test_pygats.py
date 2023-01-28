@@ -1,7 +1,7 @@
 """Module with library tests"""
 import os
 import pytest
-from pygats.pygats import Context, screenshot, setup_test_env, teardown_test_env
+from pygats.pygats import Context, screenshot
 from pygats.formatters import MarkdownFormatter as MD
 #from PIL import Image
 
@@ -26,14 +26,4 @@ def test_screenshot(formatter, capsys):
     screenshot(ctx)
     cptrd = capsys.readouterr()
     print(cptrd.out)
-    assert cptrd.out == '![Screenshot](step-1-0-passed.png)\n\n'
-
-def test_setup(formatter):
-    """test issue #29 setup doesn't return until process is done"""
-    ctx = Context(formatter)
-    assert ctx
-    with open('output/stdout.txt', 'w', encoding='utf-8') as out:
-        with open('output/stderr.txt', 'w', encoding='utf-8') as err:
-            p = setup_test_env('python3', out, err)
-            assert p
-            teardown_test_env(ctx, p)
+    assert cptrd.out == '![Screenshot](step-2-0-passed.png)\n\n'

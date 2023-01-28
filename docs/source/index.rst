@@ -5,7 +5,7 @@ pyGATs
 be completly changed soon.**
 
 
-pyGATs tis python3 library which combines power of pyautogui, opencv, tesseract, 
+pyGATs is python3 library which combines power of pyautogui, opencv, tesseract, 
 markdown and other staff to automate end-to-end and exploratorytesting.
 
 This library might be used to automate testing process with Xvbf and docker.
@@ -34,7 +34,7 @@ Installation
 
 Install pyGATs by running:
 
-    install pygats
+    pip install pygats
 
 Contribute
 ----------
