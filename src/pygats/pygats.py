@@ -365,8 +365,8 @@ def check_text_on_screen(ctx, txt, lang):
 
 def clickText(ctx, text, lang, button='left', skip=0):
     """Finds text on screen and press mouse button on it"""
-    step(ctx, f'Нажать текст {text} экране кнопкой {button}...')
-    x, y, width, height, found = findTextOnScreen(text, lang, skip)
+    step(ctx, f'Нажать текст {text} на экране кнопкой {button}...')
+    x, y, width, height, found = findTextOnScreen(ctx, text, lang, skip)
     if not found:
         failed(msg=f'{text} не найден на экране')
 
