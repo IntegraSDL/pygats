@@ -363,7 +363,7 @@ def check_text_on_screen(ctx, txt, lang):
     passed()
 
 
-def clickText(ctx, text, lang, button='left', skip=0):
+def click_text(ctx, text, lang, button='left', skip=0):
     """Finds text on screen and press mouse button on it"""
     step(ctx, f'Нажать текст {text} на экране кнопкой {button}...')
     x, y, width, height, found = findTextOnScreen(ctx, text, lang, skip)
@@ -388,7 +388,7 @@ def recognizeTextWithData(img, lang):
 #    return pytesseract.image_to_string(img, lang=lang)
 
 
-def combineWordsInLines(lines):
+def combine_words_in_lines(lines):
     """Functions combines words recognized on screan into lines"""
     for i in range(1, len(lines)-1):
         splitted = lines[i].split('\t')
@@ -403,7 +403,7 @@ def combineWordsInLines(lines):
     return
 
 
-def combineLines(lines):
+def combine_lines(lines):
     """Function translate lines from Tesseract output format into result tuple"""
     result = []
     for i in range(1, len(lines)-1):
@@ -428,7 +428,7 @@ def combineLines(lines):
 def findText(img, text, lang, skip=0):
     """Function finds text in image with Tesseract"""
     recognized = pytesseract.image_to_data(img, lang).split('\n')
-    combineWordsInLines(recognized)
+    combine_words_in_lines(recognized)
     retTup = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
@@ -461,11 +461,11 @@ def recognizeText(img, lang):
     lines to tuple and return lists
     """
     recognized = pytesseract.image_to_data(img, lang).split('\n')
-    result = combineLines(recognized)
+    result = combine_lines(recognized)
     return list(set(result))
 
 
-def findFuzzyText(recognizedList, search):
+def find_fuzzy_text(recognized_list, search):
     """Fuzzy search of text in list using Levenshtein ratio
     Return value is list of tuples with following format:
     (x,y,w,h,text)
@@ -475,7 +475,7 @@ def findFuzzyText(recognizedList, search):
     """
     result = []
     lSearch = len(search)
-    for l in recognizedList:
+    for l in recognized_list:
         r = ratio(search, l[4], score_cutoff=0.5)
         if r > 0.0:
             result.append(l)
@@ -490,7 +490,7 @@ def findFuzzyText(recognizedList, search):
     return list(set(result))
 
 
-def findRegExpText(recognizedList, regexp):
+def findRegExpText(recognized_list, pattern):
     """Find text in list by regexp
     Return value is list of tuples with following format
     (x,y,w,h,text, substring)
@@ -500,8 +500,8 @@ def findRegExpText(recognizedList, regexp):
     substring - substring found in text
     """
     result = []
-    for l in recognizedList:
-        m = re.findall(regexp, l[4])
+    for l in recognized_list:
+        m = re.findall(pattern, l[4])
         if len(m) > 0:
             l += tuple(m)
             result.append(l)
@@ -513,7 +513,7 @@ def findTextCropped(img, text, lang, skip=0):
     First time found area with text on image and then
     every area passed through recongintion again to improve recognition results"""
     recognized = pytesseract.image_to_data(img, lang).split('\n')
-    combineWordsInLines(recognized)
+    combine_words_in_lines(recognized)
     retTup = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
