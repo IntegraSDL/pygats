@@ -578,7 +578,24 @@ def drawContours(img, cnts):
 
 
 def randomString(stringLength,character_set=None)):
-    """Generate randomized string of acsii letters"""
+    """Generate a randomized string of characters.
+
+    Args:
+    - string_length (int): The length of the generated string.
+    - character_set (str, optional): A string of characters to use when generating the random string. Defaults to ascii letters, digits and the underscore.
+
+    Returns:
+    str: A string of the specified length, consisting of characters from the character set.
+
+    Raises:
+    ValueError: If `string_length` is not a positive integer.
+
+    Examples:
+    >>> random_string(5)
+    'W3t9_'
+    >>> random_string(5, character_set='01')
+    '10101'
+    """
     if string_length <= 0:
         raise ValueError("string_length must be a positive integer")
     if character_set is None:
