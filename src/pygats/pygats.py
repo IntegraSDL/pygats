@@ -579,6 +579,8 @@ def drawContours(img, cnts):
 
 def randomString(stringLength):
     """Generate randomized string of acsii letters"""
+    if string_length <= 0:
+        raise ValueError("string_length must be a positive integer")
     letters = string.ascii_letters + ' _' + string.digits
     return ''.join(random.choice(letters) for _ in range(stringLength))
 
