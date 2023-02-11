@@ -572,6 +572,10 @@ def findContours(ctx, img, fltr=repeater):
 
 def drawContours(img, cnts):
     """Function draw contours on PIL.Image"""
+    if not isinstance(img, Image.Image):
+        raise TypeError("img must be a PIL.Image instance")
+    if not all(isinstance(cnt, np.ndarray) for cnt in cnts):
+        raise ValueError("cnts must be a list of Numpy arrays")
     npImg = np.array(img)
     cv.drawContours(npImg, cnts, -1, (0, 255, 0), 3)
     return Image.fromarray(npImg)
