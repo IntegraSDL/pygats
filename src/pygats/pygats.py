@@ -555,24 +555,32 @@ def repeater(cnts):
     return cnts
 
 
-def filterRectSorted(cnts):
-    """Selector choose rect like contours and sort them by area descending"""
+def filter_rect_sorted(cnts):
+    """Filter and sort contours to get rectangles
+
+    Args:
+    cnts (List[Numpy.ndarray]): list of contours
+
+    Returns:
+    List[Numpy.ndarray]: list of filtered and sorted rectangles
+
+    """
     def approxer(x):
-        eps = 0.01 * cv.arcLength(x, True)
-        return cv.approxPolyDP(x, eps, True)
+        """Approximate polygonal curves to rectangles"""
+        epsilon = 0.01 * cv.arcLength(x, True)
+        return cv.approxPolyDP(x, epsilon, True)
 
-    def rectFilter(x):
-        if len(x) == 4:
-            return True
-        return False
+    def rect_filter(x):
+        """Filter contours that approximate to rectangles"""
+        return len(x) == 4
 
-    cnts2 = list(filter(rectFilter, map(approxer, cnts)))
-    cnts2 = sorted(cnts2, key=lambda x: abs(x.item(4)-x.item(0))
-                   * abs(x.item(5)-x.item(1)), reverse=True)
-    return cnts2
+    cnts = list(filter(rect_filter, map(approxer, cnts)))
+    cnts = sorted(cnts, key=lambda x: abs(x.item(4)-x.item(0))
+                 * abs(x.item(5)-x.item(1)), reverse=True)
+    return cnts
 
 
-def findContours(ctx, img, fltr=repeater):
+def find_contours(ctx, img, fltr=repeater):
     """Function finds contours by cv and filter them with filter"""
     step(ctx, 'Поиск контуров с применением селектора')
     npImg = np.array(img)
