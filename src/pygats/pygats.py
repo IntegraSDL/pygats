@@ -139,7 +139,8 @@ def log_image(img, msg='Снимок экрана'):
     image is stored in output path as screenshotIndex
     Args:
         img (PIL.Image): image to be logged
-        msg (str, optional): description of the screenshot. Defaults to 'Снимок экрана'.
+        msg (str, optional): description of the screenshot. 
+        Defaults to 'Снимок экрана'.
 
     Returns:
         PIL.Image: input image
