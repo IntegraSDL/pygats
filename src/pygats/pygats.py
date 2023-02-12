@@ -459,7 +459,7 @@ def findText(img, text, lang, skip=0):
                 if int(splitted[6]) + int(splitted[7]) != 0:
                     cropped = img.crop((int(splitted[6]), int(splitted[7]), int(
                         splitted[6])+int(splitted[8]), int(splitted[7])+int(splitted[9])))
-                    croppedTup = findTextCropped(cropped, text, lang)
+                    croppedTup = find_cropped_text(cropped, text, lang)
                     if croppedTup[4]:
                         return (croppedTup[0]+int(splitted[6]),
                                 croppedTup[1]+int(splitted[7]),
@@ -521,13 +521,27 @@ def findRegExpText(recognized_list, pattern):
     return list(set(result))
 
 
-def findTextCropped(img, text, lang, skip=0):
+def find_cropped_text(img, text, lang, skip=0):
     """Find text in image. Several passes are used.
     First time found area with text on image and then
-    every area passed through recongintion again to improve recognition results"""
+    every area passed through recongintion again to improve recognition results    
+    Args:
+    img (PIL.Image): image to search text in
+    text (str): text to search
+    lang (str): language code of the text
+    skip (int, optional): number of occurrences of the text to skip. Default is 0.    
+    Returns:
+    tuple: (left, top, width, height, found)
+    left (int): left coordinate of the text bounding box
+    top (int): top coordinate of the text bounding box
+    width (int): width of the text bounding box
+    height (int): height of the text bounding box
+    found (bool): whether the text is found in the image
+    
+    """
     recognized = pytesseract.image_to_data(img, lang).split('\n')
     combine_words_in_lines(recognized)
-    retTup = (-1, -1, -1, -1, False)
+    ret_tup = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
         if len(splitted) == 12:
@@ -535,13 +549,12 @@ def findTextCropped(img, text, lang, skip=0):
                 print(f'Найден текст {splitted[11]}')
                 #x = int(splitted[6]) + int(splitted[8])/2
                 #y = int(splitted[7]) + int(splitted[9])/2
-                retTup = (int(splitted[6]), int(splitted[7]), int(
+                ret_tup = (int(splitted[6]), int(splitted[7]), int(
                     splitted[8]), int(splitted[9]), True)
                 if skip <= 0:
                     break
                 skip -= 1
-    return retTup
-
+    return ret_tup
 
 def findTextOnScreen(ctx, text, lang, skip=0):
     """Function finds text on the screen"""
