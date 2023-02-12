@@ -107,7 +107,7 @@ def step(ctx, msg):
 def screenshot(ctx, rect=None):
     """Takes a screenshot, optionally limited to the rectangle defined by `rect`.
     
-    Arguments:
+    Args:
         ctx (object): An object that contains information about the current context.
         rect (tuple, optional): A tuple of four integers (x, y, width, height)
         that defines the area of the screenshot to capture.
@@ -134,8 +134,16 @@ def screenshot(ctx, rect=None):
 
 
 def log_image(img, msg='Снимок экрана'):
-    """Function log img with msg into report
+    """
+    Function log img with msg into report
     image is stored in output path as screenshotIndex
+    Args:
+        img (PIL.Image): image to be logged
+        msg (str, optional): description of the screenshot. 
+        Defaults to 'Снимок экрана'.
+
+    Returns:
+        PIL.Image: input image
     """
     global SCREENSHOT_INDEX
     img_path = os.path.join(
@@ -459,7 +467,7 @@ def findText(img, text, lang, skip=0):
                 if int(splitted[6]) + int(splitted[7]) != 0:
                     cropped = img.crop((int(splitted[6]), int(splitted[7]), int(
                         splitted[6])+int(splitted[8]), int(splitted[7])+int(splitted[9])))
-                    croppedTup = findTextCropped(cropped, text, lang)
+                    croppedTup = find_cropped_text(cropped, text, lang)
                     if croppedTup[4]:
                         return (croppedTup[0]+int(splitted[6]),
                                 croppedTup[1]+int(splitted[7]),
@@ -521,13 +529,27 @@ def findRegExpText(recognized_list, pattern):
     return list(set(result))
 
 
-def findTextCropped(img, text, lang, skip=0):
+def find_cropped_text(img, text, lang, skip=0):
     """Find text in image. Several passes are used.
     First time found area with text on image and then
-    every area passed through recongintion again to improve recognition results"""
+    every area passed through recongintion again to improve recognition results    
+    Args:
+    img (PIL.Image): image to search text in
+    text (str): text to search
+    lang (str): language code of the text
+    skip (int, optional): number of occurrences of the text to skip. Default is 0.    
+    Returns:
+    tuple: (left, top, width, height, found)
+    left (int): left coordinate of the text bounding box
+    top (int): top coordinate of the text bounding box
+    width (int): width of the text bounding box
+    height (int): height of the text bounding box
+    found (bool): whether the text is found in the image
+    
+    """
     recognized = pytesseract.image_to_data(img, lang).split('\n')
     combine_words_in_lines(recognized)
-    retTup = (-1, -1, -1, -1, False)
+    ret_tup = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
         if len(splitted) == 12:
@@ -535,13 +557,12 @@ def findTextCropped(img, text, lang, skip=0):
                 print(f'Найден текст {splitted[11]}')
                 #x = int(splitted[6]) + int(splitted[8])/2
                 #y = int(splitted[7]) + int(splitted[9])/2
-                retTup = (int(splitted[6]), int(splitted[7]), int(
+                ret_tup = (int(splitted[6]), int(splitted[7]), int(
                     splitted[8]), int(splitted[9]), True)
                 if skip <= 0:
                     break
                 skip -= 1
-    return retTup
-
+    return ret_tup
 
 def findTextOnScreen(ctx, text, lang, skip=0):
     """Function finds text on the screen"""
@@ -555,24 +576,32 @@ def repeater(cnts):
     return cnts
 
 
-def filterRectSorted(cnts):
-    """Selector choose rect like contours and sort them by area descending"""
+def filter_rect_sorted(cnts):
+    """Filter and sort contours to get rectangles
+
+    Args:
+    cnts (List[Numpy.ndarray]): list of contours
+
+    Returns:
+    List[Numpy.ndarray]: list of filtered and sorted rectangles
+
+    """
     def approxer(x):
-        eps = 0.01 * cv.arcLength(x, True)
-        return cv.approxPolyDP(x, eps, True)
+        """Approximate polygonal curves to rectangles"""
+        epsilon = 0.01 * cv.arcLength(x, True)
+        return cv.approxPolyDP(x, epsilon, True)
 
-    def rectFilter(x):
-        if len(x) == 4:
-            return True
-        return False
+    def rect_filter(x):
+        """Filter contours that approximate to rectangles"""
+        return len(x) == 4
 
-    cnts2 = list(filter(rectFilter, map(approxer, cnts)))
-    cnts2 = sorted(cnts2, key=lambda x: abs(x.item(4)-x.item(0))
-                   * abs(x.item(5)-x.item(1)), reverse=True)
-    return cnts2
+    cnts = list(filter(rect_filter, map(approxer, cnts)))
+    cnts = sorted(cnts, key=lambda x: abs(x.item(4)-x.item(0))
+                 * abs(x.item(5)-x.item(1)), reverse=True)
+    return cnts
 
 
-def findContours(ctx, img, fltr=repeater):
+def find_contours(ctx, img, fltr=repeater):
     """Function finds contours by cv and filter them with filter"""
     step(ctx, 'Поиск контуров с применением селектора')
     npImg = np.array(img)
@@ -613,8 +642,8 @@ def random_string(string_length,character_set=None):
 
     Args:
     - string_length (int): The length of the generated string.
-    - character_set (str, optional): A string of characters to use when generating the random string.
-    Defaults to ascii letters, digits and the underscore.
+    - character_set (str, optional): A string of characters to use when generating
+    the random string. Defaults to ascii letters, digits and the underscore.
 
     Returns:
     str: A string of the specified length, consisting of characters from the character set.
