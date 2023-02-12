@@ -613,8 +613,8 @@ def random_string(string_length,character_set=None):
 
     Args:
     - string_length (int): The length of the generated string.
-    - character_set (str, optional): A string of characters to use when generating the random string.
-    Defaults to ascii letters, digits and the underscore.
+    - character_set (str, optional): A string of characters to use when generating
+    the random string. Defaults to ascii letters, digits and the underscore.
 
     Returns:
     str: A string of the specified length, consisting of characters from the character set.
