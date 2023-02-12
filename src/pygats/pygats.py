@@ -107,7 +107,7 @@ def step(ctx, msg):
 def screenshot(ctx, rect=None):
     """Takes a screenshot, optionally limited to the rectangle defined by `rect`.
     
-    Arguments:
+    Args:
         ctx (object): An object that contains information about the current context.
         rect (tuple, optional): A tuple of four integers (x, y, width, height)
         that defines the area of the screenshot to capture.
@@ -134,8 +134,15 @@ def screenshot(ctx, rect=None):
 
 
 def log_image(img, msg='Снимок экрана'):
-    """Function log img with msg into report
+    """
+    Function log img with msg into report
     image is stored in output path as screenshotIndex
+    Args:
+        img (PIL.Image): image to be logged
+        msg (str, optional): description of the screenshot. Defaults to 'Снимок экрана'.
+
+    Returns:
+        PIL.Image: input image
     """
     global SCREENSHOT_INDEX
     img_path = os.path.join(
