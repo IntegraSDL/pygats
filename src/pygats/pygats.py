@@ -105,17 +105,31 @@ def step(ctx, msg):
 
 
 def screenshot(ctx, rect=None):
-    """Function takes screenshot limited by rect rectangle
-    Return value is PIL.Image
-    image is stored in output path as screenshotIndex
+    """Takes a screenshot, optionally limited to the rectangle defined by `rect`.
+    
+    Arguments:
+        ctx (object): An object that contains information about the current context.
+        rect (tuple, optional): A tuple of four integers (x, y, width, height) that defines the area of the screenshot to capture.
+        
+    Returns:
+        PIL.Image: The screenshot as a PIL.Image object.
+        
+    Notes:
+        The screenshot is also stored in the output path as `screenshotIndex`.
     """
     global SCREENSHOT_INDEX
     img_path = os.path.join(
         OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
     SCREENSHOT_INDEX += 1
+
+    # Take the screenshot and store it on disk
     img = pyautogui.screenshot(img_path, region=rect)
+    
+    # Get the relative path to the screenshot file 
     relative_path = img_path.split(os.path.sep)
     tmp_path = os.path.join('', *relative_path[1:])
+    
+    # Display the screenshot
     ctx.formatter.print_img(tmp_path)
     return img
 
@@ -363,7 +377,7 @@ def check_text_on_screen(ctx, txt, lang):
     passed()
 
 
-def clickText(ctx, text, lang, button='left', skip=0):
+def click_text(ctx, text, lang, button='left', skip=0):
     """Finds text on screen and press mouse button on it"""
     step(ctx, f'Нажать текст {text} на экране кнопкой {button}...')
     x, y, width, height, found = findTextOnScreen(ctx, text, lang, skip)
@@ -388,7 +402,7 @@ def recognizeTextWithData(img, lang):
 #    return pytesseract.image_to_string(img, lang=lang)
 
 
-def combineWordsInLines(lines):
+def combine_words_in_lines(lines):
     """Functions combines words recognized on screan into lines"""
     for i in range(1, len(lines)-1):
         splitted = lines[i].split('\t')
@@ -403,7 +417,7 @@ def combineWordsInLines(lines):
     return
 
 
-def combineLines(lines):
+def combine_lines(lines):
     """Function translate lines from Tesseract output format into result tuple"""
     result = []
     for i in range(1, len(lines)-1):
@@ -428,7 +442,7 @@ def combineLines(lines):
 def findText(img, text, lang, skip=0):
     """Function finds text in image with Tesseract"""
     recognized = pytesseract.image_to_data(img, lang).split('\n')
-    combineWordsInLines(recognized)
+    combine_words_in_lines(recognized)
     retTup = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
@@ -461,11 +475,11 @@ def recognizeText(img, lang):
     lines to tuple and return lists
     """
     recognized = pytesseract.image_to_data(img, lang).split('\n')
-    result = combineLines(recognized)
+    result = combine_lines(recognized)
     return list(set(result))
 
 
-def findFuzzyText(recognizedList, search):
+def find_fuzzy_text(recognized_list, search):
     """Fuzzy search of text in list using Levenshtein ratio
     Return value is list of tuples with following format:
     (x,y,w,h,text)
@@ -475,7 +489,7 @@ def findFuzzyText(recognizedList, search):
     """
     result = []
     lSearch = len(search)
-    for l in recognizedList:
+    for l in recognized_list:
         r = ratio(search, l[4], score_cutoff=0.5)
         if r > 0.0:
             result.append(l)
@@ -490,7 +504,7 @@ def findFuzzyText(recognizedList, search):
     return list(set(result))
 
 
-def findRegExpText(recognizedList, regexp):
+def findRegExpText(recognized_list, pattern):
     """Find text in list by regexp
     Return value is list of tuples with following format
     (x,y,w,h,text, substring)
@@ -500,8 +514,8 @@ def findRegExpText(recognizedList, regexp):
     substring - substring found in text
     """
     result = []
-    for l in recognizedList:
-        m = re.findall(regexp, l[4])
+    for l in recognized_list:
+        m = re.findall(pattern, l[4])
         if len(m) > 0:
             l += tuple(m)
             result.append(l)
@@ -513,7 +527,7 @@ def findTextCropped(img, text, lang, skip=0):
     First time found area with text on image and then
     every area passed through recongintion again to improve recognition results"""
     recognized = pytesseract.image_to_data(img, lang).split('\n')
-    combineWordsInLines(recognized)
+    combine_words_in_lines(recognized)
     retTup = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
@@ -571,16 +585,55 @@ def findContours(ctx, img, fltr=repeater):
 
 
 def drawContours(img, cnts):
-    """Function draw contours on PIL.Image"""
+    """
+    Draw contours on a PIL.Image instance.
+
+    Parameters:
+    img (PIL.Image): Input image on which to draw the contours.
+    cnts (list of numpy.ndarray): List of contours, represented as Numpy arrays.
+
+    Returns:
+    PIL.Image: Output image with contours drawn.
+
+    Raises:
+    TypeError: If `img` is not a `PIL.Image` instance.
+    ValueError: If `cnts` is not a list of Numpy arrays.
+
+    """
+    if not isinstance(img, Image.Image):
+        raise TypeError("img must be a PIL.Image instance")
+    if not all(isinstance(cnt, np.ndarray) for cnt in cnts):
+        raise ValueError("cnts must be a list of Numpy arrays")
     npImg = np.array(img)
     cv.drawContours(npImg, cnts, -1, (0, 255, 0), 3)
     return Image.fromarray(npImg)
 
 
-def randomString(stringLength):
-    """Generate randomized string of acsii letters"""
-    letters = string.ascii_letters + ' _' + string.digits
-    return ''.join(random.choice(letters) for _ in range(stringLength))
+def random_string(string_length,character_set=None):
+    """Generate a randomized string of characters.
+
+    Args:
+    - string_length (int): The length of the generated string.
+    - character_set (str, optional): A string of characters to use when generating the random string. Defaults to ascii letters, digits and the underscore.
+
+    Returns:
+    str: A string of the specified length, consisting of characters from the character set.
+
+    Raises:
+    ValueError: If `string_length` is not a positive integer.
+
+    Examples:
+    >>> random_string(5)
+    'W3t9_'
+    >>> random_string(5, character_set='01')
+    '10101'
+    """
+    if string_length <= 0:
+        raise ValueError("string_length must be a positive integer")
+    if character_set is None:
+        character_set = string.ascii_letters + ' _' + string.digits
+    return ''.join(random.choice(character_set) for _ in range(string_length))
+
 
 
 def run(funcs, counter=1, output='output'):
