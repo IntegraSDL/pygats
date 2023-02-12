@@ -105,17 +105,31 @@ def step(ctx, msg):
 
 
 def screenshot(ctx, rect=None):
-    """Function takes screenshot limited by rect rectangle
-    Return value is PIL.Image
-    image is stored in output path as screenshotIndex
+    """Takes a screenshot, optionally limited to the rectangle defined by `rect`.
+    
+    Arguments:
+        ctx (object): An object that contains information about the current context.
+        rect (tuple, optional): A tuple of four integers (x, y, width, height) that defines the area of the screenshot to capture.
+        
+    Returns:
+        PIL.Image: The screenshot as a PIL.Image object.
+        
+    Notes:
+        The screenshot is also stored in the output path as `screenshotIndex`.
     """
     global SCREENSHOT_INDEX
     img_path = os.path.join(
         OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
     SCREENSHOT_INDEX += 1
+
+    # Take the screenshot and store it on disk
     img = pyautogui.screenshot(img_path, region=rect)
+    
+    # Get the relative path to the screenshot file 
     relative_path = img_path.split(os.path.sep)
     tmp_path = os.path.join('', *relative_path[1:])
+    
+    # Display the screenshot
     ctx.formatter.print_img(tmp_path)
     return img
 
