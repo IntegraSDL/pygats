@@ -609,7 +609,7 @@ def drawContours(img, cnts):
     return Image.fromarray(npImg)
 
 
-def randomString(string_length,character_set=None):
+def random_string(string_length,character_set=None):
     """Generate a randomized string of characters.
 
     Args:
