@@ -447,7 +447,8 @@ def combine_lines(lines):
 
 def findText(img, text, lang, skip=0):
     """Function finds text in image with Tesseract"""
-    #TODO: Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed. sonarlint(python:S3776)
+    #TODO: Refactor this function to reduce its Cognitive 
+    # Complexity from 20 to the 15 allowed. sonarlint(python:S3776)
     recognized = pytesseract.image_to_data(img, lang).split('\n')
     combine_words_in_lines(recognized)
     ret_tuple = (-1, -1, -1, -1, False)
