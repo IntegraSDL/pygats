@@ -28,8 +28,8 @@ SUITE_NAME = ''
 class Context: # pylint: disable=too-few-public-methods
     """Context stores information about"""
     formatter = None
-    def __init__(self, frmtr):
-        self.formatter = frmtr
+    def __init__(self, formatter):
+        self.formatter = formatter
 
 
 class TestException(Exception):
@@ -44,7 +44,7 @@ class TestException(Exception):
 def platform_specific_image(img):
     """
     function returns platform specific path to the image. If screenshot has
-    platform specifics it shoult be separated in different images. Name of
+    platform specifics it should be separated in different images. Name of
     image contains platform name picName.PLATFORM.ext
     """
     if PLATFORM != '':
@@ -173,13 +173,13 @@ def passed():
 
 def failed(img=pyautogui.screenshot(), msg='Тест не успешен'):
     """
-    function generates excpetion while error occurs
+    function generates exception while error occurs
     """
     raise TestException(img, msg)
 
 
 def check_image(ctx, img, timeout=1):
-    """Check if image is located on screen. Timeout in second waiting image to occure"""
+    """Check if image is located on screen. Timeout in second waiting image to occurs"""
     img = platform_specific_image(img)
     step(ctx, f'Проверка отображения {img} ...')
     try:
@@ -196,7 +196,7 @@ def check_image(ctx, img, timeout=1):
 
 
 def locate_on_screen(img):
-    """Function return coord of image located on screen. If not found returnes None"""
+    """Function return coord of image located on screen. If not found returns None"""
     img = platform_specific_image(img)
     coord = pyautogui.locateOnScreen(img, confidence=0.5)
     print(f'Изображение найдено в координатах {coord}')
@@ -315,7 +315,7 @@ def move(ctx, x, y):
 
 def keyboard(ctx, message):
     """
-    function types message on keboard with 0.1 sec delay of each simbol
+    function types message on keyboard with 0.1 sec delay of each symbol
     At the end <Enter> is pressed
     """
     step(ctx, f'Набрать на клавиатуре и нажать <Enter>: {message} ...')
@@ -332,12 +332,12 @@ def press(ctx, key, n=1):
 
 
 def typewrite(ctx, message, lang='eng'):
-    """function types keys on keboard"""
+    """function types keys on keyboard"""
     if lang != 'eng':
-        buffer = pyperclip.paste()
+        clipboard = pyperclip.paste()
         pyperclip.copy(message)
         pyautogui.hotkey('ctrl', 'v')
-        pyperclip.copy(buffer)
+        pyperclip.copy(clipboard)
         passed()
     else:
         step(ctx, f'Набрать на клавиатуре {message} ...')
@@ -392,11 +392,11 @@ def click_text(ctx, text, lang, button='left', skip=0):
         failed(msg=f'{text} не найден на экране')
 
     print(x, y, width, height)
-    centerX = x + width/2
-    centerY = y + height/2
-    pyautogui.moveTo(centerX, centerY)
-    pyautogui.mouseDown(centerX, centerY, button)
-    pyautogui.mouseUp(centerX, centerY, button)
+    center_x = x + width/2
+    center_y = y + height/2
+    pyautogui.moveTo(center_x, center_y)
+    pyautogui.mouseDown(center_x, center_y, button)
+    pyautogui.mouseUp(center_x, center_y, button)
     passed()
 
 
@@ -418,10 +418,9 @@ def combine_words_in_lines(lines):
         y = int(splitted[7])
         for j in range(i+1, len(lines)-1):
             splitted2 = lines[j].split('\t')
-            if abs(y - int(splitted2[7])) < 5:
-                if len(splitted2[11].strip()) > 0:
-                    lines[i] += ' ' + splitted2[11]
-    return
+            if abs(y - int(splitted2[7])) < 5 and len(splitted2[11].strip()) > 0:
+                lines[i] += ' ' + splitted2[11]
+
 
 
 def combine_lines(lines):
@@ -448,17 +447,16 @@ def combine_lines(lines):
 
 def findText(img, text, lang, skip=0):
     """Function finds text in image with Tesseract"""
+    #TODO: Refactor this function to reduce its Cognitive Complexity from 20 to the 15 allowed. sonarlint(python:S3776)
     recognized = pytesseract.image_to_data(img, lang).split('\n')
     combine_words_in_lines(recognized)
-    retTup = (-1, -1, -1, -1, False)
+    ret_tuple = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
         if len(splitted) == 12:
             if splitted[11].find(text) != -1:
                 print("Найден текст " + splitted[11])
-                #x = int(splitted[6]) + int(splitted[8])/2
-                #y = int(splitted[7]) + int(splitted[9])/2
-                retTup = (int(splitted[6]), int(splitted[7]), int(
+                ret_tuple = (int(splitted[6]), int(splitted[7]), int(
                     splitted[8]), int(splitted[9]), True)
                 if skip <= 0:
                     break
@@ -467,14 +465,14 @@ def findText(img, text, lang, skip=0):
                 if int(splitted[6]) + int(splitted[7]) != 0:
                     cropped = img.crop((int(splitted[6]), int(splitted[7]), int(
                         splitted[6])+int(splitted[8]), int(splitted[7])+int(splitted[9])))
-                    croppedTup = find_cropped_text(cropped, text, lang)
-                    if croppedTup[4]:
-                        return (croppedTup[0]+int(splitted[6]),
-                                croppedTup[1]+int(splitted[7]),
-                                croppedTup[2],
-                                croppedTup[3],
-                                croppedTup[4])
-    return retTup
+                    cropped_tuple = find_cropped_text(cropped, text, lang)
+                    if cropped_tuple[4]:
+                        return (cropped_tuple[0]+int(splitted[6]),
+                                cropped_tuple[1]+int(splitted[7]),
+                                cropped_tuple[2],
+                                cropped_tuple[3],
+                                cropped_tuple[4])
+    return ret_tuple
 
 
 def recognizeText(img, lang):
@@ -549,20 +547,17 @@ def find_cropped_text(img, text, lang, skip=0):
     """
     recognized = pytesseract.image_to_data(img, lang).split('\n')
     combine_words_in_lines(recognized)
-    ret_tup = (-1, -1, -1, -1, False)
+    ret_tuple = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
-        if len(splitted) == 12:
-            if splitted[11].find(text) != -1:
-                print(f'Найден текст {splitted[11]}')
-                #x = int(splitted[6]) + int(splitted[8])/2
-                #y = int(splitted[7]) + int(splitted[9])/2
-                ret_tup = (int(splitted[6]), int(splitted[7]), int(
-                    splitted[8]), int(splitted[9]), True)
-                if skip <= 0:
-                    break
-                skip -= 1
-    return ret_tup
+        if len(splitted) == 12 and splitted[11].find(text) != -1:
+            print(f'Найден текст {splitted[11]}')
+            ret_tuple = (int(splitted[6]), int(splitted[7]), int(
+                splitted[8]), int(splitted[9]), True)
+            if skip <= 0:
+                break
+            skip -= 1
+    return ret_tuple
 
 def findTextOnScreen(ctx, text, lang, skip=0):
     """Function finds text on the screen"""
