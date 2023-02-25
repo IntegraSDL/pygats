@@ -1,0 +1,5 @@
+﻿##########
+formatters
+##########
+
+.. automodule:: pygats.formatters

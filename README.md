@@ -23,6 +23,11 @@ dependencies in pyproject.toml file.
 python3 -m pytest
 ```
 
+## Linter
+
+```
+pylint $(git ls-files '*.py')
+```
 ## Build documentation
 
 ```

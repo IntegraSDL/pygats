@@ -1,7 +1,14 @@
+###
 API
-===
+###
 
-.. autosummary::
-   :toctree: generated
+.. autoclass:: pygats.formatters.MarkdownFormatter
+    :members: 
 
-   pygats
+.. autoclass:: pygats.pygats.Context
+    :members:
+
+.. autofunction:: pygats.misc.setup_test_env  
+
+.. autofunction:: pygats.misc.teardown_test_env
+
