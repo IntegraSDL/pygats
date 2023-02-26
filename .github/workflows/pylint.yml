@@ -22,11 +22,11 @@ jobs:
         pip install pytesseract levenshtein pytest
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py')
+        pylint $(git ls-files 'src/*.py')
     - name: Analysing the code with flake8
       run: |
         flake8 ./src
     - name: Analysing the code with darglint
       run: |
-        darglint $(git ls-files '*.py')
+        darglint $(git ls-files 'src/*.py')
  
