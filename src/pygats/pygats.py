@@ -887,7 +887,6 @@ def find_contours(ctx, img, fltr=repeater):
     Returns:
         list of points: list of points filtered
     """
-
     step(ctx, 'Поиск контуров с применением селектора')
     npImg = np.array(img)
     gray = cv.cvtColor(npImg, cv.COLOR_BGR2GRAY)
@@ -912,7 +911,6 @@ def drawContours(img, cnts):
     Raises:
         TypeError: If `img` is not a `PIL.Image` instance.
         ValueError: If `cnts` is not a list of Numpy arrays.
-
     """
     if not isinstance(img, Image.Image):
         raise TypeError("img must be a PIL.Image instance")
@@ -960,7 +958,6 @@ def run(funcs, counter=1, output='output'):
         funcs (list of strings): list of function to be executed
         counter (int Optional): amount to time test cases to be executed
         output (string): path to store test results
-
     """
     global OUTPUT_PATH
     try:
