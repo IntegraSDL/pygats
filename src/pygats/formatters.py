@@ -6,9 +6,10 @@ outputs. See MarkdownFormatter as example
 
 class MarkdownFormatter:
     """MD formatter for caption"""
-    def print_header(self, level, text):
+    @staticmethod
+    def print_header(level, text):
         """
-        Print markdown header with spaces lines
+        Print Markdown header with spaces lines
 
         Args:
             level (int): Level of header. Count of # in markdown header.
@@ -19,9 +20,10 @@ class MarkdownFormatter:
         print(f'{header_level} {text}')
         print()
 
-    def print_para(self, text):
+    @staticmethod
+    def print_para(text):
         """
-        Print markdown paragraph
+        Print Markdown paragraph
 
         Args:
             text (string): paragraph text
@@ -30,7 +32,8 @@ class MarkdownFormatter:
         print(f'{text}')
         print()
 
-    def print_footer(self, text):
+    @staticmethod
+    def print_footer(text):
         """
         Print footer
 
@@ -41,7 +44,8 @@ class MarkdownFormatter:
         print(f'{text}')
         print()
 
-    def print_code(self, code):
+    @staticmethod
+    def print_code(code):
         """
         Print formatted code
 
@@ -52,7 +56,8 @@ class MarkdownFormatter:
         print(code)
         print('```')
 
-    def print_img(self, img_path):
+    @staticmethod
+    def print_img(img_path):
         """
         Print image path
 
