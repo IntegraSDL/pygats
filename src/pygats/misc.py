@@ -1,6 +1,6 @@
 """
 This module consists of miscellaneous functions of pyGATs.
-These functions might be removed from library in future.
+These functions might be removed from library in the future.
 """
 
 
@@ -28,17 +28,17 @@ def setup_test_env(cmd, out_log, err_log):
     print('## Подготовка стенда к работе')
     print(f'{cmd} ...')
     env = os.environ.copy()
-    dirName = os.path.dirname(cmd)
-    if dirName == '':
-        dirName = os.path.expanduser('~')
+    dir_name = os.path.dirname(cmd)
+    if dir_name == '':
+        dir_name = os.path.expanduser('~')
     with subprocess.Popen(
             [cmd], stderr=err_log,
             stdout=out_log, env=env,
-            cwd=dirName) as testProc:
+            cwd=dir_name) as test_proc:
         time.sleep(1)
-        if testProc is not None:
+        if test_proc is not None:
             passed()
-        return testProc
+        return test_proc
 
 
 def teardown_test_env(ctx, test_proc):
