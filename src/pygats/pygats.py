@@ -505,7 +505,7 @@ def check_text(ctx, img, txt, lang):
 
     """
     step(ctx, f'Проверка отображения текста {txt} на изображении {img}...')
-    _, _, _, _, flag = findText(img, txt, lang=lang)
+    _, _, _, _, flag = find_text(img, txt, lang=lang)
     if flag:
         passed()
         return
@@ -522,7 +522,7 @@ def check_text_on_screen(ctx, txt, lang):
     """
     step(ctx, f'Проверка отображения текста {txt} на экране ...')
     img = pyautogui.screenshot()
-    _, _, _, _, flag = findText(img, txt, lang=lang)
+    _, _, _, _, flag = find_text(img, txt, lang=lang)
     if not flag:
         failed(img, f'{txt} не найден на экране')
     passed()
@@ -539,7 +539,7 @@ def click_text(ctx, text, lang, button='left', skip=0):
         skip (int): amount of text should be skipped
     """
     step(ctx, f'Нажать текст {text} на экране кнопкой {button}...')
-    x, y, width, height, found = findTextOnScreen(ctx, text, lang, skip)
+    x, y, width, height, found = find_text_on_screen(ctx, text, lang, skip)
     if not found:
         failed(msg=f'{text} не найден на экране')
 
@@ -552,12 +552,12 @@ def click_text(ctx, text, lang, button='left', skip=0):
     passed()
 
 
-def recognizeTextWithData(img, lang):
+def recognize_text_with_data(img, lang):
     """Functions recognize all texts on the image with Tesseract
 
     Args:
         img (PIL.Image): input image to recognize text
-        lang (string): languange in tesseract format
+        lang (string): language in tesseract format
 
     Returns:
         list: recognized text
@@ -566,7 +566,7 @@ def recognizeTextWithData(img, lang):
 
 
 def combine_words_in_lines(lines):
-    """Functions combines words recognized on screan into lines
+    """Functions combines words recognized on screen into lines
 
     Args:
         lines (List): Returns result containing box boundaries, confidences,
@@ -606,7 +606,7 @@ def combine_lines(lines):
         list: combined tuples
 
     Notes:
-        There is magic number 5 to undersdand if words on the same line.
+        There is magic number 5 to understand if words on the same line.
         It should be reworked in future.
 
     Todo:
@@ -634,7 +634,7 @@ def combine_lines(lines):
     return result
 
 
-def findText(img, text, lang, skip=0):
+def find_text(img, text, lang, skip=0):
     """Function finds text in image with Tesseract
 
     Args:
@@ -679,7 +679,7 @@ def findText(img, text, lang, skip=0):
     return ret_tuple
 
 
-def recognizeText(img, lang):
+def recognize_text(img, lang):
     """Function recognizes text in image with Tesseract and combine
     lines to tuple and return lists
 
@@ -720,23 +720,23 @@ def find_fuzzy_text(recognized_list, search):
             substring (string): substring found in text
     """
     result = []
-    lSearch = len(search)
+    l_search = len(search)
     for item in recognized_list:
         r = ratio(search, item[4], score_cutoff=0.5)
         if r > 0.0:
             result.append(item)
         else:
             s = item[4]
-            if len(s) > lSearch:
-                for i in range(0, len(s)-lSearch):
-                    slice_for_search = s[i:i+lSearch]
+            if len(s) > l_search:
+                for i in range(0, len(s)-l_search):
+                    slice_for_search = s[i:i+l_search]
                     r = ratio(search, slice_for_search, score_cutoff=0.8)
                     if r > 0.0:
                         result.append(item)
     return list(set(result))
 
 
-def findRegExpText(recognized_list, pattern):
+def find_regexp_text(recognized_list, pattern):
     """Find text in list by regexp
     Return value is list of tuples with following format
 
@@ -765,7 +765,7 @@ def find_cropped_text(img, text, lang, skip=0):
     """
     Find text in image. Several passes are used.
     First time found area with text on image and then
-    every area passed through recongintion again to improve recognition results
+    every area passed through recognition again to improve recognition results
 
     Args:
         img (PIL.Image): image to search text in
@@ -797,7 +797,7 @@ def find_cropped_text(img, text, lang, skip=0):
     return ret_tuple
 
 
-def findTextOnScreen(ctx, text, lang, skip=0):
+def find_text_on_screen(ctx, text, lang, skip=0):
     """
     Function finds text on the screen
 
@@ -817,7 +817,7 @@ def findTextOnScreen(ctx, text, lang, skip=0):
     """
     step(ctx, f'Поиск текста {text} на экране ...')
     img = pyautogui.screenshot()
-    return findText(img, text, lang, skip)
+    return find_text(img, text, lang, skip)
 
 
 def repeater(cnts):
@@ -843,7 +843,7 @@ def filter_rect_sorted(cnts):
         List[Numpy.ndarray]: list of filtered and sorted rectangles
 
     """
-    def approxer(x):
+    def approx(x):
         """
         Approximate polygonal curves to rectangles
 
@@ -868,7 +868,7 @@ def filter_rect_sorted(cnts):
         """
         return len(x) == 4
 
-    cnts = list(filter(rect_filter, map(approxer, cnts)))
+    cnts = list(filter(rect_filter, map(approx, cnts)))
     cnts = sorted(cnts, key=lambda x: abs(x.item(4)-x.item(0))
                   * abs(x.item(5)-x.item(1)), reverse=True)
     return cnts
@@ -896,7 +896,7 @@ def find_contours(ctx, img, fltr=repeater):
     return fltr(cnts)
 
 
-def drawContours(img, cnts):
+def draw_contours(img, cnts):
     """
     Draw contours on a PIL.Image instance.
 
@@ -916,9 +916,9 @@ def drawContours(img, cnts):
         raise TypeError("img must be a PIL.Image instance")
     if not all(isinstance(cnt, np.ndarray) for cnt in cnts):
         raise ValueError("cnts must be a list of Numpy arrays")
-    npImg = np.array(img)
-    cv.drawContours(npImg, cnts, -1, (0, 255, 0), 3)
-    return Image.fromarray(npImg)
+    np_img = np.array(img)
+    cv.drawContours(np_img, cnts, -1, (0, 255, 0), 3)
+    return Image.fromarray(np_img)
 
 
 def random_string(string_length, character_set=None):
@@ -966,33 +966,33 @@ def run(funcs, counter=1, output='output'):
         pass
     for _ in range(counter):
         for f in funcs:
-            testName = f.__name__
+            test_name = f.__name__
             try:
-                os.makedirs(os.path.join(output, SUITE_NAME, testName))
+                os.makedirs(os.path.join(output, SUITE_NAME, test_name))
             except FileExistsError:
                 pass
             try:
-                OUTPUT_PATH = os.path.join(output, SUITE_NAME, testName)
+                OUTPUT_PATH = os.path.join(output, SUITE_NAME, test_name)
                 f()
-                TESTS_PASSED.append(os.path.join(SUITE_NAME, testName))
-                imgPath = os.path.join(
-                    output, SUITE_NAME, testName, 'test-passed.png')
-                pyautogui.screenshot(imgPath)
-                relativePath = imgPath.split(os.path.sep)
-                tmpPath = os.path.join('', *relativePath[1:])
-                print(f'![Тест пройден]({tmpPath})')
+                TESTS_PASSED.append(os.path.join(SUITE_NAME, test_name))
+                img_path = os.path.join(
+                    output, SUITE_NAME, test_name, 'test-passed.png')
+                pyautogui.screenshot(img_path)
+                relative_path = img_path.split(os.path.sep)
+                tmp_path = os.path.join('', *relative_path[1:])
+                print(f'![Тест пройден]({tmp_path})')
                 print()
                 print('**Тест пройден**')
             except TestException as e:
-                imgPath = os.path.join(
-                    output, SUITE_NAME, testName, 'test-failed.png')
-                pyautogui.screenshot(imgPath)
+                img_path = os.path.join(
+                    output, SUITE_NAME, test_name, 'test-failed.png')
+                pyautogui.screenshot(img_path)
                 print(f'\n> Error : {e.message}\n')
-                relativePath = imgPath.split(os.path.sep)
-                tmpPath = os.path.join('', *relativePath[1:])
-                print(f'![Тест не пройден]({tmpPath})')
+                relative_path = img_path.split(os.path.sep)
+                tmp_path = os.path.join('', *relative_path[1:])
+                print(f'![Тест не пройден]({tmp_path})')
                 print()
                 print('**Тест не пройден**')
-                TESTS_FAILED.append(os.path.join(SUITE_NAME, testName))
+                TESTS_FAILED.append(os.path.join(SUITE_NAME, test_name))
 
     print_test_summary(TESTS_PASSED, TESTS_FAILED)
