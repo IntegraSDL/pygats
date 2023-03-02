@@ -1,5 +1,5 @@
-﻿####
-misc
-####
+﻿##########
+formatters
+##########
 
 .. automodule:: pygats.misc

@@ -2,13 +2,11 @@
 API
 ###
 
-.. autoclass:: pygats.formatters.MarkdownFormatter
-    :members: 
+Package modules
 
-.. autoclass:: pygats.pygats.Context
-    :members:
+.. toctree ::
+    :maxdepth: 4
 
-.. autofunction:: pygats.misc.setup_test_env  
-
-.. autofunction:: pygats.misc.teardown_test_env
-
+    formatters
+    pygats
+    misc

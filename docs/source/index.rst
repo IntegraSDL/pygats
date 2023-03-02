@@ -10,7 +10,6 @@ pyGATs
 
     pyGATs is the library for automating GUI and exploratory testing written in Python
 
-    * **Website**: `https://locust.io/ <https://locust.io/>`_
     * **Source code**: `https://github.com/IntegraSDL/pygats <https://github.com/integrasdl/pygats>`_
 
 
@@ -54,16 +53,6 @@ API
     :maxdepth: 4
 
     api
-
-Modules
--------
-
-.. toctree ::
-    :maxdepth: 4
-
-    formatters
-    pygats
-    misc
 
 License
 -------

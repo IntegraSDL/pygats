@@ -95,7 +95,7 @@ def check(ctx, msg, func=None):
         ctx (Context): context of test execution
         msg (string): message to print at the beginning of test case
         func (function Optional): function to be printed and called
-                during test
+        during test  # noqa: DAR003
 
     Returns:
         type or None: func() result or None
@@ -181,7 +181,7 @@ def log_image(img, msg='Снимок экрана'):
     Args:
         img (PIL.Image): image to be logged
         msg (str, optional): description of the screenshot.
-            Defaults to 'Снимок экрана'.
+        Defaults to 'Снимок экрана'.  # noqa: DAR003
 
     Returns:
         PIL.Image: input image
@@ -582,6 +582,7 @@ def combine_words_in_lines(lines):
     Todo:
         * This function should adjust rect (width) of left most word when added
         new word to it.
+
     """
     for i in range(1, len(lines)-1):
         splitted = lines[i].split('\t')
@@ -882,7 +883,7 @@ def find_contours(ctx, img, fltr=repeater):
         ctx (Context): context of test run
         img (PIL.Image): image where contours will be searched
         fltr (function, optional): filter which will be used on contours
-            results
+        results  # noqa: DAR003
 
     Returns:
         list of points: list of points filtered
@@ -903,7 +904,7 @@ def drawContours(img, cnts):
     Args:
         img (PIL.Image): Input image on which to draw the contours.
         cnts (list of numpy.ndarray): List of contours, represented
-            as Numpy arrays.
+        as Numpy arrays.  # noqa: DAR003
 
     Returns:
         PIL.Image: Output image with contours drawn.
@@ -927,8 +928,8 @@ def random_string(string_length, character_set=None):
     Args:
         string_length (int): The length of the generated string.
         character_set (string, optional): A string of characters to use
-            when generating the random string. Defaults to ascii letters,
-            digits and the underscore.
+        when generating the random string. Defaults are  # noqa: DAR003
+        ascii letters, digits and the underscore.  # noqa: DAR003
 
     Returns:
         str: A string of the specified length, consisting of characters from
