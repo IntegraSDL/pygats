@@ -1,7 +1,12 @@
+###
 API
-===
+###
 
-.. autosummary::
-   :toctree: generated
+Package modules
 
-   pygats
+.. toctree ::
+    :maxdepth: 4
+
+    formatters
+    pygats
+    misc

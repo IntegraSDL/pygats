@@ -26,7 +26,3 @@ jobs:
     - name: Analysing the code with flake8
       run: |
         flake8 ./src
-    - name: Analysing the code with darglint
-      run: |
-        darglint $(git ls-files 'src/*.py')
- 

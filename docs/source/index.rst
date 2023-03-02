@@ -1,53 +1,64 @@
+========
 pyGATs
 ========
 
-**This library is in development process. API is not stabilized yet. It will
-be completly changed soon.**
+
+.. sidebar:: About pyGATs
+
+    **This library is in development process. API is not stabilized yet. It will
+    be completly changed soon.**
+
+    pyGATs is the library for automating GUI and exploratory testing written in Python
+
+    * **Source code**: `https://github.com/IntegraSDL/pygats <https://github.com/integrasdl/pygats>`_
 
 
-pyGATs is python3 library which combines power of pyautogui, opencv, tesseract, 
-markdown and other staff to automate end-to-end and exploratorytesting.
+Getting started
+---------------
 
-This library might be used to automate testing process with Xvbf and docker.
+.. toctree ::
+    :maxdepth: 2
+    :caption: Getting started
 
-pyGATs depends on pyautogui, pytesseract, opencv and others. Please see section
-dependencies in pyproject.toml file.,
-by providing a basic explanation of how to do it easily.
+#    what-is-pygats
+#    installation
+#    quickstart
 
-Look how easy it is to use:
 
-    import pygats
-    # Get your stuff done
-    pygats.do_stuff()
+Writing tests with pyGATs
+--------------------
 
-Features
---------
+.. toctree ::
+    :maxdepth: 2
+    :caption: Writing Locust tests
 
-- provides interface (pyautogui) to control mouse, keyboard and screenshots
-  during testing process
-- provides screenshots processing (opencv) to check test steps results
-- provides text recognition (pytesseract) to find and understand text on the
-  screenshots
+#    writing-tests-with-pygats
 
-Installation
-------------
 
-Install pyGATs by running:
+Running your tests
+-------------------------
 
-    pip install pygats
+.. toctree ::
+    :maxdepth: 1
+    :caption: Running your Locust tests
 
-Contribute
-----------
+#    configuration
+#    running-tests
 
-- Issue Tracker: https://github.com/IntegraSDL/pygats/issues
-- Source Code: https://github.com/IntegraSDL/pygats
 
-Support
--------
+API
+---
 
-If you are having issues, please let us know through issue tracker
+.. toctree ::
+    :maxdepth: 4
+
+    api
 
 License
 -------
 
-The project is licensed under the MIT license.
+.. toctree ::
+    :maxdepth: 4
+    :caption: License
+
+#    license
