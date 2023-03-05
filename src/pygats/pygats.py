@@ -528,7 +528,7 @@ def check_text_on_screen(ctx, txt, lang):
     passed()
 
 
-def click_text(ctx, text, lang, button='left', skip=0):
+def click_text(ctx, text, lang, button='left', skip=0, inv=False):
     """Finds text on screen and press mouse button on it
 
     Args:
@@ -539,7 +539,7 @@ def click_text(ctx, text, lang, button='left', skip=0):
         skip (int): amount of text should be skipped
     """
     step(ctx, f'Нажать текст {text} на экране кнопкой {button}...')
-    x, y, width, height, found = find_text_on_screen(ctx, text, lang, skip)
+    x, y, width, height, found = find_text_on_screen(ctx, text, lang, skip,inv, True)
     if not found:
         failed(msg=f'{text} не найден на экране')
 
@@ -635,7 +635,7 @@ def combine_lines(lines):
     return result
 
 
-def find_text(img, text, lang, skip=0):
+def find_text(img, text, lang, skip=0, inv = False, one_word = False):
     """Function finds text in image with Tesseract
 
     Args:
@@ -652,8 +652,19 @@ def find_text(img, text, lang, skip=0):
             text (string): full text which resides in rectangle
 
     """
-    recognized = pytesseract.image_to_data(img, lang).split('\n')
-    combine_words_in_lines(recognized)
+    cv_image = np.array(img)
+    img_gray = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY)
+    if inv:
+        thresh = cv.adaptiveThreshold(img_gray, 255,
+                                      cv.ADAPTIVE_THRESH_MEAN_C, \
+                                      cv.THRESH_BINARY_INV, 11, 2)
+    else:
+        thresh = cv.adaptiveThreshold(img_gray, 255,
+                                      cv.ADAPTIVE_THRESH_MEAN_C, \
+                                      cv.THRESH_BINARY, 11, 2)
+    recognized = pytesseract.image_to_data(thresh, lang).split('\n')
+    if one_word == False:
+        combine_words_in_lines(recognized)
     ret_tuple = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
@@ -667,10 +678,10 @@ def find_text(img, text, lang, skip=0):
                 skip -= 1
             else:
                 if int(splitted[6]) + int(splitted[7]) != 0:
-                    cropped = img.crop((int(splitted[6]), int(splitted[7]),
+                    cropped = Image.fromarray(thresh).crop((int(splitted[6]), int(splitted[7]),
                                         int(splitted[6])+int(splitted[8]),
                                         int(splitted[7])+int(splitted[9])))
-                    cropped_tuple = find_cropped_text(cropped, text, lang)
+                    cropped_tuple = find_cropped_text(cropped, text, lang, 0, one_word)
                     if cropped_tuple[4]:
                         return (cropped_tuple[0]+int(splitted[6]),
                                 cropped_tuple[1]+int(splitted[7]),
@@ -762,7 +773,7 @@ def find_regexp_text(recognized_list, pattern):
     return list(set(result))
 
 
-def find_cropped_text(img, text, lang, skip=0):
+def find_cropped_text(img, text, lang, skip=0, one_word = False):
     """
     Find text in image. Several passes are used.
     First time found area with text on image and then
@@ -784,7 +795,8 @@ def find_cropped_text(img, text, lang, skip=0):
 
     """
     recognized = pytesseract.image_to_data(img, lang).split('\n')
-    combine_words_in_lines(recognized)
+    if one_word == False:
+        combine_words_in_lines(recognized)
     ret_tuple = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
@@ -798,7 +810,7 @@ def find_cropped_text(img, text, lang, skip=0):
     return ret_tuple
 
 
-def find_text_on_screen(ctx, text, lang, skip=0):
+def find_text_on_screen(ctx, text, lang, skip=0, inv=False, one_word = False):
     """
     Function finds text on the screen
 
@@ -818,7 +830,7 @@ def find_text_on_screen(ctx, text, lang, skip=0):
     """
     step(ctx, f'Поиск текста {text} на экране ...')
     img = pyautogui.screenshot()
-    return find_text(img, text, lang, skip)
+    return find_text(img, text, lang, skip, inv, one_word)
 
 
 def repeater(cnts):
