@@ -3,11 +3,14 @@ module with data classes.
 """
 
 from dataclasses import dataclass
-import pytesseract
 import re
-import pyperclip
+import pyautogui
 import pytesseract
 from Levenshtein import ratio
+from PIL import Image
+import cv2 as cv
+import numpy as np
+from pygats.pygats import step, passed, failed
 
 
 @dataclass
@@ -357,4 +360,3 @@ def find_regexp_text(recognized_list, pattern):
             item += tuple(m)
             result.append(item)
     return list(set(result))
-
