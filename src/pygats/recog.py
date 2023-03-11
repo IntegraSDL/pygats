@@ -23,7 +23,7 @@ class SearchedText:
     lang: str
 
 
-def find_cropped_text(img, txt, skip=0, one_word = False):
+def find_cropped_text(img, txt, skip=0, one_word=False):
     """
     Find text in image. Several passes are used.
     First time found area with text on image and then
@@ -33,6 +33,7 @@ def find_cropped_text(img, txt, skip=0, one_word = False):
         img (PIL.Image): image to search text in
         txt (pygats.recog.SearchedText): text to search
         skip (int, optional): number of occurrences of the text to skip.
+        one_word (bool, optional): flag if only one word has been searched.
 
     Returns:
         (left, top, width, height, found):
@@ -59,7 +60,7 @@ def find_cropped_text(img, txt, skip=0, one_word = False):
     return ret_tuple
 
 
-def find_text_on_screen(ctx, txt, skip=0, inv=False, one_word = False):
+def find_text_on_screen(ctx, txt, skip=0, inv=False, one_word=False):
     """
     Function finds text on the screen
 
@@ -92,7 +93,8 @@ def check_text(ctx, img, txt):
         txt (pygats.recog.SearchedText): text to search
 
     """
-    step(ctx, f'Проверка отображения текста {txt.text} на изображении {img}...')
+    step(ctx,
+         f'Проверка отображения текста {txt.text} на изображении {img}...')
     _, _, _, _, flag = find_text(img, txt)
     if flag:
         passed()
@@ -123,13 +125,11 @@ def click_text(ctx, txt, button='left', skip=0, inv=False):
         txt (pygats.recog.SearchedText): text to be searched and clicked
         button (string, optional): left, right, middle
         skip (int): amount of text should be skipped
+        inv (bool, optional): inversion flag
     """
     step(ctx, f'Нажать текст {txt.text} на экране кнопкой {button}...')
-    x, y, width, height, found = find_text_on_screen(ctx,
-                                                    txt,
-                                                    skip,
-                                                    inv,
-                                                    True)
+    x, y, width, height, found = find_text_on_screen(
+        ctx, txt, skip, inv, True)
     if not found:
         failed(msg=f'{txt.text} не найден на экране')
 
@@ -225,13 +225,15 @@ def combine_lines(lines):
     return result
 
 
-def find_text(img, txt, skip=0, inv = False, one_word = False):
+def find_text(img, txt, skip=0, inv=False, one_word=False):
     """Function finds text in image with Tesseract
 
     Args:
         img (PIL.Image): image where text will be recognized
-        text (pygats.recog.SearchedText): text which fill be searched
+        txt (pygats.recog.SearchedText): text which fill be searched
         skip (int): amount of skipped finding
+        inv (bool, optional): inversion of image
+        one_word (bool, optional): one word to search
 
     Returns:
         (x,y,w,h,text):
@@ -245,11 +247,11 @@ def find_text(img, txt, skip=0, inv = False, one_word = False):
     img_gray = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY)
     if inv:
         thresh = cv.adaptiveThreshold(img_gray, 255,
-                                      cv.ADAPTIVE_THRESH_MEAN_C, \
+                                      cv.ADAPTIVE_THRESH_MEAN_C,
                                       cv.THRESH_BINARY_INV, 11, 2)
     else:
         thresh = cv.adaptiveThreshold(img_gray, 255,
-                                      cv.ADAPTIVE_THRESH_MEAN_C, \
+                                      cv.ADAPTIVE_THRESH_MEAN_C,
                                       cv.THRESH_BINARY, 11, 2)
     recognized = pytesseract.image_to_data(thresh, txt.lang).split('\n')
     if one_word is False:
@@ -267,10 +269,12 @@ def find_text(img, txt, skip=0, inv = False, one_word = False):
                 skip -= 1
             else:
                 if int(splitted[6]) + int(splitted[7]) != 0:
-                    cropped = Image.fromarray(thresh).crop((int(splitted[6]), int(splitted[7]),
-                                        int(splitted[6])+int(splitted[8]),
-                                        int(splitted[7])+int(splitted[9])))
-                    cropped_tuple = find_cropped_text(cropped, txt, 0, one_word)
+                    cropped = Image.fromarray(thresh).crop(
+                        (int(splitted[6]), int(splitted[7]),
+                            int(splitted[6])+int(splitted[8]),
+                            int(splitted[7])+int(splitted[9])))
+                    cropped_tuple = find_cropped_text(
+                        cropped, txt, 0, one_word)
                     if cropped_tuple[4]:
                         return (cropped_tuple[0]+int(splitted[6]),
                                 cropped_tuple[1]+int(splitted[7]),
