@@ -134,8 +134,8 @@ def click_text(ctx, txt, button='left', skip=0, inv=False):
         failed(msg=f'{txt.text} не найден на экране')
 
     print(x, y, width, height)
-    center_x = x + width/2
-    center_y = y + height/2
+    center_x = x + width / 2
+    center_y = y + height / 2
     pyautogui.moveTo(center_x, center_y)
     pyautogui.mouseDown(center_x, center_y, button)
     pyautogui.mouseUp(center_x, center_y, button)
@@ -174,14 +174,14 @@ def combine_words_in_lines(lines):
         new word to it.
 
     """
-    for i in range(1, len(lines)-1):
+    for i in range(1, len(lines) - 1):
         splitted = lines[i].split('\t')
         if len(splitted) != 12:
             return
         y = int(splitted[7])
-        for j in range(i+1, len(lines)-1):
+        for j in range(i + 1, len(lines) - 1):
             splitted2 = lines[j].split('\t')
-            if abs(y-int(splitted2[7])) < 5 and len(splitted2[11].strip()) > 0:
+            if abs(y - int(splitted2[7])) < 5 and len(splitted2[11].strip()) > 0:
                 lines[i] += ' ' + splitted2[11]
 
 
@@ -206,7 +206,7 @@ def combine_lines(lines):
           sentences.
     """
     result = []
-    for i in range(1, len(lines)-1):
+    for i in range(1, len(lines) - 1):
         splitted = lines[i].split('\t')
         if len(splitted) != 12:
             return result
@@ -215,7 +215,7 @@ def combine_lines(lines):
         w = int(splitted[8])
         h = int(splitted[9])
         text = splitted[11]
-        for j in range(i+1, len(lines)-1):
+        for j in range(i + 1, len(lines) - 1):
             splitted2 = lines[j].split('\t')
             if abs(y - int(splitted2[7])) < 5:
                 if len(splitted2[11].strip()) > 0:
@@ -271,13 +271,13 @@ def find_text(img, txt, skip=0, inv=False, one_word=False):
                 if int(splitted[6]) + int(splitted[7]) != 0:
                     cropped = Image.fromarray(thresh).crop(
                         (int(splitted[6]), int(splitted[7]),
-                            int(splitted[6])+int(splitted[8]),
-                            int(splitted[7])+int(splitted[9])))
+                            int(splitted[6]) + int(splitted[8]),
+                            int(splitted[7]) + int(splitted[9])))
                     cropped_tuple = find_cropped_text(
                         cropped, txt, 0, one_word)
                     if cropped_tuple[4]:
-                        return (cropped_tuple[0]+int(splitted[6]),
-                                cropped_tuple[1]+int(splitted[7]),
+                        return (cropped_tuple[0] + int(splitted[6]),
+                                cropped_tuple[1] + int(splitted[7]),
                                 cropped_tuple[2],
                                 cropped_tuple[3],
                                 cropped_tuple[4])
@@ -332,8 +332,8 @@ def find_fuzzy_text(recognized_list, search):
         if r > 0.0:
             result.append(item)
         elif len(text) > search_len:
-            for i in range(0, len(text)-search_len):
-                slice_for_search = text[i:i+search_len]
+            for i in range(0, len(text) - search_len):
+                slice_for_search = text[i:i + search_len]
                 r = ratio(search, slice_for_search, score_cutoff=0.8)
                 if r > 0.0:
                     result.append(item)

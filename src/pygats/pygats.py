@@ -58,7 +58,7 @@ def platform_specific_image(img):
     if PLATFORM != '':
         splitted = img.split('.')
         if len(splitted) == 2:
-            specific_image_path = splitted[0]+'.'+PLATFORM + '.' + splitted[1]
+            specific_image_path = splitted[0] + '.' + PLATFORM + '.' + splitted[1]
             if os.path.exists(specific_image_path):
                 return specific_image_path
     return img
@@ -290,7 +290,7 @@ def move_to(ctx, img):
     if center is None:
         failed(img, 'Изображение не найдено')
     if sys.platform == 'darwin':
-        pyautogui.moveTo(center.x/2, center.y/2)
+        pyautogui.moveTo(center.x / 2, center.y / 2)
     else:
         pyautogui.moveTo(center.x, center.y)
     print(f'Текущая позиция указателя мыши {pyautogui.position()}')
@@ -344,15 +344,15 @@ def click(ctx, btn, area=''):
         if box is None:
             failed(area, 'Изображение не найдено')
 
-        x = area_location.left + box.left + box.width/2
-        y = area_location.top + box.top + box.height/2
+        x = area_location.left + box.left + box.width / 2
+        y = area_location.top + box.top + box.height / 2
         center = pyautogui.Point(x, y)
     if center is None:
         failed(btn, 'Изображение не найдено')
 
     print(f'Перемещаем указатель мыши в координаты {center}')
     if sys.platform == 'darwin':
-        pyautogui.moveTo(center.x/2, center.y/2)
+        pyautogui.moveTo(center.x / 2, center.y / 2)
     else:
         pyautogui.moveTo(center.x, center.y)
     # pyautogui.dragTo()
@@ -540,8 +540,8 @@ def filter_rect_sorted(cnts):
         return len(x) == 4
 
     cnts = list(filter(rect_filter, map(approx, cnts)))
-    cnts = sorted(cnts, key=lambda x: abs(x.item(4)-x.item(0))
-                  * abs(x.item(5)-x.item(1)), reverse=True)
+    cnts = sorted(cnts, key=lambda x: abs(x.item(4) - x.item(0)) * abs
+                  (x.item(5) - x.item(1)), reverse=True)
     return cnts
 
 
