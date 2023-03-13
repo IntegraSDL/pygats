@@ -313,7 +313,7 @@ def find_fuzzy_text(recognized_list, search):
     Return value is list of tuples with following format:
 
     Args:
-        recognized_list (list): list of text to match with pattern
+        recognized_list (list[tuples]): list of text to match with pattern (tuple format: x,y,w,h,text)
         search (string): substring to search
 
     Returns:
@@ -345,7 +345,7 @@ def find_regexp_text(recognized_list, pattern):
     Return value is list of tuples with following format
 
     Args:
-        recognized_list (list): list of text to match with pattern.
+        recognized_list (list[tuple]): list of text to match with pattern. (tuple format: x,y,w,h,text)
         pattern (string): regex pattern to match
 
     Returns:
