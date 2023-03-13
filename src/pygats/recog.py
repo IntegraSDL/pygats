@@ -45,15 +45,18 @@ def find_cropped_text(img, txt, skip=0, one_word=False):
 
     """
     recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
-    if one_word is False:
+    if not one_word:
         combine_words_in_lines(recognized)
     ret_tuple = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
         splitted = line.split('\t')
         if len(splitted) == 12 and splitted[11].find(txt.text) != -1:
             print(f'Найден текст {splitted[11]}')
-            ret_tuple = (int(splitted[6]), int(splitted[7]), int(
-                splitted[8]), int(splitted[9]), True)
+            ret_tuple = (int(splitted[6]),
+                         int(splitted[7]),
+                         int(splitted[8]),
+                         int(splitted[9]),
+                         True)
             if skip <= 0:
                 break
             skip -= 1
@@ -180,9 +183,9 @@ def combine_words_in_lines(lines):
             return
         y = int(splitted[7])
         for j in range(i + 1, len(lines) - 1):
-            splitted2 = lines[j].split('\t')
-            if abs(y - int(splitted2[7])) < 5 and len(splitted2[11].strip()) > 0:
-                lines[i] += ' ' + splitted2[11]
+            line = lines[j].split('\t')
+            if abs(y - int(line[7])) < 5 and len(line[11].strip()) > 0:
+                lines[i] += ' ' + line[11]
 
 
 def combine_lines(lines):
@@ -254,7 +257,7 @@ def find_text(img, txt, skip=0, inv=False, one_word=False):
                                       cv.ADAPTIVE_THRESH_MEAN_C,
                                       cv.THRESH_BINARY, 11, 2)
     recognized = pytesseract.image_to_data(thresh, txt.lang).split('\n')
-    if one_word is False:
+    if not one_word:
         combine_words_in_lines(recognized)
     ret_tuple = (-1, -1, -1, -1, False)
     for line in recognized[1:]:
@@ -262,8 +265,11 @@ def find_text(img, txt, skip=0, inv=False, one_word=False):
         if len(splitted) == 12:
             if splitted[11].find(txt.text) != -1:
                 print("Найден текст " + splitted[11])
-                ret_tuple = (int(splitted[6]), int(splitted[7]), int(
-                    splitted[8]), int(splitted[9]), True)
+                ret_tuple = (int(splitted[6]),
+                             int(splitted[7]),
+                             int(splitted[8]),
+                             int(splitted[9]),
+                             True)
                 if skip <= 0:
                     break
                 skip -= 1
