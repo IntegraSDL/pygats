@@ -325,19 +325,18 @@ def find_fuzzy_text(recognized_list, search):
             substring (string): substring found in text
     """
     result = []
-    l_search = len(search)
+    search_len = len(search)
     for item in recognized_list:
         r = ratio(search, item[4], score_cutoff=0.5)
+        text = item[4]
         if r > 0.0:
             result.append(item)
-        else:
-            s = item[4]
-            if len(s) > l_search:
-                for i in range(0, len(s)-l_search):
-                    slice_for_search = s[i:i+l_search]
-                    r = ratio(search, slice_for_search, score_cutoff=0.8)
-                    if r > 0.0:
-                        result.append(item)
+        elif len(text) > search_len:
+            for i in range(0, len(text)-search_len):
+                slice_for_search = text[i:i+search_len]
+                r = ratio(search, slice_for_search, score_cutoff=0.8)
+                if r > 0.0:
+                    result.append(item)
     return list(set(result))
 
 
@@ -346,7 +345,7 @@ def find_regexp_text(recognized_list, pattern):
     Return value is list of tuples with following format
 
     Args:
-        recognized_list (list): list of text to match with pattern
+        recognized_list (list): list of text to match with pattern.
         pattern (string): regex pattern to match
 
     Returns:
@@ -359,8 +358,8 @@ def find_regexp_text(recognized_list, pattern):
     """
     result = []
     for item in recognized_list:
-        m = re.findall(pattern, item[4])
-        if len(m) > 0:
-            item += tuple(m)
+        match = re.findall(pattern, item[4])
+        if len(match) > 0:
+            item += tuple(match)
             result.append(item)
     return list(set(result))
