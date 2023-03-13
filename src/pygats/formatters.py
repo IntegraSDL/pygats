@@ -16,7 +16,7 @@ class MarkdownFormatter:
             text (string): Header text
         """
         print()
-        header_level = '#'*level
+        header_level = '#' * level
         print(f'{header_level} {text}')
         print()
 

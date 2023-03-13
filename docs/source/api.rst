@@ -9,4 +9,5 @@ Package modules
 
     formatters
     pygats
+    recog
     misc

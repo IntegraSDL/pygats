@@ -58,37 +58,13 @@ pygats
 
 .. autofunction:: print_test_summary
 
-.. autofunction:: check_text
-
-.. autofunction:: check_text_on_screen
-
-.. autofunction:: click_text
-
-.. autofunction:: recognizeTextWithData
-
-.. autofunction:: combine_words_in_lines
-
-.. autofunction:: combine_lines
-
-.. autofunction:: findText
-
-.. autofunction:: recognizeText
-
-.. autofunction:: find_fuzzy_text
-
-.. autofunction:: findRegExpText
-
-.. autofunction:: find_cropped_text
-
-.. autofunction:: findTextOnScreen
-
 .. autofunction:: repeater
 
 .. autofunction:: filter_rect_sorted
 
 .. autofunction:: find_contours
 
-.. autofunction:: drawContours
+.. autofunction:: draw_contours
 
 .. autofunction:: random_string
 
