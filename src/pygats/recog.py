@@ -352,7 +352,7 @@ def find_text(img, txt, skip=0, extend=False, one_word=False):
                                 cropped_tuple[4])
     return ret_tuple
 
- 
+
 def recognize_text(img, lang):
     """Function recognizes text in image with Tesseract and combine
     lines to tuple and return lists
