@@ -312,7 +312,7 @@ def find_text(img, txt, skip=0, extend=False, one_word=False):
         one_word (bool, optional): one word to search
 
     Returns:
-        (x,y,w,h,flag):
+        (x,y,w,h,found):
             x (int), y (int): coordinates of top-left point of rectangle where
                text resides
             w (int), h (int): width and height of rectangle where text resides
