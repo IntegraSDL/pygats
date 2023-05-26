@@ -16,11 +16,12 @@ from pygats.pygats import step, passed, failed
 @dataclass
 class SearchedText:
     """
-    Data class to store text with lang to be passed as parameters
+    Data class to store text, lang and crop area to be passed as parameters
     for Tesseract function
     """
     text: str
     lang: str
+    area: str
 
 
 def find_cropped_text(img, txt, skip=0, one_word=False):
@@ -63,7 +64,7 @@ def find_cropped_text(img, txt, skip=0, one_word=False):
     return ret_tuple
 
 
-def find_text_on_screen(ctx, txt, skip=0, inv=False, one_word=False):
+def find_text_on_screen(ctx, txt, skip=0, one_word=False):
     """
     Function finds text on the screen
 
@@ -71,7 +72,6 @@ def find_text_on_screen(ctx, txt, skip=0, inv=False, one_word=False):
         ctx (Context): context
         txt (pygats.recog.SearchedText): text to find
         skip (int, optional): amount of findings which should be skipped
-        inv (bool, optional): colour inversion of picture
         one_word (bool, optional): search only one world
 
     Returns:
@@ -84,7 +84,11 @@ def find_text_on_screen(ctx, txt, skip=0, inv=False, one_word=False):
     """
     step(ctx, f'Поиск текста {txt.text} на экране ...')
     img = pyautogui.screenshot()
-    return find_text(img, txt, skip, inv, one_word)
+    (x, y, w, h, found) = find_text(img, txt, skip, False, one_word)
+    if found:
+        return (x, y, w, h, found)
+    else:
+        return find_text(img, txt, skip, True, one_word)
 
 
 def check_text(ctx, img, txt):
@@ -98,11 +102,12 @@ def check_text(ctx, img, txt):
     """
     step(ctx,
          f'Проверка отображения текста {txt.text} на изображении {img}...')
-    _, _, _, _, flag = find_text(img, txt)
-    if flag:
-        passed()
-        return
-    failed(img, f'{txt.text} не найден на изображении')
+    _, _, _, _, found = find_text(img, txt)
+    if not found:
+        _, _, _, _, found = find_text(img, txt, extend=True)
+        if not found:
+            failed(img, f'{txt.text} не найден на изображении')
+    passed()
 
 
 def check_text_on_screen(ctx, txt):
@@ -114,13 +119,15 @@ def check_text_on_screen(ctx, txt):
     """
     step(ctx, f'Проверка отображения текста {txt.text} на экране ...')
     img = pyautogui.screenshot()
-    _, _, _, _, flag = find_text(img, txt)
-    if not flag:
-        failed(img, f'{txt.text} не найден на экране')
+    _, _, _, _, found = find_text(img, txt)
+    if not found:
+        _, _, _, _, found = find_text(img, txt, extend=True)
+        if not found:
+            failed(img, f'{txt.text} не найден на экране')
     passed()
 
 
-def click_text(ctx, txt, button='left', skip=0, inv=False):
+def click_text(ctx, txt, button='left', skip=0):
     """Finds text on screen and press mouse button on it
 
     Args:
@@ -128,11 +135,10 @@ def click_text(ctx, txt, button='left', skip=0, inv=False):
         txt (pygats.recog.SearchedText): text to be searched and clicked
         button (string, optional): left, right, middle
         skip (int): amount of text should be skipped
-        inv (bool, optional): inversion flag
     """
     step(ctx, f'Нажать текст {txt.text} на экране кнопкой {button}...')
     x, y, width, height, found = find_text_on_screen(
-        ctx, txt, skip, inv, True)
+        ctx, txt, skip, True)
     if not found:
         failed(msg=f'{txt.text} не найден на экране')
 
@@ -228,35 +234,92 @@ def combine_lines(lines):
     return result
 
 
-def find_text(img, txt, skip=0, inv=False, one_word=False):
+def crop_image(img, width, height, extend=False):
+    """Function crop image
+
+    Args:
+        img (PIL.Image): image to be cropped
+        w (int): multiplier to determine the beginning of the crop area
+            by width
+        h (int): multiplier to determine the beginning of the crop area
+            by height
+        extend (bool, optional): extended crop area
+
+    Returns:
+        PIL.Image: cropped image area
+    """
+    img_width, img_height = img.size
+    factor = 1
+    if extend:
+        crop_width = img_width//4
+        crop_height = img_height//4
+        factor = 2
+    else:
+        crop_width = img_width//3
+        crop_height = img_height//3
+    crop_coord = (crop_width*width,
+                  crop_height*height,
+                  crop_width*width + crop_width*factor,
+                  crop_height*height + crop_height*factor)
+    img_crop = img.crop(crop_coord)
+    return img_crop
+
+
+def find_crop_image(img, crop_area='all', extend=False):
+    """Function crop area detection for crop function
+
+    Args:
+        img (PIL.Image): image to be cropped
+        crop_area (str, optional): image cropping area
+        extend (bool, optional): extended crop area
+
+    Returns:
+        PIL.Image: cropped image area
+    """
+    if crop_area == 'all':
+        return img
+    elif crop_area == 'center':
+        return crop_image(img, 1, 1, extend)
+    elif crop_area == 'top-left':
+        return crop_image(img, 0, 0, extend)
+    elif crop_area == 'left':
+        return crop_image(img, 0, 1, extend)
+    elif crop_area == 'bottom-left':
+        return crop_image(img, 0, 2, extend)
+    elif crop_area == 'top':
+        return crop_image(img, 1, 0, extend)
+    elif crop_area == 'bottom':
+        return crop_image(img, 1, 2, extend)
+    elif crop_area == 'top-right':
+        return crop_image(img, 2, 0, extend)
+    elif crop_area == 'right':
+        return crop_image(img, 2, 1, extend)
+    elif crop_area == 'bottom-right':
+        return crop_image(img, 2, 2, extend)
+    else:
+        print(f'Неизвестная область "{crop_area}"')
+        return img
+
+
+def find_text(img, txt, skip=0, extend=False, one_word=False):
     """Function finds text in image with Tesseract
 
     Args:
         img (PIL.Image): image where text will be recognized
         txt (pygats.recog.SearchedText): text which fill be searched
         skip (int): amount of skipped finding
-        inv (bool, optional): inversion of image
+        extend (bool, optional): extended crop area
         one_word (bool, optional): one word to search
 
     Returns:
-        (x,y,w,h,text):
+        (x,y,w,h,flag):
             x (int), y (int): coordinates of top-left point of rectangle where
                text resides
             w (int), h (int): width and height of rectangle where text resides
-            text (string): full text which resides in rectangle
-
+            found (bool): whether the text is found in the image
     """
-    cv_image = np.array(img)
-    img_gray = cv.cvtColor(cv_image, cv.COLOR_BGR2GRAY)
-    if inv:
-        thresh = cv.adaptiveThreshold(img_gray, 255,
-                                      cv.ADAPTIVE_THRESH_MEAN_C,
-                                      cv.THRESH_BINARY_INV, 11, 2)
-    else:
-        thresh = cv.adaptiveThreshold(img_gray, 255,
-                                      cv.ADAPTIVE_THRESH_MEAN_C,
-                                      cv.THRESH_BINARY, 11, 2)
-    recognized = pytesseract.image_to_data(thresh, txt.lang).split('\n')
+    img = find_crop_image(img, txt.area, extend=extend)
+    recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
     if not one_word:
         combine_words_in_lines(recognized)
     ret_tuple = (-1, -1, -1, -1, False)
@@ -275,7 +338,7 @@ def find_text(img, txt, skip=0, inv=False, one_word=False):
                 skip -= 1
             else:
                 if int(splitted[6]) + int(splitted[7]) != 0:
-                    cropped = Image.fromarray(thresh).crop(
+                    cropped = img.crop(
                         (int(splitted[6]), int(splitted[7]),
                             int(splitted[6]) + int(splitted[8]),
                             int(splitted[7]) + int(splitted[9])))
@@ -289,7 +352,7 @@ def find_text(img, txt, skip=0, inv=False, one_word=False):
                                 cropped_tuple[4])
     return ret_tuple
 
-
+ 
 def recognize_text(img, lang):
     """Function recognizes text in image with Tesseract and combine
     lines to tuple and return lists
