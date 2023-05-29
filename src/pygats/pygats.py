@@ -170,7 +170,7 @@ def screenshot(ctx, rect=None):
     return img
 
 
-def log_image(img, msg='Снимок экрана'):
+def log_image(img: Image, msg='Снимок экрана'):
     """
     Function log img with msg into report
     image is stored in output path as screenshotIndex

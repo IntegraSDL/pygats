@@ -8,8 +8,6 @@ import pyautogui
 import pytesseract
 from Levenshtein import ratio
 from PIL import Image
-import cv2 as cv
-import numpy as np
 from pygats.pygats import step, passed, failed
 
 
@@ -86,12 +84,11 @@ def find_text_on_screen(ctx, txt, skip=0, one_word=False):
     img = pyautogui.screenshot()
     (x, y, w, h, found) = find_text(img, txt, skip, False, one_word)
     if found:
-        return (x, y, w, h, found)
-    else:
-        return find_text(img, txt, skip, True, one_word)
+        return x, y, w, h, found
+    return find_text(img, txt, skip, True, one_word)
 
 
-def check_text(ctx, img, txt):
+def check_text(ctx, img: Image, txt):
     """Checks if text (txt) exists on image (img) printed with language (lang)
 
     Args:
@@ -226,22 +223,21 @@ def combine_lines(lines):
         text = splitted[11]
         for j in range(i + 1, len(lines) - 1):
             splitted2 = lines[j].split('\t')
-            if abs(y - int(splitted2[7])) < 5:
-                if len(splitted2[11].strip()) > 0:
-                    w += int(splitted[8])
-                    text += ' ' + splitted2[11]
+            if abs(y - int(splitted2[7])) < 5 and len(splitted2[11].strip()) > 0:
+                w += int(splitted[8])
+                text += ' ' + splitted2[11]
         result.append((x, y, w, h, text))
     return result
 
 
-def crop_image(img, width, height, extend=False):
+def crop_image(img: Image, width, height, extend=False):
     """Function crop image
 
     Args:
         img (PIL.Image): image to be cropped
-        w (int): multiplier to determine the beginning of the crop area
+        width (int): multiplier to determine the beginning of the crop area
             by width
-        h (int): multiplier to determine the beginning of the crop area
+        height (int): multiplier to determine the beginning of the crop area
             by height
         extend (bool, optional): extended crop area
 
@@ -278,30 +274,31 @@ def find_crop_image(img, crop_area='all', extend=False):
     """
     if crop_area == 'all':
         return img
-    elif crop_area == 'center':
-        return crop_image(img, 1, 1, extend)
+    if crop_area == 'center':
+        data = {'img': img, 'width': 1, 'height': 1, 'extend': extend}
     elif crop_area == 'top-left':
-        return crop_image(img, 0, 0, extend)
+        data = {'img': img, 'width': 0, 'height': 0, 'extend': extend}
     elif crop_area == 'left':
-        return crop_image(img, 0, 1, extend)
+        data = {'img': img, 'width': 0, 'height': 1, 'extend': extend}
     elif crop_area == 'bottom-left':
-        return crop_image(img, 0, 2, extend)
+        data = {'img': img, 'width': 0, 'height': 2, 'extend': extend}
     elif crop_area == 'top':
-        return crop_image(img, 1, 0, extend)
+        data = {'img': img, 'width': 1, 'height': 0, 'extend': extend}
     elif crop_area == 'bottom':
-        return crop_image(img, 1, 2, extend)
+        data = {'img': img, 'width': 1, 'height': 2, 'extend': extend}
     elif crop_area == 'top-right':
-        return crop_image(img, 2, 0, extend)
+        data = {'img': img, 'width': 2, 'height': 0, 'extend': extend}
     elif crop_area == 'right':
-        return crop_image(img, 2, 1, extend)
+        data = {'img': img, 'width': 2, 'height': 1, 'extend': extend}
     elif crop_area == 'bottom-right':
-        return crop_image(img, 2, 2, extend)
+        data = {'img': img, 'width': 2, 'height': 2, 'extend': extend}
     else:
         print(f'Неизвестная область "{crop_area}"')
         return img
+    return crop_image(**data)
 
 
-def find_text(img, txt, skip=0, extend=False, one_word=False):
+def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
     """Function finds text in image with Tesseract
 
     Args:
