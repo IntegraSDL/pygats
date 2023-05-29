@@ -170,13 +170,13 @@ def screenshot(ctx, rect=None):
     return img
 
 
-def log_image(img, msg='Снимок экрана'):
+def log_image(img: Image, msg='Снимок экрана'):
     """
     Function log img with msg into report
     image is stored in output path as screenshotIndex
 
     Args:
-        img (PIL.Image): image to be logged
+        img (Image): image to be logged
         msg (str, optional): description of the screenshot.
         Defaults to 'Снимок экрана'.  # noqa: DAR003
 
@@ -331,6 +331,7 @@ def click(ctx, btn, area=''):
     """
     btn = platform_specific_image(btn)
     area = platform_specific_image(area)
+    fail_message = 'Изображение не найдено'
     step(ctx, f'Нажать кнопку мыши {btn} ...')
     if area == '':
         center = pyautogui.locateCenterOnScreen(btn, confidence=0.8)
@@ -339,16 +340,16 @@ def click(ctx, btn, area=''):
         print(" area " + area)
         area_location = pyautogui.locateOnScreen(area, confidence=0.9)
         if area_location is None:
-            failed(area, 'Изображение не найдено')
+            failed(area, fail_message)
         box = pyautogui.locate(btn, area, confidence=0.8)
         if box is None:
-            failed(area, 'Изображение не найдено')
+            failed(area, fail_message)
 
         x = area_location.left + box.left + box.width / 2
         y = area_location.top + box.top + box.height / 2
         center = pyautogui.Point(x, y)
     if center is None:
-        failed(btn, 'Изображение не найдено')
+        failed(btn, fail_message)
 
     print(f'Перемещаем указатель мыши в координаты {center}')
     if sys.platform == 'darwin':
@@ -559,8 +560,8 @@ def find_contours(ctx, img, fltr=repeater):
         list of points: list of points filtered
     """
     step(ctx, 'Поиск контуров с применением селектора')
-    npImg = np.array(img)
-    gray = cv.cvtColor(npImg, cv.COLOR_BGR2GRAY)
+    np_img = np.array(img)
+    gray = cv.cvtColor(np_img, cv.COLOR_BGR2GRAY)
     _, thresh = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
     cnts, _ = cv.findContours(
         thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
