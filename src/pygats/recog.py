@@ -93,7 +93,7 @@ def check_text(ctx, img: Image, txt):
 
     Args:
         ctx (Context): context
-        img (PIL.Image): image to find text
+        img (Image): image to find text
         txt (pygats.recog.SearchedText): text to search
 
     """
@@ -234,7 +234,7 @@ def crop_image(img: Image, width, height, extend=False):
     """Function crop image
 
     Args:
-        img (PIL.Image): image to be cropped
+        img (Image): image to be cropped
         width (int): multiplier to determine the beginning of the crop area
             by width
         height (int): multiplier to determine the beginning of the crop area
@@ -247,16 +247,16 @@ def crop_image(img: Image, width, height, extend=False):
     img_width, img_height = img.size
     factor = 1
     if extend:
-        crop_width = img_width//4
-        crop_height = img_height//4
+        crop_width = img_width // 4
+        crop_height = img_height // 4
         factor = 2
     else:
-        crop_width = img_width//3
-        crop_height = img_height//3
-    crop_coord = (crop_width*width,
-                  crop_height*height,
-                  crop_width*width + crop_width*factor,
-                  crop_height*height + crop_height*factor)
+        crop_width = img_width // 3
+        crop_height = img_height // 3
+    crop_coord = (crop_width * width,
+                  crop_height * height,
+                  crop_width * width + crop_width * factor,
+                  crop_height * height + crop_height * factor)
     img_crop = img.crop(crop_coord)
     return img_crop
 
@@ -302,7 +302,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
     """Function finds text in image with Tesseract
 
     Args:
-        img (PIL.Image): image where text will be recognized
+        img (Image): image where text will be recognized
         txt (pygats.recog.SearchedText): text which fill be searched
         skip (int): amount of skipped finding
         extend (bool, optional): extended crop area
