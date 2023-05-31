@@ -223,42 +223,42 @@ def failed(img=pyautogui.screenshot(), msg='Тест не успешен'):
     raise TestException(img, msg)
 
 
-def check_image(ctx, img, timeout=1):
+def check_image(ctx, img_path: str, timeout=1):
     """Check if image is located on screen. Timeout in second waiting image
     to occurs
 
     Args:
         ctx (Context): context
-        img (PIL.Image): image to check on screen
+        img_path (str): path to image for check on screen
         timeout (int): timeout in seconds to check if image occurs
     """
-    img = platform_specific_image(img)
-    step(ctx, f'Проверка отображения {img} ...')
+    img_path = platform_specific_image(img_path)
+    step(ctx, f'Проверка отображения {img_path} ...')
     # try:
     while timeout > 0:
-        if locate_on_screen(img) is not None:
+        if locate_on_screen(img_path) is not None:
             passed()
             return
         timeout -= 1
         time.sleep(1)
     # except:  # pylint: disable=bare-except
     #     print('Exception')
-    #     failed(img, 'Изображение не найдено')
-    # failed(img, 'Изображение не найдено')
+    #     failed(img_path, 'Изображение не найдено')
+    # failed(img_path, 'Изображение не найдено')
 
 
-def locate_on_screen(img):
-    """Function return coord of image located on screen.
+def locate_on_screen(img_path: str):
+    """Function return coord of path to image located on screen.
     If not found returns None
 
     Args:
-        img (PIL.Image): image to find
+        img (str): path to image to find
 
     Returns:
-        (x,y): coordinates image on screen
+        (x,y): coordinates path for image on screen
     """
-    img = platform_specific_image(img)
-    coord = pyautogui.locateOnScreen(img, confidence=0.5)
+    img_path = platform_specific_image(img_path)
+    coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
     print(f'Изображение найдено в координатах {coord}')
     return coord
 
@@ -276,19 +276,19 @@ def move_to_coord(ctx, x, y):
     passed()
 
 
-def move_to(ctx, img):
-    """Function move mouse to img
+def move_to(ctx, img_path: str):
+    """Function move mouse to img_path
 
     Args:
         ctx (Context): context
-        img (PIL.Image): image to move to
+        img (str): path to image for move to
 
     """
-    img = platform_specific_image(img)
-    step(ctx, f'Переместить указатель мыши на изображение {img} ...')
-    center = pyautogui.locateCenterOnScreen(img, confidence=0.8)
+    img_path = platform_specific_image(img_path)
+    step(ctx, f'Переместить указатель мыши на изображение {img_path} ...')
+    center = pyautogui.locateCenterOnScreen(img_path, confidence=0.8)
     if center is None:
-        failed(img, 'Изображение не найдено')
+        failed(img_path, 'Изображение не найдено')
     if sys.platform == 'darwin':
         pyautogui.moveTo(center.x / 2, center.y / 2)
     else:
@@ -546,13 +546,13 @@ def filter_rect_sorted(cnts):
     return cnts
 
 
-def find_contours(ctx, img, fltr=repeater):
+def find_contours(ctx, img_path: str, fltr=repeater):
     """
     Function finds contours by cv and filter them with filter
 
     Args:
         ctx (Context): context of test run
-        img (PIL.Image): image where contours will be searched
+        img (str): path to image where contours will be searched
         fltr (function, optional): filter which will be used on contours
         results  # noqa: DAR003
 
@@ -560,20 +560,20 @@ def find_contours(ctx, img, fltr=repeater):
         list of points: list of points filtered
     """
     step(ctx, 'Поиск контуров с применением селектора')
-    np_img = np.array(img)
-    gray = cv.cvtColor(np_img, cv.COLOR_BGR2GRAY)
+    np_img_path = np.array(img_path)
+    gray = cv.cvtColor(np_img_path, cv.COLOR_BGR2GRAY)
     _, thresh = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
     cnts, _ = cv.findContours(
         thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     return fltr(cnts)
 
 
-def draw_contours(img, cnts):
+def draw_contours(img: str, cnts):
     """
     Draw contours on a PIL.Image instance.
 
     Args:
-        img (PIL.Image): Input image on which to draw the contours.
+        img (str): Input image on which to draw the contours.
         cnts (list of numpy.ndarray): List of contours, represented
         as Numpy arrays.  # noqa: DAR003
 
@@ -581,7 +581,7 @@ def draw_contours(img, cnts):
         PIL.Image: Output image with contours drawn.
 
     Raises:
-        TypeError: If `img` is not a `PIL.Image` instance.
+        TypeError: If `img_path` is not a `PIL.Image` instance.
         ValueError: If `cnts` is not a list of Numpy arrays.
     """
     if not isinstance(img, Image.Image):
