@@ -319,7 +319,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
     recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
     if not one_word:
         combine_words_in_lines(recognized)
-    ret_tuple = (-1, -1, -1, -1, False)
+    x, y, w, h, found = -1, -1, -1, -1, False
     for line in recognized[1:]:
         if txt.text in line.split('\t')[11]:
             print("Найден текст " + line.split('\t')[11])
@@ -335,7 +335,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
                 cropped_img, txt, skip=skip, one_word=one_word)
             if found:
                 return x, y, w, h, True
-    return ret_tuple
+    return x, y, w, h, found
 
 
 def recognize_text(img, lang):
