@@ -315,35 +315,23 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
     recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
     if not one_word:
         combine_words_in_lines(recognized)
-    ret_tuple = (-1, -1, -1, -1, False)
+    x, y, w, h, found = -1, -1, -1, -1, False
     for line in recognized[1:]:
-        splitted = line.split('\t')
-        if len(splitted) == 12:
-            if splitted[11].find(txt.text) != -1:
-                print("Найден текст " + splitted[11])
-                ret_tuple = (int(splitted[6]),
-                             int(splitted[7]),
-                             int(splitted[8]),
-                             int(splitted[9]),
-                             True)
-                if skip <= 0:
-                    break
-                skip -= 1
-            else:
-                if int(splitted[6]) + int(splitted[7]) != 0:
-                    cropped = img.crop(
-                        (int(splitted[6]), int(splitted[7]),
-                            int(splitted[6]) + int(splitted[8]),
-                            int(splitted[7]) + int(splitted[9])))
-                    cropped_tuple = find_cropped_text(
-                        cropped, txt, 0, one_word)
-                    if cropped_tuple[4]:
-                        return (cropped_tuple[0] + int(splitted[6]),
-                                cropped_tuple[1] + int(splitted[7]),
-                                cropped_tuple[2],
-                                cropped_tuple[3],
-                                cropped_tuple[4])
-    return ret_tuple
+        if txt.text in line.split('\t')[11]:
+            print("Найден текст " + line.split('\t')[11])
+            x, y, w, h = map(int, line.split('\t')[6:10])
+            if skip <= 0:
+                break
+            skip -= 1
+            return x, y, w, h, True
+        if int(line.split('\t')[6] + line.split('\t')[7]) != 0:
+            x, y, w, h = map(int, line.split('\t')[6:10])
+            cropped_img = img.crop(x, y, x + w, y + h)
+            x, y, w, h, found = find_cropped_text(
+                cropped_img, txt, skip=skip, one_word=one_word)
+            if found:
+                return x, y, w, h, True
+    return x, y, w, h, found
 
 
 def recognize_text(img, lang):
