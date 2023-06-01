@@ -4,6 +4,7 @@ module with data classes.
 
 from dataclasses import dataclass
 import re
+from typing import Optional
 import pyautogui
 import pytesseract
 from Levenshtein import ratio
@@ -204,7 +205,7 @@ def combine_lines(lines):
 
     Notes:
         There is magic number 5 to understand if words on the same line.
-        It should be reworked in future.
+        It should be reworked in the future.
 
     Todo:
         * This function should be reworked in future with
@@ -230,20 +231,23 @@ def combine_lines(lines):
     return result
 
 
-def crop_image(img: Image, width, height, extend=False):
-    """Function crop image
+def crop_image(img: Image, width: Optional[int] = 0, height: Optional[int] = 0,
+               extend: Optional[bool] = False) -> Image:
+    """
+    Crops a portion of the input image based on the specified width and height multipliers.
+    If width and height aren't specified return an original image
 
     Args:
-        img (Image): image to be cropped
-        width (int): multiplier to determine the beginning of the crop area
-            by width
-        height (int): multiplier to determine the beginning of the crop area
-            by height
-        extend (bool, optional): extended crop area
+        img (Image): The input image to crop.
+        width (int, optional): The multiplier to determine the beginning of the crop area by width.
+        height (int, optional): The multiplier to determine the beginning of the crop area by height
+        extend (bool, optional): Whether to extend the crop area by a factor of 2.
 
     Returns:
-        PIL.Image: cropped image area
+        Image: The cropped image area.
     """
+    if width == 0 and height == 0:
+        return img
     img_width, img_height = img.size
     factor = 1
     if extend:
@@ -261,41 +265,33 @@ def crop_image(img: Image, width, height, extend=False):
     return img_crop
 
 
-def find_crop_image(img, crop_area='all', extend=False):
-    """Function crop area detection for crop function
+def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
+                    extend: Optional[bool] = False) -> Image:
+    """
+    Detects the crop area for the input image and crops the image based on the specified crop area.
 
     Args:
-        img (PIL.Image): image to be cropped
-        crop_area (str, optional): image cropping area
-        extend (bool, optional): extended crop area
+        img (Image): The input image to crop.
+        crop_area (str, optional): The crop area to use. Defaults to 'all'. # noqa: DAR003
+        extend (bool, optional): Whether to extend the crop area by a factor of 2.
+        Defaults to False.
 
     Returns:
-        PIL.Image: cropped image area
+        Image: The cropped image area.
     """
-    if crop_area == 'all':
-        return img
-    if crop_area == 'center':
-        data = {'img': img, 'width': 1, 'height': 1, 'extend': extend}
-    elif crop_area == 'top-left':
-        data = {'img': img, 'width': 0, 'height': 0, 'extend': extend}
-    elif crop_area == 'left':
-        data = {'img': img, 'width': 0, 'height': 1, 'extend': extend}
-    elif crop_area == 'bottom-left':
-        data = {'img': img, 'width': 0, 'height': 2, 'extend': extend}
-    elif crop_area == 'top':
-        data = {'img': img, 'width': 1, 'height': 0, 'extend': extend}
-    elif crop_area == 'bottom':
-        data = {'img': img, 'width': 1, 'height': 2, 'extend': extend}
-    elif crop_area == 'top-right':
-        data = {'img': img, 'width': 2, 'height': 0, 'extend': extend}
-    elif crop_area == 'right':
-        data = {'img': img, 'width': 2, 'height': 1, 'extend': extend}
-    elif crop_area == 'bottom-right':
-        data = {'img': img, 'width': 2, 'height': 2, 'extend': extend}
-    else:
-        print(f'Неизвестная область "{crop_area}"')
-        return img
-    return crop_image(**data)
+    crop_area_params = {
+        'all': img,
+        'center': (img, 1, 1, extend),
+        'top-left': (img, 1, 1, extend),
+        'left': (img, 0, 1, extend),
+        'bottom-left': (img, 0, 2, extend),
+        'top': (img, 1, 0, extend),
+        'bottom': (img, 1, 2, extend),
+        'top-right': (img, 2, 0, extend),
+        'right': (img, 2, 1, extend),
+        'bottom-right': (img, 2, 2, extend)
+    }
+    return crop_image(**crop_area_params.get(crop_area)) if crop_area_params.get(crop_area) else img
 
 
 def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
