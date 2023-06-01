@@ -329,7 +329,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
             skip -= 1
             return x, y, w, h, True
         if int(line.split('\t')[6] + line.split('\t')[7]) != 0:
-            x, y, w, h = map(int, line.split('\t')[6:10])                                                                              
+            x, y, w, h = map(int, line.split('\t')[6:10])
             cropped_img = img.crop(x, y, x + w, y + h)
             x, y, w, h, found = find_cropped_text(
                 cropped_img, txt, skip=skip, one_word=one_word)
