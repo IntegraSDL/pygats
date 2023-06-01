@@ -252,7 +252,7 @@ def locate_on_screen(img_path: str):
     If not found returns None
 
     Args:
-        img (str): path to image to find
+        img_path (str): path to image to find
 
     Returns:
         (x,y): coordinates path for image on screen
@@ -281,7 +281,7 @@ def move_to(ctx, img_path: str):
 
     Args:
         ctx (Context): context
-        img (str): path to image for move to
+        img_path (str): path to image for move to
 
     """
     img_path = platform_specific_image(img_path)
@@ -552,7 +552,7 @@ def find_contours(ctx, img_path: str, fltr=repeater):
 
     Args:
         ctx (Context): context of test run
-        img (str): path to image where contours will be searched
+        img_path (str): path to image where contours will be searched
         fltr (function, optional): filter which will be used on contours
         results  # noqa: DAR003
 
@@ -568,12 +568,12 @@ def find_contours(ctx, img_path: str, fltr=repeater):
     return fltr(cnts)
 
 
-def draw_contours(img: str, cnts):
+def draw_contours(img, cnts):
     """
     Draw contours on a PIL.Image instance.
 
     Args:
-        img (str): Input image on which to draw the contours.
+        img (PIL.Image): Input image on which to draw the contours.
         cnts (list of numpy.ndarray): List of contours, represented
         as Numpy arrays.  # noqa: DAR003
 
@@ -581,7 +581,7 @@ def draw_contours(img: str, cnts):
         PIL.Image: Output image with contours drawn.
 
     Raises:
-        TypeError: If `img_path` is not a `PIL.Image` instance.
+        TypeError: If `img` is not a `PIL.Image` instance.
         ValueError: If `cnts` is not a list of Numpy arrays.
     """
     if not isinstance(img, Image.Image):
