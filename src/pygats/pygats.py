@@ -309,14 +309,15 @@ def click_right_button(ctx):
     passed()
 
 
-def click_left_button(ctx):
+def click_left_button(ctx, clicks=1):
     """function clicks left button of mouse
 
     Args:
         ctx (Context): context
+        clicks (int, optional): number of clicks
     """
     step(ctx, 'Нажать левую кнопку мыши ...')
-    pyautogui.click(button='left')
+    pyautogui.click(button='left', clicks=clicks, interval=0.2)
     print(f'Текущая позиция указателя мыши {pyautogui.position()}')
     passed()
 
