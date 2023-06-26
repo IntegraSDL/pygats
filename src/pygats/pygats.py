@@ -475,6 +475,7 @@ def print_test_summary(list_passed, list_failed):
     """
     print()
     print('## Результаты тестирования')
+    # pylint: disable=consider-using-f-string
     print("\033[32m{}\033[0m".format('Тесты завершенные успешно:'))
     for t in list_passed:
         print('* ', "\033[32m{}\033[0m".format(t))
@@ -485,7 +486,6 @@ def print_test_summary(list_passed, list_failed):
     print()
     print('**Всего выполнено**')
     print()
-    # pylint: disable=consider-using-f-string
     print(
         'Успешно: {:04d} / Неуспешно: {:04d}'.format(
             len(list_passed), len(list_failed)))
@@ -654,15 +654,17 @@ def run(funcs, counter=1, output='output'):
                 tmp_path = os.path.join('', *relative_path[1:])
                 print(f'![Тест пройден]({tmp_path})')
                 print()
+                # pylint: disable=consider-using-f-string
                 print("\033[32m{}\033[0m".format('**Тест пройден**'))
             except TestException as e:
                 img_path = os.path.join(
                     output, SUITE_NAME, test_name, 'test-failed.png')
                 pyautogui.screenshot(img_path)
+                # pylint: disable=consider-using-f-string
                 print("\033[31m{}\033[0m".format(f'\n> Error : {e.message}\n'))
                 relative_path = img_path.split(os.path.sep)
                 tmp_path = os.path.join('', *relative_path[1:])
-                print(f'![Тест не пройден]({tmp_path})')
+                print('![Тест не пройден]({tmp_path})')
                 print()
                 print("\033[31m{}\033[0m".format('**Тест не пройден**'))
                 TESTS_FAILED.append(os.path.join(SUITE_NAME, test_name))
