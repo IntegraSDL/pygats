@@ -475,13 +475,13 @@ def print_test_summary(list_passed, list_failed):
     """
     print()
     print('## Результаты тестирования')
-    print('Тесты завершенные успешно:')
+    print("\033[32m{}\033[0m".format('Тесты завершенные успешно:'))
     for t in list_passed:
-        print('* ', t)
+        print('* ', "\033[32m{}\033[0m".format(t))
     print()
-    print('Тесты завершенные неуспешно:')
+    print("\033[31m{}\033[0m".format('Тесты завершенные неуспешно:'))
     for t in list_failed:
-        print('* ', t)
+        print('* ', "\033[31m{}\033[0m".format(t))
     print()
     print('**Всего выполнено**')
     print()
@@ -654,17 +654,17 @@ def run(funcs, counter=1, output='output'):
                 tmp_path = os.path.join('', *relative_path[1:])
                 print(f'![Тест пройден]({tmp_path})')
                 print()
-                print('**Тест пройден**')
+                print("\033[32m{}\033[0m".format('**Тест пройден**'))
             except TestException as e:
                 img_path = os.path.join(
                     output, SUITE_NAME, test_name, 'test-failed.png')
                 pyautogui.screenshot(img_path)
-                print(f'\n> Error : {e.message}\n')
+                print("\033[31m{}\033[0m".format(f'\n> Error : {e.message}\n'))
                 relative_path = img_path.split(os.path.sep)
                 tmp_path = os.path.join('', *relative_path[1:])
                 print(f'![Тест не пройден]({tmp_path})')
                 print()
-                print('**Тест не пройден**')
+                print("\033[31m{}\033[0m".format('**Тест не пройден**'))
                 TESTS_FAILED.append(os.path.join(SUITE_NAME, test_name))
 
     print_test_summary(TESTS_PASSED, TESTS_FAILED)
