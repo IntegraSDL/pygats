@@ -561,12 +561,14 @@ def find_contours(ctx, img_path: str, fltr=repeater):
         list of points: list of points filtered
     """
     step(ctx, 'Поиск контуров с применением селектора')
-    np_img_path = np.array(img_path)
-    gray = cv.cvtColor(np_img_path, cv.COLOR_BGR2GRAY)
-    _, thresh = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
-    cnts, _ = cv.findContours(
-        thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    return fltr(cnts)
+    img = cv.imread(img_path)
+    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    edges = cv.Canny(img_gray, 50, 100)
+    kernel = cv.getStructuringElement(cv.MORPH_RECT, (2, 2))
+    edges = cv.dilate(edges, kernel, iterations=1)
+    contours, _ = cv.findContours(
+        image=edges, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
+    return fltr(contours)
 
 
 def draw_contours(img, cnts):
@@ -589,9 +591,9 @@ def draw_contours(img, cnts):
         raise TypeError("img must be a PIL.Image instance")
     if not all(isinstance(cnt, np.ndarray) for cnt in cnts):
         raise ValueError("cnts must be a list of Numpy arrays")
-    np_img = np.array(img)
-    cv.drawContours(np_img, cnts, -1, (0, 255, 0), 3)
-    return Image.fromarray(np_img)
+    np_img = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
+    cv.drawContours(np_img, cnts, -1, (0, 255, 0), lineType=cv.LINE_AA)
+    return Image.fromarray(cv.cvtColor(np_img, cv.COLOR_BGR2RGB))
 
 
 def random_string(string_length, character_set=None):
