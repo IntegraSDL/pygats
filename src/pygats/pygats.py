@@ -418,21 +418,6 @@ def move(ctx, x, y):
     passed()
 
 
-def keyboard(ctx, message):
-    """
-    function types message on keyboard with 0.1 sec delay of each symbol
-    At the end <Enter> is pressed
-
-    Args:
-        ctx (Context): context
-        message (string): text to type on keyboard
-    """
-    step(ctx, f'Набрать на клавиатуре и нажать <Enter>: {message} ...')
-    pyautogui.write(message, 0.1)
-    pyautogui.press('enter')
-    passed()
-
-
 def press(ctx, key, n=1):
     """Function press keys n times
 
