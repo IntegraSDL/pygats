@@ -125,6 +125,27 @@ def check_text_on_screen(ctx, txt):
     passed()
 
 
+def move_to_text(ctx, txt, skip=0):
+    """Finds text on the screen and moves the cursor to it
+
+    Args:
+        ctx (Context): execution context
+        txt (pygats.recog.SearchedText): text to be searched and clicked
+        skip (int): amount of text should be skipped
+    """
+    step(ctx, f'Переместить курсор на текст {txt.text}')
+    x, y, width, height, found = find_text_on_screen(
+        ctx, txt, skip, True)
+    if not found:
+        failed(msg=f'{txt.text} не найден на экране')
+
+    print(x, y, width, height)
+    center_x = x + width / 2
+    center_y = y + height / 2
+    pyautogui.moveTo(center_x, center_y)
+    passed()
+
+
 def click_text(ctx, txt, button='left', skip=0):
     """Finds text on screen and press mouse button on it
 
