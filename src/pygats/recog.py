@@ -45,18 +45,13 @@ def find_cropped_text(img, txt, skip=0, one_word=False):
 
     """
     recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
-    if not one_word:
-        combine_words_in_lines(recognized)
+    recog_tuple = combine_lines(recognized, one_word)
     ret_tuple = (-1, -1, -1, -1, False)
-    for line in recognized[1:]:
-        splitted = line.split('\t')
-        if len(splitted) == 12 and splitted[11].find(txt.text) != -1:
-            print(f'Найден текст {splitted[11]}')
-            ret_tuple = (int(splitted[6]),
-                         int(splitted[7]),
-                         int(splitted[8]),
-                         int(splitted[9]),
-                         True)
+    for line in recog_tuple:
+        if line[4].find(txt.text) != -1:
+            print("Найден текст " + line[4])
+            ret_tuple = (
+                line[0], line[1], line[2], line[3], True)
             if skip <= 0:
                 break
             skip -= 1
@@ -162,7 +157,6 @@ def recognize_text_with_data(img, lang):
     return pytesseract.image_to_data(img, lang)
 
 
-
 def combine_lines(lines, one_word=False):
     """Function translate lines from Tesseract output format into
     result tuple
@@ -170,6 +164,7 @@ def combine_lines(lines, one_word=False):
     Args:
         lines (List): Returns result containing box boundaries, confidences,
             and other information.
+        one_word (bool, optional): one word to search
 
     Returns:
         list: combined tuples
@@ -284,28 +279,25 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
     recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
     recog_tuple = combine_lines(recognized, one_word)
     ret_tuple = (-1, -1, -1, -1, False)
-    for line in recog_tuple:
+    for line in recog_tuple[1:]:
         if line[4].find(txt.text) != -1:
             print("Найден текст " + line[4])
-            ret_tuple = (line[0], line[1],
-                line[2], line[3], True)
+            ret_tuple = (
+                line[0], line[1], line[2], line[3], True)
             if skip <= 0:
                 break
             skip -= 1
         else:
-            if int(line[0]) + int(line[1]) != 0:
+            if line[0] + line[1] != 0:
                 cropped = img.crop(
-                    (int(line[0]), int(line(1)),
-                        int(line[0]) + int(line[2]),
-                        int(line[1]) + int(line[3])))
-                cropped_tuple = find_cropped_text(
+                    (line[0], line[1],
+                        line[0] + line[2],
+                        line[1] + line[3]))
+                x, y, w, h, found = find_cropped_text(
                     cropped, txt, 0, one_word)
-                if cropped_tuple[4]:
-                    return (cropped_tuple[0] + int(line[0]),
-                            cropped_tuple[1] + int(line[1]),
-                            cropped_tuple[2],
-                            cropped_tuple[3],
-                            cropped_tuple[4])
+                if found:
+                    return (x + line[0], y + line[1],
+                        w, h, found)
     return ret_tuple
 
 
