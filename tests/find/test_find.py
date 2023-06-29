@@ -176,6 +176,6 @@ def study_size():
 def test_all():
     study_font_white()
     study_font_gray()
-    # study_font_blue()
-    # study_font_yellow()
-    # study_size()
+    study_font_blue()
+    study_font_yellow()
+    study_size()
