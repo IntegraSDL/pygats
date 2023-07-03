@@ -511,7 +511,7 @@ def filter_rect_sorted(cnts):
         Returns:
             rect: rect which approximate polygonal curves
         """
-        epsilon = 0.01 * cv.arcLength(x, True)
+        epsilon = 0.025 * cv.arcLength(x, True)
         return cv.approxPolyDP(x, epsilon, True)
 
     def rect_filter(x):
