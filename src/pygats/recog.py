@@ -45,18 +45,13 @@ def find_cropped_text(img, txt, skip=0, one_word=False):
 
     """
     recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
-    if not one_word:
-        combine_words_in_lines(recognized)
+    recog_tuple = combine_lines(recognized, one_word)
     ret_tuple = (-1, -1, -1, -1, False)
-    for line in recognized[1:]:
-        splitted = line.split('\t')
-        if len(splitted) == 12 and splitted[11].find(txt.text) != -1:
-            print(f'Найден текст {splitted[11]}')
-            ret_tuple = (int(splitted[6]),
-                         int(splitted[7]),
-                         int(splitted[8]),
-                         int(splitted[9]),
-                         True)
+    for line in recog_tuple:
+        if line[4].find(txt.text) != -1:
+            print("Найден текст " + line[4])
+            ret_tuple = (
+                line[0], line[1], line[2], line[3], True)
             if skip <= 0:
                 break
             skip -= 1
@@ -125,6 +120,27 @@ def check_text_on_screen(ctx, txt):
     passed()
 
 
+def move_to_text(ctx, txt, skip=0):
+    """Finds text on the screen and moves the cursor to it
+
+    Args:
+        ctx (Context): execution context
+        txt (pygats.recog.SearchedText): text to be searched and clicked
+        skip (int): amount of text should be skipped
+    """
+    step(ctx, f'Переместить курсор на текст {txt.text}')
+    x, y, width, height, found = find_text_on_screen(
+        ctx, txt, skip, True)
+    if not found:
+        failed(msg=f'{txt.text} не найден на экране')
+
+    print(x, y, width, height)
+    center_x = x + width / 2
+    center_y = y + height / 2
+    pyautogui.moveTo(center_x, center_y)
+    passed()
+
+
 def click_text(ctx, txt, button='left', skip=0):
     """Finds text on screen and press mouse button on it
 
@@ -162,43 +178,14 @@ def recognize_text_with_data(img, lang):
     return pytesseract.image_to_data(img, lang)
 
 
-def combine_words_in_lines(lines):
-    """Functions combines words recognized on screen into lines
-
-    Args:
-        lines (List): Returns result containing box boundaries, confidences,
-            and other information.
-
-    Returns:
-        list: combined lines
-
-    Notes:
-        Now this function just add other words to the left most. No box rect is
-        adjusted.
-
-    Todo:
-        * This function should adjust rect (width) of left most word when added
-        new word to it.
-
-    """
-    for i in range(1, len(lines) - 1):
-        splitted = lines[i].split('\t')
-        if len(splitted) != 12:
-            return
-        y = int(splitted[7])
-        for j in range(i + 1, len(lines) - 1):
-            line = lines[j].split('\t')
-            if abs(y - int(line[7])) < 5 and len(line[11].strip()) > 0:
-                lines[i] += ' ' + line[11]
-
-
-def combine_lines(lines):
+def combine_lines(lines, one_word=False):
     """Function translate lines from Tesseract output format into
     result tuple
 
     Args:
         lines (List): Returns result containing box boundaries, confidences,
             and other information.
+        one_word (bool, optional): one word to search
 
     Returns:
         list: combined tuples
@@ -214,19 +201,20 @@ def combine_lines(lines):
     """
     result = []
     for i in range(1, len(lines) - 1):
-        splitted = lines[i].split('\t')
-        if len(splitted) != 12:
+        split_line_1 = lines[i].split('\t')
+        if len(split_line_1) != 12:
             return result
-        x = int(splitted[6])
-        y = int(splitted[7])
-        w = int(splitted[8])
-        h = int(splitted[9])
-        text = splitted[11]
-        for j in range(i + 1, len(lines) - 1):
-            splitted2 = lines[j].split('\t')
-            if abs(y - int(splitted2[7])) < 5 and len(splitted2[11].strip()) > 0:
-                w += int(splitted[8])
-                text += ' ' + splitted2[11]
+        x = int(split_line_1[6])
+        y = int(split_line_1[7])
+        w = int(split_line_1[8])
+        h = int(split_line_1[9])
+        text = split_line_1[11]
+        if not one_word:
+            for j in range(i + 1, len(lines) - 1):
+                split_line_2 = lines[j].split('\t')
+                if abs(y - int(split_line_2[7])) < 5 and len(split_line_2[11].strip()) > 0:
+                    w += int(split_line_2[8])
+                    text += ' ' + split_line_2[11]
         result.append((x, y, w, h, text))
     return result
 
@@ -310,36 +298,26 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
     """
     img = find_crop_image(img, txt.area, extend=extend)
     recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
-    if not one_word:
-        combine_words_in_lines(recognized)
+    recog_tuple = combine_lines(recognized, one_word)
     ret_tuple = (-1, -1, -1, -1, False)
-    for line in recognized[1:]:
-        splitted = line.split('\t')
-        if len(splitted) == 12:
-            if splitted[11].find(txt.text) != -1:
-                print("Найден текст " + splitted[11])
-                ret_tuple = (int(splitted[6]),
-                             int(splitted[7]),
-                             int(splitted[8]),
-                             int(splitted[9]),
-                             True)
-                if skip <= 0:
-                    break
-                skip -= 1
-            else:
-                if int(splitted[6]) + int(splitted[7]) != 0:
-                    cropped = img.crop(
-                        (int(splitted[6]), int(splitted[7]),
-                            int(splitted[6]) + int(splitted[8]),
-                            int(splitted[7]) + int(splitted[9])))
-                    cropped_tuple = find_cropped_text(
-                        cropped, txt, 0, one_word)
-                    if cropped_tuple[4]:
-                        return (cropped_tuple[0] + int(splitted[6]),
-                                cropped_tuple[1] + int(splitted[7]),
-                                cropped_tuple[2],
-                                cropped_tuple[3],
-                                cropped_tuple[4])
+    for line in recog_tuple[1:]:
+        if line[4].find(txt.text) != -1:
+            print("Найден текст " + line[4])
+            ret_tuple = (
+                line[0], line[1], line[2], line[3], True)
+            if skip <= 0:
+                break
+            skip -= 1
+        else:
+            if line[0] + line[1] != 0:
+                cropped = img.crop(
+                    (line[0], line[1],
+                        line[0] + line[2],
+                        line[1] + line[3]))
+                x, y, w, h, found = find_cropped_text(
+                    cropped, txt, 0, one_word)
+                if found:
+                    return (x + line[0], y + line[1], w, h, found)
     return ret_tuple
 
 

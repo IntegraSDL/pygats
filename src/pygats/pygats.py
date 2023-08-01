@@ -19,6 +19,7 @@ PLATFORM = ''
 TESTS_PASSED = []
 TESTS_FAILED = []
 STEP_INDEX = 0
+SCREENSHOTS_ON = True
 SCREENSHOT_INDEX = 0
 OUTPUT_PATH = 'output'
 SUITE_NAME = ''
@@ -199,11 +200,12 @@ def passed():
     """
     function prints passed information after test case
     """
-    img_path = os.path.join(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
-    pyautogui.screenshot(img_path)
-    relative_path = img_path.split(os.path.sep)
-    tmp_path = os.path.join('', *relative_path[1:])
-    print(f'![Успешно]({tmp_path})')
+    if SCREENSHOTS_ON:
+        img_path = os.path.join(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
+        pyautogui.screenshot(img_path)
+        relative_path = img_path.split(os.path.sep)
+        tmp_path = os.path.join('', *relative_path[1:])
+        print(f'![Успешно]({tmp_path})')
     print()
     print('**Успешно**')
     print()
@@ -309,14 +311,15 @@ def click_right_button(ctx):
     passed()
 
 
-def click_left_button(ctx):
+def click_left_button(ctx, clicks=1):
     """function clicks left button of mouse
 
     Args:
         ctx (Context): context
+        clicks (int, optional): number of clicks
     """
     step(ctx, 'Нажать левую кнопку мыши ...')
-    pyautogui.click(button='left')
+    pyautogui.click(button='left', clicks=clicks, interval=0.2)
     print(f'Текущая позиция указателя мыши {pyautogui.position()}')
     passed()
 
@@ -417,21 +420,6 @@ def move(ctx, x, y):
     passed()
 
 
-def keyboard(ctx, message):
-    """
-    function types message on keyboard with 0.1 sec delay of each symbol
-    At the end <Enter> is pressed
-
-    Args:
-        ctx (Context): context
-        message (string): text to type on keyboard
-    """
-    step(ctx, f'Набрать на клавиатуре и нажать <Enter>: {message} ...')
-    pyautogui.write(message, 0.1)
-    pyautogui.press('enter')
-    passed()
-
-
 def press(ctx, key, n=1):
     """Function press keys n times
 
@@ -525,7 +513,7 @@ def filter_rect_sorted(cnts):
         Returns:
             rect: rect which approximate polygonal curves
         """
-        epsilon = 0.01 * cv.arcLength(x, True)
+        epsilon = 0.025 * cv.arcLength(x, True)
         return cv.approxPolyDP(x, epsilon, True)
 
     def rect_filter(x):
@@ -560,12 +548,14 @@ def find_contours(ctx, img_path: str, fltr=repeater):
         list of points: list of points filtered
     """
     step(ctx, 'Поиск контуров с применением селектора')
-    np_img_path = np.array(img_path)
-    gray = cv.cvtColor(np_img_path, cv.COLOR_BGR2GRAY)
-    _, thresh = cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
-    cnts, _ = cv.findContours(
-        thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-    return fltr(cnts)
+    img = cv.imread(img_path)
+    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    edges = cv.Canny(img_gray, 50, 100)
+    kernel = cv.getStructuringElement(cv.MORPH_RECT, (2, 2))
+    edges = cv.dilate(edges, kernel, iterations=1)
+    contours, _ = cv.findContours(
+        image=edges, mode=cv.RETR_TREE, method=cv.CHAIN_APPROX_NONE)
+    return fltr(contours)
 
 
 def draw_contours(img, cnts):
@@ -588,9 +578,9 @@ def draw_contours(img, cnts):
         raise TypeError("img must be a PIL.Image instance")
     if not all(isinstance(cnt, np.ndarray) for cnt in cnts):
         raise ValueError("cnts must be a list of Numpy arrays")
-    np_img = np.array(img)
-    cv.drawContours(np_img, cnts, -1, (0, 255, 0), 3)
-    return Image.fromarray(np_img)
+    np_img = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
+    cv.drawContours(np_img, cnts, -1, (0, 255, 0), lineType=cv.LINE_AA)
+    return Image.fromarray(cv.cvtColor(np_img, cv.COLOR_BGR2RGB))
 
 
 def random_string(string_length, character_set=None):
@@ -622,7 +612,7 @@ def random_string(string_length, character_set=None):
     return ''.join(random.choice(character_set) for _ in range(string_length))
 
 
-def run(funcs, counter=1, output='output'):
+def run(funcs, counter=1, output='output', screenshots_on=True):
     """
     Execute test suite (list of test cases) one by one
 
@@ -630,8 +620,11 @@ def run(funcs, counter=1, output='output'):
         funcs (list of strings): list of function to be executed
         counter (int Optional): amount to time test cases to be executed
         output (string): path to store test results
+        screenshots_on (bool): create screenshots while running tests
     """
     global OUTPUT_PATH
+    global SCREENSHOTS_ON
+    SCREENSHOTS_ON = screenshots_on
     try:
         os.makedirs(output)
     except FileExistsError:
@@ -647,24 +640,26 @@ def run(funcs, counter=1, output='output'):
                 OUTPUT_PATH = os.path.join(output, SUITE_NAME, test_name)
                 f()
                 TESTS_PASSED.append(os.path.join(SUITE_NAME, test_name))
-                img_path = os.path.join(
-                    output, SUITE_NAME, test_name, 'test-passed.png')
-                pyautogui.screenshot(img_path)
-                relative_path = img_path.split(os.path.sep)
-                tmp_path = os.path.join('', *relative_path[1:])
-                print(f'![Тест пройден]({tmp_path})')
+                if SCREENSHOTS_ON:
+                    img_path = os.path.join(
+                        output, SUITE_NAME, test_name, 'test-passed.png')
+                    pyautogui.screenshot(img_path)
+                    relative_path = img_path.split(os.path.sep)
+                    tmp_path = os.path.join('', *relative_path[1:])
+                    print(f'![Тест пройден]({tmp_path})')
                 print()
                 # pylint: disable=consider-using-f-string
                 print("\033[32m{}\033[0m".format('**Тест пройден**'))
             except TestException as e:
-                img_path = os.path.join(
-                    output, SUITE_NAME, test_name, 'test-failed.png')
-                pyautogui.screenshot(img_path)
+                if SCREENSHOTS_ON:
+                    img_path = os.path.join(
+                        output, SUITE_NAME, test_name, 'test-failed.png')
+                    pyautogui.screenshot(img_path)
+                    relative_path = img_path.split(os.path.sep)
+                    tmp_path = os.path.join('', *relative_path[1:])
+                    print(f'![Тест не пройден]({tmp_path})')
                 # pylint: disable=consider-using-f-string
                 print("\033[31m{}\033[0m".format(f'\n> Error : {e.message}\n'))
-                relative_path = img_path.split(os.path.sep)
-                tmp_path = os.path.join('', *relative_path[1:])
-                print('![Тест не пройден]({tmp_path})')
                 print()
                 print("\033[31m{}\033[0m".format('**Тест не пройден**'))
                 TESTS_FAILED.append(os.path.join(SUITE_NAME, test_name))
