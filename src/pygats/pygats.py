@@ -19,6 +19,7 @@ PLATFORM = ''
 TESTS_PASSED = []
 TESTS_FAILED = []
 STEP_INDEX = 0
+SCREENSHOTS_ON = True
 SCREENSHOT_INDEX = 0
 OUTPUT_PATH = 'output'
 SUITE_NAME = ''
@@ -199,11 +200,12 @@ def passed():
     """
     function prints passed information after test case
     """
-    img_path = os.path.join(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
-    pyautogui.screenshot(img_path)
-    relative_path = img_path.split(os.path.sep)
-    tmp_path = os.path.join('', *relative_path[1:])
-    print(f'![Успешно]({tmp_path})')
+    if SCREENSHOTS_ON:
+        img_path = os.path.join(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
+        pyautogui.screenshot(img_path)
+        relative_path = img_path.split(os.path.sep)
+        tmp_path = os.path.join('', *relative_path[1:])
+        print(f'![Успешно]({tmp_path})')
     print()
     print('**Успешно**')
     print()
@@ -610,7 +612,7 @@ def random_string(string_length, character_set=None):
     return ''.join(random.choice(character_set) for _ in range(string_length))
 
 
-def run(funcs, counter=1, output='output'):
+def run(funcs, counter=1, output='output', screenshots_on=True):
     """
     Execute test suite (list of test cases) one by one
 
@@ -618,8 +620,11 @@ def run(funcs, counter=1, output='output'):
         funcs (list of strings): list of function to be executed
         counter (int Optional): amount to time test cases to be executed
         output (string): path to store test results
+        screenshots_on (bool): create screenshots while running tests
     """
     global OUTPUT_PATH
+    global SCREENSHOTS_ON
+    SCREENSHOTS_ON = screenshots_on
     try:
         os.makedirs(output)
     except FileExistsError:
@@ -635,22 +640,24 @@ def run(funcs, counter=1, output='output'):
                 OUTPUT_PATH = os.path.join(output, SUITE_NAME, test_name)
                 f()
                 TESTS_PASSED.append(os.path.join(SUITE_NAME, test_name))
-                img_path = os.path.join(
-                    output, SUITE_NAME, test_name, 'test-passed.png')
-                pyautogui.screenshot(img_path)
-                relative_path = img_path.split(os.path.sep)
-                tmp_path = os.path.join('', *relative_path[1:])
-                print(f'![Тест пройден]({tmp_path})')
+                if SCREENSHOTS_ON:
+                    img_path = os.path.join(
+                        output, SUITE_NAME, test_name, 'test-passed.png')
+                    pyautogui.screenshot(img_path)
+                    relative_path = img_path.split(os.path.sep)
+                    tmp_path = os.path.join('', *relative_path[1:])
+                    print(f'![Тест пройден]({tmp_path})')
                 print()
                 print('**Тест пройден**')
             except TestException as e:
-                img_path = os.path.join(
-                    output, SUITE_NAME, test_name, 'test-failed.png')
-                pyautogui.screenshot(img_path)
+                if SCREENSHOTS_ON:
+                    img_path = os.path.join(
+                        output, SUITE_NAME, test_name, 'test-failed.png')
+                    pyautogui.screenshot(img_path)
+                    relative_path = img_path.split(os.path.sep)
+                    tmp_path = os.path.join('', *relative_path[1:])
+                    print(f'![Тест не пройден]({tmp_path})')
                 print(f'\n> Error : {e.message}\n')
-                relative_path = img_path.split(os.path.sep)
-                tmp_path = os.path.join('', *relative_path[1:])
-                print(f'![Тест не пройден]({tmp_path})')
                 print()
                 print('**Тест не пройден**')
                 TESTS_FAILED.append(os.path.join(SUITE_NAME, test_name))
