@@ -66,3 +66,27 @@ class MarkdownFormatter:
         """
         print(f'![Screenshot]({img_path})')
         print()
+
+
+def print_color_text(text: str, color: str):
+    """
+    Display text in a specific color
+
+    Args:
+        text (str): text to be printed
+        color (str): text color
+    """
+    # pylint: disable=consider-using-f-string
+    colors = {
+        'red': "\033[31m{}\033[0m",
+        'green': "\033[32m{}\033[0m",
+        'yellow': "\033[33m{}\033[0m",
+        'blue': "\033[34m{}\033[0m",
+        'purple': "\033[35m{}\033[0m",
+        'light blue': "\033[36m{}\033[0m",
+        'white': "\033[37m{}\033[0m"
+    }
+    if colors.get(color):
+        print(colors.get(color).format(text))
+    else:
+        print(text)
