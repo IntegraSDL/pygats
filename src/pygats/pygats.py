@@ -648,8 +648,7 @@ def run(funcs, counter=1, output='output', screenshots_on=True):
                     relative_path = img_path.split(os.path.sep)
                     tmp_path = os.path.join('', *relative_path[1:])
                     print(f'![Тест пройден]({tmp_path})')
-                print()
-                print_color_text('**Тест пройден**', 'green')
+                print_color_text('\n**Тест пройден**', 'green')
             except TestException as e:
                 if SCREENSHOTS_ON:
                     img_path = os.path.join(
@@ -658,8 +657,7 @@ def run(funcs, counter=1, output='output', screenshots_on=True):
                     relative_path = img_path.split(os.path.sep)
                     tmp_path = os.path.join('', *relative_path[1:])
                     print(f'![Тест не пройден]({tmp_path})')
-                print_color_text('\n> Error : ' + e.message, 'red')
-                print()
+                print_color_text('\n> Error : ' + e.message + '\n', 'red')
                 print_color_text('**Тест не пройден**', 'red')
                 TESTS_FAILED.append(os.path.join(SUITE_NAME, test_name))
 
