@@ -14,6 +14,7 @@ import pyperclip
 from PIL import Image
 import cv2 as cv
 import numpy as np
+from pygats.formatters import print_color_text
 
 PLATFORM = ''
 TESTS_PASSED = []
@@ -461,19 +462,19 @@ def print_test_summary(list_passed, list_failed):
         list_passed (list): list of test passed
         list_failed (list): list of test failed
     """
+    # pylint: disable=consider-using-f-string
     print()
     print('## Результаты тестирования')
-    print('Тесты завершенные успешно:')
+    print_color_text('Тесты завершенные успешно:', 'green')
     for t in list_passed:
-        print('* ', t)
+        print_color_text('* ' + t, 'green')
     print()
-    print('Тесты завершенные неуспешно:')
+    print_color_text('Тесты завершенные неуспешно:', 'red')
     for t in list_failed:
-        print('* ', t)
+        print_color_text('* ' + t, 'red')
     print()
     print('**Всего выполнено**')
     print()
-    # pylint: disable=consider-using-f-string
     print(
         'Успешно: {:04d} / Неуспешно: {:04d}'.format(
             len(list_passed), len(list_failed)))
@@ -647,8 +648,7 @@ def run(funcs, counter=1, output='output', screenshots_on=True):
                     relative_path = img_path.split(os.path.sep)
                     tmp_path = os.path.join('', *relative_path[1:])
                     print(f'![Тест пройден]({tmp_path})')
-                print()
-                print('**Тест пройден**')
+                print_color_text('\n**Тест пройден**', 'green')
             except TestException as e:
                 if SCREENSHOTS_ON:
                     img_path = os.path.join(
@@ -657,9 +657,8 @@ def run(funcs, counter=1, output='output', screenshots_on=True):
                     relative_path = img_path.split(os.path.sep)
                     tmp_path = os.path.join('', *relative_path[1:])
                     print(f'![Тест не пройден]({tmp_path})')
-                print(f'\n> Error : {e.message}\n')
-                print()
-                print('**Тест не пройден**')
+                print_color_text('\n> Error : ' + e.message + '\n', 'red')
+                print_color_text('**Тест не пройден**', 'red')
                 TESTS_FAILED.append(os.path.join(SUITE_NAME, test_name))
 
     print_test_summary(TESTS_PASSED, TESTS_FAILED)
