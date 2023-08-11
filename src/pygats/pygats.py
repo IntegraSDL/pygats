@@ -11,7 +11,7 @@ import random
 import inspect
 import pyautogui
 import pyperclip
-from PIL import Image
+from PIL import Image, ImageChops
 import cv2 as cv
 import numpy as np
 from pygats.formatters import print_color_text
@@ -23,6 +23,8 @@ STEP_INDEX = 0
 SCREENSHOTS_ON = True
 SCREENSHOT_INDEX = 0
 OUTPUT_PATH = 'output'
+COMPARE_PATH = ''
+COMPARE_INDEX = 0
 SUITE_NAME = ''
 
 
@@ -170,6 +172,66 @@ def screenshot(ctx, rect=None):
     # Display the screenshot
     ctx.formatter.print_img(tmp_path)
     return img
+
+
+def begin_compare(ctx):
+    """Function to start tracking changes on the screen
+    
+    Args:
+        ctx (object): An object that contains information about the current
+                    context.
+    """
+    step(ctx, 'Начало отслеживание изменений на экране')
+    global COMPARE_PATH
+    COMPARE_PATH = os.path.join(OUTPUT_PATH, "compare")
+    try:
+        os.makedirs(COMPARE_PATH)
+    except FileExistsError:
+        pass
+    img_path = os.path.join(COMPARE_PATH, f'begin-compare-{COMPARE_INDEX}.png')
+    pyautogui.screenshot(img_path)
+    relative_path = img_path.split(os.path.sep)
+    tmp_path = os.path.join('', *relative_path[1:])
+    print(f'![Начало отслеживания]({tmp_path})')
+    print()
+
+
+def end_compare(ctx):
+    """Function to end tracking changes on the screen
+
+    Args:
+        ctx (object): An object that contains information about the current
+                    context.
+
+    Returns:
+        tupple or None: Change detection coordinates or None
+    """
+    global COMPARE_INDEX
+    step(ctx, 'Поиск изменений на экране ...')
+    img_path = os.path.join(COMPARE_PATH, f'end-compare-{COMPARE_INDEX}.png')
+    pyautogui.screenshot(img_path)
+    begin_img = Image.open(os.path.join(COMPARE_PATH, f'begin-compare-{COMPARE_INDEX}.png'))
+    end_img = Image.open(img_path)
+    result = ImageChops.difference(begin_img, end_img)
+    if result.getbbox() is not None:
+        result_path = os.path.join(COMPARE_PATH, f'result-compare-{COMPARE_INDEX}.png')
+        result.save(result_path)
+        relative_path = result_path.split(os.path.sep)
+        tmp_path = os.path.join('', *relative_path[1:])
+        print(f'![Найдены изменения]({tmp_path})')
+        print()
+        print('**Найдены изменения**')
+        print()
+        COMPARE_INDEX += 1
+        return result.getbbox()
+    relative_path = img_path.split(os.path.sep)
+    tmp_path = os.path.join('', *relative_path[1:])
+    print(f'![Изменения не найдены]({tmp_path})')
+    print()
+    print('**Изменения не найдены**')
+    print()
+    COMPARE_INDEX += 1
+    return None
 
 
 def log_image(img: Image, msg='Снимок экрана'):
