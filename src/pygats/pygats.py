@@ -176,7 +176,7 @@ def screenshot(ctx, rect=None):
 
 def begin_compare(ctx):
     """Function to start tracking changes on the screen
-    
+
     Args:
         ctx (object): An object that contains information about the current
                     context.
