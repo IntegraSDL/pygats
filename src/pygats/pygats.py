@@ -174,47 +174,62 @@ def screenshot(ctx, rect=None):
     return img
 
 
-def begin_compare(ctx):
-    """Function to start tracking changes on the screen
-
-    Args:
-        ctx (object): An object that contains information about the current
-                    context.
-    """
-    step(ctx, 'Начало отслеживание изменений на экране')
-    global COMPARE_PATH
-    COMPARE_PATH = os.path.join(OUTPUT_PATH, "compare")
-    try:
-        os.makedirs(COMPARE_PATH)
-    except FileExistsError:
-        pass
-    img_path = os.path.join(COMPARE_PATH, f'begin-compare-{COMPARE_INDEX}.png')
-    pyautogui.screenshot(img_path)
-    relative_path = img_path.split(os.path.sep)
-    tmp_path = os.path.join('', *relative_path[1:])
-    print(f'![Начало отслеживания]({tmp_path})')
-    print()
-
-
-def end_compare(ctx):
-    """Function to end tracking changes on the screen
+def take_snapshot(ctx):
+    """Function takes a snapshot to further detect changes on the screen
 
     Args:
         ctx (object): An object that contains information about the current
                     context.
 
     Returns:
-        tupple or None: Change detection coordinates or None
+        tmp_path (string): path to snapshot
     """
-    global COMPARE_INDEX
-    step(ctx, 'Поиск изменений на экране ...')
-    img_path = os.path.join(COMPARE_PATH, f'end-compare-{COMPARE_INDEX}.png')
+    step(ctx, 'Создание снимка для поиска изменений на экране')
+    global SNAPSHOT_PATH
+    global SNAPSHOT_INDEX
+    SNAPSHOT_PATH = os.path.join(OUTPUT_PATH, "compare")
+    try:
+        os.makedirs(SNAPSHOT_PATH)
+    except FileExistsError:
+        pass
+    img_path = os.path.join(SNAPSHOT_PATH, f'snapshot-{SNAPSHOT_INDEX}.png')
     pyautogui.screenshot(img_path)
-    begin_img = Image.open(os.path.join(COMPARE_PATH, f'begin-compare-{COMPARE_INDEX}.png'))
-    end_img = Image.open(img_path)
-    result = ImageChops.difference(begin_img, end_img)
+    relative_path = img_path.split(os.path.sep)
+    tmp_path = os.path.join('', *relative_path[1:])
+    SNAPSHOT_INDEX += 1
+    print()
+    print(f'![Снимок экрана]({tmp_path})')
+    print()
+    return tmp_path
+
+
+def compare_snapshots(ctx, first_img, second_img):
+    """Function for comparing two images
+
+    Args:
+        ctx (object): An object that contains information about the current
+                    context.
+        first_img (string): path to first snapshot for compare
+        second_img (string): path to second snapshot for compare
+
+    Returns:
+        tupple or None: coordinates of the change detection area
+    """
+    step(ctx, 'Поиск изменений между снимками ...')
+    print()
+    print(f'![Первый снимок]({first_img})')
+    print()
+    print(f'![Второй снимок]({second_img})')
+    print()
+    first = Image.open(os.path.join('./output', first_img))
+    second = Image.open(os.path.join('./output', second_img))
+    result = ImageChops.difference(first, second)
     if result.getbbox() is not None:
-        result_path = os.path.join(COMPARE_PATH, f'result-compare-{COMPARE_INDEX}.png')
+        relative_path = first_img.split('-')
+        first_index = relative_path[len(relative_path) - 1].split('.')[0]
+        relative_path = second_img.split('-')
+        second_index = relative_path[len(relative_path) - 1].split('.')[0]
+        result_path = os.path.join(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png')
         result.save(result_path)
         relative_path = result_path.split(os.path.sep)
         tmp_path = os.path.join('', *relative_path[1:])
@@ -222,15 +237,10 @@ def end_compare(ctx):
         print()
         print('**Найдены изменения**')
         print()
-        COMPARE_INDEX += 1
         return result.getbbox()
-    relative_path = img_path.split(os.path.sep)
-    tmp_path = os.path.join('', *relative_path[1:])
-    print(f'![Изменения не найдены]({tmp_path})')
     print()
     print('**Изменения не найдены**')
     print()
-    COMPARE_INDEX += 1
     return None
 
 
