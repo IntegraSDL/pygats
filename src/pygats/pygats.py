@@ -11,7 +11,7 @@ import random
 import inspect
 import pyautogui
 import pyperclip
-from PIL import Image
+from PIL import Image, ImageChops
 import cv2 as cv
 import numpy as np
 from pygats.formatters import print_color_text
@@ -23,6 +23,8 @@ STEP_INDEX = 0
 SCREENSHOTS_ON = True
 SCREENSHOT_INDEX = 0
 OUTPUT_PATH = 'output'
+SNAPSHOT_PATH = ''
+SNAPSHOT_INDEX = 0
 SUITE_NAME = ''
 
 
@@ -170,6 +172,76 @@ def screenshot(ctx, rect=None):
     # Display the screenshot
     ctx.formatter.print_img(tmp_path)
     return img
+
+
+def take_snapshot(ctx):
+    """Function takes a snapshot to further detect changes on the screen
+
+    Args:
+        ctx (object): An object that contains information about the current
+                    context.
+
+    Returns:
+        tmp_path (string): path to snapshot
+    """
+    step(ctx, 'Создание снимка для поиска изменений на экране')
+    global SNAPSHOT_PATH
+    global SNAPSHOT_INDEX
+    SNAPSHOT_PATH = os.path.join(OUTPUT_PATH, "compare")
+    try:
+        os.makedirs(SNAPSHOT_PATH)
+    except FileExistsError:
+        pass
+    img_path = os.path.join(SNAPSHOT_PATH, f'snapshot-{SNAPSHOT_INDEX}.png')
+    pyautogui.screenshot(img_path)
+    relative_path = img_path.split(os.path.sep)
+    tmp_path = os.path.join('', *relative_path[1:])
+    SNAPSHOT_INDEX += 1
+    print()
+    print(f'![Снимок экрана]({tmp_path})')
+    print()
+    return tmp_path
+
+
+def compare_snapshots(ctx, first_img, second_img):
+    """Function for comparing two images
+
+    Args:
+        ctx (object): An object that contains information about the current
+                    context.
+        first_img (string): path to first snapshot for compare
+        second_img (string): path to second snapshot for compare
+
+    Returns:
+        tupple or None: coordinates of the change detection area
+    """
+    step(ctx, 'Поиск изменений между снимками ...')
+    print()
+    print(f'![Первый снимок]({first_img})')
+    print()
+    print(f'![Второй снимок]({second_img})')
+    print()
+    first = Image.open(os.path.join('./output', first_img))
+    second = Image.open(os.path.join('./output', second_img))
+    result = ImageChops.difference(first, second)
+    if result.getbbox() is not None:
+        relative_path = first_img.split('-')
+        first_index = relative_path[len(relative_path) - 1].split('.')[0]
+        relative_path = second_img.split('-')
+        second_index = relative_path[len(relative_path) - 1].split('.')[0]
+        result_path = os.path.join(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png')
+        result.save(result_path)
+        relative_path = result_path.split(os.path.sep)
+        tmp_path = os.path.join('', *relative_path[1:])
+        print(f'![Найдены изменения]({tmp_path})')
+        print()
+        print('**Найдены изменения**')
+        print()
+        return result.getbbox()
+    print()
+    print('**Изменения не найдены**')
+    print()
+    return None
 
 
 def log_image(img: Image, msg='Снимок экрана'):
