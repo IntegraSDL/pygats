@@ -449,7 +449,6 @@ def scroll(ctx, clicks=1):
     passed()
 
 
-
 def ctrl_with_key(ctx, key):
     """
     function presses key with ctrl key
