@@ -232,7 +232,9 @@ def crop_image(img: Image, width: Optional[int] = 0, height: Optional[int] = 0,
         extend (bool, optional): Whether to extend the crop area by a factor of 2.
 
     Returns:
-        Image: The cropped image area.
+        (x_offset, y_offset, img_crop):
+            x_offset (int), y_offset (int): offset by x and y coordinates
+            img_crop (Image): The cropped image area.
     """
     img_width, img_height = img.size
     factor = 1
@@ -248,7 +250,7 @@ def crop_image(img: Image, width: Optional[int] = 0, height: Optional[int] = 0,
                   crop_width * width + crop_width * factor,
                   crop_height * height + crop_height * factor)
     img_crop = img.crop(crop_coord)
-    return img_crop
+    return (crop_coord[0], crop_coord[1], img_crop)
 
 
 def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
@@ -263,7 +265,9 @@ def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
         Defaults to False.
 
     Returns:
-        Image: The cropped image area.
+        (x_offset, y_offset, img_crop):
+            x_offset (int), y_offset (int): offset by x and y coordinates
+            img_crop (Image): The cropped image area.
     """
     crop_area_params = {
         'center': (img, 1, 1, extend),
@@ -276,7 +280,7 @@ def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
         'right': (img, 2, 1, extend),
         'bottom-right': (img, 2, 2, extend)
     }
-    return crop_image(*crop_area_params.get(crop_area)) if crop_area_params.get(crop_area) else img
+    return crop_image(*crop_area_params.get(crop_area)) if crop_area_params.get(crop_area) else (0, 0, img)
 
 
 def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
@@ -296,7 +300,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
             w (int), h (int): width and height of rectangle where text resides
             found (bool): whether the text is found in the image
     """
-    img = find_crop_image(img, txt.area, extend=extend)
+    x_offset, y_offset, img = find_crop_image(img, txt.area, extend=extend)
     recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
     recog_tuple = combine_lines(recognized, one_word)
     ret_tuple = (-1, -1, -1, -1, False)
@@ -304,7 +308,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
         if line[4].find(txt.text) != -1:
             print("Найден текст " + line[4])
             ret_tuple = (
-                line[0], line[1], line[2], line[3], True)
+                line[0] + x_offset, line[1] + y_offset, line[2], line[3], True)
             if skip <= 0:
                 break
             skip -= 1
@@ -317,7 +321,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
                 x, y, w, h, found = find_cropped_text(
                     cropped, txt, 0, one_word)
                 if found:
-                    return (x + line[0], y + line[1], w, h, found)
+                    return (x + line[0] + x_offset, y + line[1] + y_offset, w, h, found)
     return ret_tuple
 
 
