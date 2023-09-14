@@ -29,7 +29,7 @@ class MarkdownFormatter:
             text (string): paragraph text
         """
         print()
-        print(f'{text}')
+        print(text)
         print()
 
     @staticmethod
@@ -41,7 +41,7 @@ class MarkdownFormatter:
             text (string): footer text
         """
         print()
-        print(f'{text}')
+        print(text)
         print()
 
     @staticmethod
@@ -57,14 +57,39 @@ class MarkdownFormatter:
         print('```')
 
     @staticmethod
-    def print_img(img_path):
+    def print_img(img_name, img_path):
         """
         Print image path
 
         Args:
             img_path (string): path to image
         """
-        print(f'![Screenshot]({img_path})')
+        print()
+        print(f'![{img_name}]({img_path})')
+        print()
+
+    @staticmethod
+    def print_selected_text(text):
+        """
+        Print selected text
+
+        Args:
+            text (string): selected text
+        """
+        print()
+        print(f'**{text}**')
+        print()
+
+    @staticmethod
+    def print_error(text):
+        """
+        Print selected text
+
+        Args:
+            text (string): selected text
+        """
+        print()
+        print(f'> Error: {text}')
         print()
 
 

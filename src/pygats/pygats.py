@@ -170,7 +170,7 @@ def screenshot(ctx, rect=None):
     relative_path = img_path.split(os.path.sep)
     tmp_path = os.path.join('', *relative_path[1:])
     # Display the screenshot
-    ctx.formatter.print_img(tmp_path)
+    ctx.formatter.print_img('Screenshot', tmp_path)
     return img
 
 
@@ -197,9 +197,7 @@ def take_snapshot(ctx):
     relative_path = img_path.split(os.path.sep)
     tmp_path = os.path.join('', *relative_path[1:])
     SNAPSHOT_INDEX += 1
-    print()
-    print(f'![Снимок экрана]({tmp_path})')
-    print()
+    ctx.formatter.print_img('Snapshot', tmp_path)
     return tmp_path
 
 
@@ -216,11 +214,8 @@ def compare_snapshots(ctx, first_img, second_img):
         tupple or None: coordinates of the change detection area
     """
     step(ctx, 'Поиск изменений между снимками ...')
-    print()
-    print(f'![Первый снимок]({first_img})')
-    print()
-    print(f'![Второй снимок]({second_img})')
-    print()
+    ctx.formatter.print_img('First snapshot', first_img)
+    ctx.formatter.print_img('Second snapshot', second_img)
     first = Image.open(os.path.join('./output', first_img))
     second = Image.open(os.path.join('./output', second_img))
     result = ImageChops.difference(first, second)
@@ -233,18 +228,14 @@ def compare_snapshots(ctx, first_img, second_img):
         result.save(result_path)
         relative_path = result_path.split(os.path.sep)
         tmp_path = os.path.join('', *relative_path[1:])
-        print(f'![Найдены изменения]({tmp_path})')
-        print()
-        print('**Найдены изменения**')
-        print()
+        ctx.formatter.print_img('Changes found', tmp_path)
+        ctx.formatter.print_selected_text('Changes detected')
         return result.getbbox()
-    print()
-    print('**Изменения не найдены**')
-    print()
+    ctx.formatter.print_selected_text('No changes detected')
     return None
 
 
-def log_image(img: Image, msg='Снимок экрана'):
+def log_image(ctx, img: Image, msg='Screenshot'):
     """
     Function log img with msg into report
     image is stored in output path as screenshotIndex
@@ -264,12 +255,11 @@ def log_image(img: Image, msg='Снимок экрана'):
     img.save(img_path)
     relative_path = img_path.split(os.path.sep)
     tmp_path = os.path.join('', *relative_path[1:])
-    print(f'![{msg}]({tmp_path})')
-    print()
+    ctx.formatter.print_img(msg, tmp_path)
     return img
 
 
-def passed():
+def passed(ctx):
     """
     function prints passed information after test case
     """
@@ -278,10 +268,8 @@ def passed():
         pyautogui.screenshot(img_path)
         relative_path = img_path.split(os.path.sep)
         tmp_path = os.path.join('', *relative_path[1:])
-        print(f'![Успешно]({tmp_path})')
-    print()
-    print('**Успешно**')
-    print()
+        ctx.formatter.print_img('Успешно', tmp_path)
+    ctx.formatter.print_selected_text('Successfully')
 
 
 def failed(img=pyautogui.screenshot(), msg='Тест не успешен'):
@@ -311,8 +299,8 @@ def check_image(ctx, img_path: str, timeout=1):
     step(ctx, f'Проверка отображения {img_path} ...')
     # try:
     while timeout > 0:
-        if locate_on_screen(img_path) is not None:
-            passed()
+        if locate_on_screen(ctx, img_path) is not None:
+            passed(ctx)
             return
         timeout -= 1
         time.sleep(1)
@@ -322,7 +310,7 @@ def check_image(ctx, img_path: str, timeout=1):
     # failed(img_path, 'Изображение не найдено')
 
 
-def locate_on_screen(img_path: str):
+def locate_on_screen(ctx, img_path: str):
     """Function return coord of path to image located on screen.
     If not found returns None
 
@@ -334,7 +322,7 @@ def locate_on_screen(img_path: str):
     """
     img_path = platform_specific_image(img_path)
     coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
-    print(f'Изображение найдено в координатах {coord}')
+    ctx.formatter.print_para(f'Изображение найдено в координатах {coord}')
     return coord
 
 
@@ -348,7 +336,7 @@ def move_to_coord(ctx, x, y):
     """
     step(ctx, f'Переместить указатель мыши в координаты {x},{y}')
     pyautogui.moveTo(x, y)
-    passed()
+    passed(ctx)
 
 
 def move_to(ctx, img_path: str):
@@ -368,8 +356,8 @@ def move_to(ctx, img_path: str):
         pyautogui.moveTo(center.x / 2, center.y / 2)
     else:
         pyautogui.moveTo(center.x, center.y)
-    print(f'Текущая позиция указателя мыши {pyautogui.position()}')
-    passed()
+    ctx.formatter.print_para(f'Текущая позиция указателя мыши {pyautogui.position()}')
+    passed(ctx)
 
 
 def click_right_button(ctx):
@@ -380,8 +368,8 @@ def click_right_button(ctx):
     """
     step(ctx, 'Нажать правую кнопку мыши ...')
     pyautogui.click(button='right')
-    print(f'Текущая позиция указателя мыши {pyautogui.position()}')
-    passed()
+    ctx.formatter.print_para(f'Текущая позиция указателя мыши {pyautogui.position()}')
+    passed(ctx)
 
 
 def click_left_button(ctx, clicks=1):
@@ -393,8 +381,8 @@ def click_left_button(ctx, clicks=1):
     """
     step(ctx, 'Нажать левую кнопку мыши ...')
     pyautogui.click(button='left', clicks=clicks, interval=0.2)
-    print(f'Текущая позиция указателя мыши {pyautogui.position()}')
-    passed()
+    ctx.formatter.print_para(f'Текущая позиция указателя мыши {pyautogui.position()}')
+    passed(ctx)
 
 
 def click(ctx, btn, area=''):
@@ -411,9 +399,9 @@ def click(ctx, btn, area=''):
     step(ctx, f'Нажать кнопку мыши {btn} ...')
     if area == '':
         center = pyautogui.locateCenterOnScreen(btn, confidence=0.8)
-        print(f'Кнопка найдена с центром в координатах {center}')
+        ctx.formatter.print_para(f'Кнопка найдена с центром в координатах {center}')
     else:
-        print(" area " + area)
+        ctx.formatter.print_para(" area " + area)
         area_location = pyautogui.locateOnScreen(area, confidence=0.9)
         if area_location is None:
             failed(area, fail_message)
@@ -427,14 +415,14 @@ def click(ctx, btn, area=''):
     if center is None:
         failed(btn, fail_message)
 
-    print(f'Перемещаем указатель мыши в координаты {center}')
+    ctx.formatter.print_para(f'Перемещаем указатель мыши в координаты {center}')
     if sys.platform == 'darwin':
         pyautogui.moveTo(center.x / 2, center.y / 2)
     else:
         pyautogui.moveTo(center.x, center.y)
     # pyautogui.dragTo()
     pyautogui.click()
-    passed()
+    passed(ctx)
 
 
 def ctrl_with_key(ctx, key):
@@ -447,7 +435,7 @@ def ctrl_with_key(ctx, key):
     """
     step(ctx, f'Нажать клавишу ctrl+{key}')
     pyautogui.hotkey('ctrl', key)
-    passed()
+    passed(ctx)
 
 
 def alt_with_key(ctx, key):
@@ -460,7 +448,7 @@ def alt_with_key(ctx, key):
     """
     step(ctx, f'Нажать клавишу alt+{key}')
     pyautogui.hotkey('alt', key)
-    passed()
+    passed(ctx)
 
 
 def drag_to(ctx, x, y):
@@ -474,7 +462,7 @@ def drag_to(ctx, x, y):
     """
     step(ctx, f'Переместить в координаты {x}, {y} ...')
     pyautogui.dragTo(x, y, button='left', duration=0.5)
-    passed()
+    passed(ctx)
 
 
 def move(ctx, x, y):
@@ -487,10 +475,10 @@ def move(ctx, x, y):
         y (int): coordinates to move mouse pointer
     """
     step(ctx, f'Относительное перемещение указателя мыши x={x}, y={y} ...')
-    print(f'из координат {pyautogui.position()}')
+    ctx.formatter.print_para(f'из координат {pyautogui.position()}')
     pyautogui.move(x, y)
-    print(f'новые координаты {pyautogui.position()}')
-    passed()
+    ctx.formatter.print_para(f'новые координаты {pyautogui.position()}')
+    passed(ctx)
 
 
 def press(ctx, key, n=1):
@@ -520,14 +508,14 @@ def typewrite(ctx, message, lang='eng'):
         pyperclip.copy(message)
         pyautogui.hotkey('ctrl', 'v')
         pyperclip.copy(clipboard)
-        passed()
+        passed(ctx)
     else:
         step(ctx, f'Набрать на клавиатуре {message} ...')
         pyautogui.write(message)
-        passed()
+        passed(ctx)
 
 
-def print_test_summary(list_passed, list_failed):
+def print_test_summary(ctx, list_passed, list_failed):
     """Functions print tests summary for executed suites
 
     Args:
@@ -535,22 +523,17 @@ def print_test_summary(list_passed, list_failed):
         list_failed (list): list of test failed
     """
     # pylint: disable=consider-using-f-string
-    print()
-    print('## Результаты тестирования')
-    print_color_text('Тесты завершенные успешно:', 'green')
+    ctx.formatter.print_header(2, 'Результаты тестирования')
+    ctx.formatter.print_para('Тесты завершенные успешно:')
     for t in list_passed:
-        print_color_text('* ' + t, 'green')
-    print()
-    print_color_text('Тесты завершенные неуспешно:', 'red')
+        ctx.formatter.print_para('* ' + t)
+    ctx.formatter.print_para('Тесты завершенные неуспешно:')
     for t in list_failed:
-        print_color_text('* ' + t, 'red')
-    print()
-    print('**Всего выполнено**')
-    print()
-    print(
+        ctx.formatter.print_para('* ' + t)
+    ctx.formatter.print_selected_text('Всего выполнено')
+    ctx.formatter.print_para(
         'Успешно: {:04d} / Неуспешно: {:04d}'.format(
             len(list_passed), len(list_failed)))
-    print()
 
 
 def repeater(cnts):
@@ -685,7 +668,7 @@ def random_string(string_length, character_set=None):
     return ''.join(random.choice(character_set) for _ in range(string_length))
 
 
-def run(funcs, counter=1, output='output', screenshots_on=True):
+def run(ctx, funcs, counter=1, output='output', screenshots_on=True):
     """
     Execute test suite (list of test cases) one by one
 
@@ -719,8 +702,8 @@ def run(funcs, counter=1, output='output', screenshots_on=True):
                     pyautogui.screenshot(img_path)
                     relative_path = img_path.split(os.path.sep)
                     tmp_path = os.path.join('', *relative_path[1:])
-                    print(f'![Тест пройден]({tmp_path})')
-                print_color_text('\n**Тест пройден**', 'green')
+                    ctx.formatter.print_img('Тест пройден', tmp_path)
+                ctx.formatter.print_selected_text('Тест пройден')
             except TestException as e:
                 if SCREENSHOTS_ON:
                     img_path = os.path.join(
@@ -728,9 +711,9 @@ def run(funcs, counter=1, output='output', screenshots_on=True):
                     pyautogui.screenshot(img_path)
                     relative_path = img_path.split(os.path.sep)
                     tmp_path = os.path.join('', *relative_path[1:])
-                    print(f'![Тест не пройден]({tmp_path})')
-                print_color_text('\n> Error : ' + e.message + '\n', 'red')
-                print_color_text('**Тест не пройден**', 'red')
+                    ctx.formatter.print_img('Тест не пройден', tmp_path)
+                ctx.formatter.print_error(e.message)
+                ctx.formatter.print_selected_text('Тест не пройден')
                 TESTS_FAILED.append(os.path.join(SUITE_NAME, test_name))
 
-    print_test_summary(TESTS_PASSED, TESTS_FAILED)
+    print_test_summary(ctx, TESTS_PASSED, TESTS_FAILED)

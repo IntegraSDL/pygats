@@ -23,7 +23,7 @@ class SearchedText:
     area: str
 
 
-def find_cropped_text(img, txt, skip=0, one_word=False):
+def find_cropped_text(ctx, img, txt, skip=0, one_word=False):
     """
     Find text in image. Several passes are used.
     First time found area with text on image and then
@@ -49,7 +49,7 @@ def find_cropped_text(img, txt, skip=0, one_word=False):
     ret_tuple = (-1, -1, -1, -1, False)
     for line in recog_tuple:
         if line[4].find(txt.text) != -1:
-            print("Найден текст " + line[4])
+            ctx.formatter.print_para("Найден текст " + line[4])
             ret_tuple = (
                 line[0], line[1], line[2], line[3], True)
             if skip <= 0:
@@ -78,10 +78,10 @@ def find_text_on_screen(ctx, txt, skip=0, one_word=False):
     """
     step(ctx, f'Поиск текста {txt.text} на экране ...')
     img = pyautogui.screenshot()
-    (x, y, w, h, found) = find_text(img, txt, skip, False, one_word)
+    (x, y, w, h, found) = find_text(ctx, img, txt, skip, False, one_word)
     if found:
         return x, y, w, h, found
-    return find_text(img, txt, skip, True, one_word)
+    return find_text(ctx, img, txt, skip, True, one_word)
 
 
 def check_text(ctx, img: Image, txt):
@@ -95,12 +95,12 @@ def check_text(ctx, img: Image, txt):
     """
     step(ctx,
          f'Проверка отображения текста {txt.text} на изображении {img}...')
-    _, _, _, _, found = find_text(img, txt)
+    _, _, _, _, found = find_text(ctx, img, txt)
     if not found:
-        _, _, _, _, found = find_text(img, txt, extend=True)
+        _, _, _, _, found = find_text(ctx, img, txt, extend=True)
         if not found:
             failed(img, f'{txt.text} не найден на изображении')
-    passed()
+    passed(ctx)
 
 
 def check_text_on_screen(ctx, txt):
@@ -112,12 +112,12 @@ def check_text_on_screen(ctx, txt):
     """
     step(ctx, f'Проверка отображения текста {txt.text} на экране ...')
     img = pyautogui.screenshot()
-    _, _, _, _, found = find_text(img, txt)
+    _, _, _, _, found = find_text(ctx, img, txt)
     if not found:
-        _, _, _, _, found = find_text(img, txt, extend=True)
+        _, _, _, _, found = find_text(ctx, img, txt, extend=True)
         if not found:
             failed(img, f'{txt.text} не найден на экране')
-    passed()
+    passed(ctx)
 
 
 def move_to_text(ctx, txt, skip=0):
@@ -134,11 +134,11 @@ def move_to_text(ctx, txt, skip=0):
     if not found:
         failed(msg=f'{txt.text} не найден на экране')
 
-    print(x, y, width, height)
+    ctx.formatter.print_para(f'{x}, {y}, {width}, {height}')
     center_x = x + width / 2
     center_y = y + height / 2
     pyautogui.moveTo(center_x, center_y)
-    passed()
+    passed(ctx)
 
 
 def click_text(ctx, txt, button='left', skip=0):
@@ -156,13 +156,13 @@ def click_text(ctx, txt, button='left', skip=0):
     if not found:
         failed(msg=f'{txt.text} не найден на экране')
 
-    print(x, y, width, height)
+    ctx.formatter.print_para(f'{x}, {y}, {width}, {height}')
     center_x = x + width / 2
     center_y = y + height / 2
     pyautogui.moveTo(center_x, center_y)
     pyautogui.mouseDown(center_x, center_y, button)
     pyautogui.mouseUp(center_x, center_y, button)
-    passed()
+    passed(ctx)
 
 
 def recognize_text_with_data(img, lang):
@@ -279,7 +279,7 @@ def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
     return crop_image(*crop_area_params.get(crop_area)) if crop_area_params.get(crop_area) else img
 
 
-def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
+def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False):
     """Function finds text in image with Tesseract
 
     Args:
@@ -302,7 +302,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
     ret_tuple = (-1, -1, -1, -1, False)
     for line in recog_tuple[1:]:
         if line[4].find(txt.text) != -1:
-            print("Найден текст " + line[4])
+            ctx.formatter.print_para("Найден текст " + line[4])
             ret_tuple = (
                 line[0], line[1], line[2], line[3], True)
             if skip <= 0:
@@ -315,7 +315,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
                         line[0] + line[2],
                         line[1] + line[3]))
                 x, y, w, h, found = find_cropped_text(
-                    cropped, txt, 0, one_word)
+                    ctx, cropped, txt, 0, one_word)
                 if found:
                     return (x + line[0], y + line[1], w, h, found)
     return ret_tuple
