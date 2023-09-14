@@ -283,6 +283,7 @@ def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False):
     """Function finds text in image with Tesseract
 
     Args:
+        ctx (Context): context of test execution
         img (Image): image where text will be recognized
         txt (pygats.recog.SearchedText): text which fill be searched
         skip (int): amount of skipped finding

@@ -10,11 +10,12 @@ import os
 from pygats.pygats import alt_with_key, passed
 
 
-def setup_test_env(cmd, out_log, err_log):
+def setup_test_env(ctx, cmd, out_log, err_log):
     """
     Setup test environment (run cmd) before execute test cases
 
     Args:
+        ctx (Context pygats.Context): context
         cmd (string): command line to start test process
         out_log (string): path to log file where stdout of the test process
                           will be stored
@@ -25,8 +26,8 @@ def setup_test_env(cmd, out_log, err_log):
         testProc (subprocess.Popen): returns Popen object which
                                      stores executed test process
     """
-    print('## Подготовка стенда к работе')
-    print(f'{cmd} ...')
+    ctx.formatter.print_header(2, 'Подготовка стенда к работе')
+    ctx.formatter.print_para(f'{cmd} ...')
     env = os.environ.copy()
     dir_name = os.path.dirname(cmd)
     if dir_name == '':
@@ -37,7 +38,7 @@ def setup_test_env(cmd, out_log, err_log):
             cwd=dir_name) as test_proc:
         time.sleep(1)
         if test_proc is not None:
-            passed()
+            passed(ctx)
         return test_proc
 
 
@@ -49,7 +50,7 @@ def teardown_test_env(ctx, test_proc):
         ctx (Context pygats.Context): context
         test_proc (subprocess.Popen class): object manage testing process
     """
-    print('## Завершение работы стенда')
+    ctx.formatter.print_header(2, 'Завершение работы стенда')
     alt_with_key(ctx, 'f4')
     test_proc.kill()
-    passed()
+    passed(ctx)

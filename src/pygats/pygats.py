@@ -14,7 +14,6 @@ import pyperclip
 from PIL import Image, ImageChops
 import cv2 as cv
 import numpy as np
-from pygats.formatters import print_color_text
 
 PLATFORM = ''
 TESTS_PASSED = []
@@ -241,6 +240,7 @@ def log_image(ctx, img: Image, msg='Screenshot'):
     image is stored in output path as screenshotIndex
 
     Args:
+        ctx (Context): context of test execution
         img (Image): image to be logged
         msg (str, optional): description of the screenshot.
         Defaults to 'Снимок экрана'.  # noqa: DAR003
@@ -262,6 +262,9 @@ def log_image(ctx, img: Image, msg='Screenshot'):
 def passed(ctx):
     """
     function prints passed information after test case
+
+    Args:
+        ctx (Context): context of test execution
     """
     if SCREENSHOTS_ON:
         img_path = os.path.join(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
@@ -269,7 +272,7 @@ def passed(ctx):
         relative_path = img_path.split(os.path.sep)
         tmp_path = os.path.join('', *relative_path[1:])
         ctx.formatter.print_img('Успешно', tmp_path)
-    ctx.formatter.print_selected_text('Successfully')
+    ctx.formatter.print_selected_text('Successfull')
 
 
 def failed(img=pyautogui.screenshot(), msg='Тест не успешен'):
@@ -673,6 +676,7 @@ def run(ctx, funcs, counter=1, output='output', screenshots_on=True):
     Execute test suite (list of test cases) one by one
 
     Args:
+        ctx (Context): context of test execution
         funcs (list of strings): list of function to be executed
         counter (int Optional): amount to time test cases to be executed
         output (string): path to store test results
