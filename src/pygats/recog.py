@@ -279,7 +279,7 @@ def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
     return crop_image(*crop_area_params.get(crop_area)) if crop_area_params.get(crop_area) else img
 
 
-def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False):
+def find_text(ctx, img: Image, txt, skip = 0, extend=False, one_word=False): # pylint: disable=R0913
     """Function finds text in image with Tesseract
 
     Args:
@@ -298,13 +298,13 @@ def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False):
             found (bool): whether the text is found in the image
     """
     img = find_crop_image(img, txt.area, extend=extend)
-    recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
-    recog_tuple = combine_lines(recognized, one_word)
-    ret_tuple = (-1, -1, -1, -1, False)
+    recognized_data = pytesseract.image_to_data(img, txt.lang).split('\n')
+    recog_tuple = combine_lines(recognized_data, one_word)
+    x, y, w, h, found = (-1, -1, -1, -1, False)
     for line in recog_tuple[1:]:
         if line[4].find(txt.text) != -1:
             ctx.formatter.print_para("Найден текст " + line[4])
-            ret_tuple = (
+            x, y, w, h, found = (
                 line[0], line[1], line[2], line[3], True)
             if skip <= 0:
                 break
@@ -319,7 +319,7 @@ def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False):
                     ctx, cropped, txt, 0, one_word)
                 if found:
                     return (x + line[0], y + line[1], w, h, found)
-    return ret_tuple
+    return x, y, w, h, found
 
 
 def recognize_text(img, lang):
