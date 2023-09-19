@@ -2,7 +2,6 @@
 import pytest
 from pygats.pygats import Context, begin_test, step, check, suite
 from pygats.formatters import MarkdownFormatter as MD
-#from PIL import Image
 
 @pytest.fixture(name='formatter')
 def fixture_formatter():
