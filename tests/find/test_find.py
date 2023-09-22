@@ -23,11 +23,11 @@ def time_decorator(func):
 
 
 def find(img, txt):
-    _, _, _, _, key = r.find_text(img, txt)
+    _, key = r.find_text(img, txt)
     if not key:
         global count_false
         count_false += 1
-        print(f'WARNING! Текст "{txt.text}" не найден')
+        print(f'WARNING! Текст "{txt.content}" не найден')
     else:
         global count_true
         count_true += 1
