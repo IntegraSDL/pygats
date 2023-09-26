@@ -442,7 +442,21 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
     passed()
 
 
+def scroll(ctx: Context, clicks: Optional[int] = 1):
+    """mouse wheel scroll function
+
+    Args:
+        ctx (Context): context
+        clicks (Optional[int]): number of turns of mouse wheel, if it's positive scroll to up,
+                                if it's negative to down
+    """
+    step(ctx, 'Прокрутка колеса мыши ...')
+    pyautogui.scroll(clicks=clicks)
+    passed()
+
+
 def ctrl_with_key(ctx: Context, key: str):
+
     """
     function presses key with ctrl key
 
