@@ -2,7 +2,7 @@
 import pytest
 from pygats.pygats import Context, begin_test, step, check, suite
 from pygats.formatters import MarkdownFormatter as MD
-#from PIL import Image
+
 
 @pytest.fixture(name='formatter')
 def fixture_formatter():
@@ -10,7 +10,7 @@ def fixture_formatter():
     return MD()
 
 
-def test_formatter(formatter, capsys): # pylint: disable=redefined-outer-name
+def test_formatter(formatter, capsys):  # pylint: disable=redefined-outer-name
     """Test formatter"""
     ctx = Context(formatter)
     assert ctx
@@ -23,7 +23,7 @@ def test_formatter(formatter, capsys): # pylint: disable=redefined-outer-name
     assert cptrd.out == '\nStep 1: Hello world\n\n'
 
 
-def test_check(formatter, capsys): # pylint: disable=redefined-outer-name
+def test_check(formatter, capsys):  # pylint: disable=redefined-outer-name
     """Test check function"""
     ctx = Context(formatter)
     assert ctx
@@ -37,6 +37,6 @@ def test_suite(formatter, capsys):
     """Test suite function"""
     ctx = Context(formatter)
     assert ctx
-    suite(ctx, 'suite name','Hello world')
+    suite(ctx, 'suite name', 'Hello world')
     cptrd = capsys.readouterr()
     assert cptrd.out == '\n\n## Hello world\n\n'

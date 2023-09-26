@@ -1,5 +1,5 @@
 """
-pyGATs tis python3 library which combines power of pyautogui, opencv,
+pyGATs is python3 library which combines power of pyautogui, opencv,
 tesseract, markdown and other staff to automate end-to-end and exploratory
 testing.
 """
@@ -9,11 +9,13 @@ import os
 import string
 import random
 import inspect
+from typing import Optional, List
 import pyautogui
 import pyperclip
 from PIL import Image, ImageChops
 import cv2 as cv
 import numpy as np
+
 from pygats.formatters import print_color_text
 
 PLATFORM = ''
@@ -47,34 +49,37 @@ class TestException(Exception):
         self.message = msg
 
 
-def platform_specific_image(img):
+def platform_specific_image(image_path: str) -> str:
     """
     function returns platform specific path to the image. If screenshot has
     platform specifics it should be separated in different images. Name of
     image contains platform name picName.PLATFORM.ext
 
     Args:
-        img (string): path to image
+        image_path (str): path to image
 
     Returns:
-        string: path to image
+        str: path to image
     """
-    if PLATFORM != '':
-        splitted = img.split('.')
-        if len(splitted) == 2:
-            specific_image_path = splitted[0] + '.' + PLATFORM + '.' + splitted[1]
-            if os.path.exists(specific_image_path):
-                return specific_image_path
-    return img
+    if PLATFORM == '':
+        return image_path
+
+    path_parts = image_path.split('.')
+    if len(path_parts) == 2:
+        specific_image_path = path_parts[0] + '.' + PLATFORM + '.' + path_parts[1]
+        if os.path.exists(specific_image_path):
+            return specific_image_path
+
+    return image_path
 
 
-def begin_test(ctx, msg):
+def begin_test(ctx: Context, msg: str):
     """
     Begin of test. Dump msg as name of the test
 
     Args:
         ctx (Context): context of test execution
-        msg (string): message to print at the beginning of test case
+        msg (str): message to print at the beginning of test case
     """
     global STEP_INDEX
     ctx.formatter.print_header(3, msg)
@@ -88,14 +93,14 @@ def begin_test(ctx, msg):
     # print(f'![Начальное состояние]({tmp_path})')
 
 
-def check(ctx, msg, func=None):
+def check(ctx: Context, msg: str, func=None):
     """
     Prints message as check block
 
     Args:
         ctx (Context): context of test execution
-        msg (string): message to print at the beginning of test case
-        func (function Optional): function to be printed and called
+        msg (str): message to print at the beginning of test case
+        func: pointer to function to be printed and called
         during test  # noqa: DAR003
 
     Returns:
@@ -109,14 +114,14 @@ def check(ctx, msg, func=None):
     return None
 
 
-def suite(ctx, name, desc):
+def suite(ctx: Context, name: str, desc: str):
     """
     function prints test suite name in reports
 
     Args:
         ctx (Context): context of test execution
-        name (string): name of test suite
-        desc (string): description of test suite to be printed
+        name (str): name of test suite
+        desc (str): description of test suite to be printed
     """
     global SUITE_NAME
     print()
@@ -124,13 +129,13 @@ def suite(ctx, name, desc):
     ctx.formatter.print_header(2, desc)
 
 
-def step(ctx, msg):
+def step(ctx: Context, msg: str):
     """
     function prints step name and starts new screenshot index
 
     Args:
         ctx (Context): context
-        msg (string): message to print
+        msg (str): message to print
     """
     global STEP_INDEX, SCREENSHOT_INDEX
     STEP_INDEX += 1
@@ -139,14 +144,14 @@ def step(ctx, msg):
     ctx.formatter.print_para(msg)
 
 
-def screenshot(ctx, rect=None):
+def screenshot(ctx: Context, rect: Optional[tuple] = None):
     """Takes a screenshot, optionally limited to the rectangle
     defined by `rect`.
 
     Args:
-        ctx (object): An object that contains information about the current
+        ctx (Context): An object that contains information about the current
                     context.
-        rect (tuple, optional): A tuple of four integers
+        rect (Optional[tuple]): A tuple of four integers
             that defines the area of the screenshot to capture.
             x (int): x coordinate
             y (int): y coordinate
@@ -174,15 +179,15 @@ def screenshot(ctx, rect=None):
     return img
 
 
-def take_snapshot(ctx):
+def take_snapshot(ctx: Context) -> str:
     """Function takes a snapshot to further detect changes on the screen
 
     Args:
-        ctx (object): An object that contains information about the current
+        ctx (Context): An object that contains information about the current
                     context.
 
     Returns:
-        tmp_path (string): path to snapshot
+        tmp_path (str): path to snapshot
     """
     step(ctx, 'Создание снимка для поиска изменений на экране')
     global SNAPSHOT_PATH
@@ -203,31 +208,31 @@ def take_snapshot(ctx):
     return tmp_path
 
 
-def compare_snapshots(ctx, first_img, second_img):
+def compare_snapshots(ctx: Context, first_image: str, second_image: str) -> tuple or None:
     """Function for comparing two images
 
     Args:
-        ctx (object): An object that contains information about the current
+        ctx (Context): An object that contains information about the current
                     context.
-        first_img (string): path to first snapshot for compare
-        second_img (string): path to second snapshot for compare
+        first_image (str): path to first snapshot for compare
+        second_image (str): path to second snapshot for compare
 
     Returns:
         tupple or None: coordinates of the change detection area
     """
     step(ctx, 'Поиск изменений между снимками ...')
     print()
-    print(f'![Первый снимок]({first_img})')
+    print(f'![Первый снимок]({first_image})')
     print()
-    print(f'![Второй снимок]({second_img})')
+    print(f'![Второй снимок]({second_image})')
     print()
-    first = Image.open(os.path.join('./output', first_img))
-    second = Image.open(os.path.join('./output', second_img))
+    first = Image.open(os.path.join('./output', first_image))
+    second = Image.open(os.path.join('./output', second_image))
     result = ImageChops.difference(first, second)
     if result.getbbox() is not None:
-        relative_path = first_img.split('-')
+        relative_path = first_image.split('-')
         first_index = relative_path[len(relative_path) - 1].split('.')[0]
-        relative_path = second_img.split('-')
+        relative_path = second_image.split('-')
         second_index = relative_path[len(relative_path) - 1].split('.')[0]
         result_path = os.path.join(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png')
         result.save(result_path)
@@ -244,7 +249,7 @@ def compare_snapshots(ctx, first_img, second_img):
     return None
 
 
-def log_image(img: Image, msg='Снимок экрана'):
+def log_image(img: Image, msg: Optional[str] = 'Снимок экрана'):
     """
     Function log img with msg into report
     image is stored in output path as screenshotIndex
@@ -258,11 +263,11 @@ def log_image(img: Image, msg='Снимок экрана'):
         PIL.Image: input image
     """
     global SCREENSHOT_INDEX
-    img_path = os.path.join(
+    image_path = os.path.join(
         OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
     SCREENSHOT_INDEX += 1
-    img.save(img_path)
-    relative_path = img_path.split(os.path.sep)
+    img.save(image_path)
+    relative_path = image_path.split(os.path.sep)
     tmp_path = os.path.join('', *relative_path[1:])
     print(f'![{msg}]({tmp_path})')
     print()
@@ -274,9 +279,9 @@ def passed():
     function prints passed information after test case
     """
     if SCREENSHOTS_ON:
-        img_path = os.path.join(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
-        pyautogui.screenshot(img_path)
-        relative_path = img_path.split(os.path.sep)
+        image_path = os.path.join(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
+        pyautogui.screenshot(image_path)
+        relative_path = image_path.split(os.path.sep)
         tmp_path = os.path.join('', *relative_path[1:])
         print(f'![Успешно]({tmp_path})')
     print()
@@ -284,13 +289,13 @@ def passed():
     print()
 
 
-def failed(img=pyautogui.screenshot(), msg='Тест не успешен'):
+def failed(img=pyautogui.screenshot(), msg: Optional[str] = 'Тест не успешен'):
     """
     function generates exception while error occurs
 
     Args:
         img (PIL.Image, optional): image or screenshot
-        msg (string, optional): failed text
+        msg (Optional[str]): failed text
 
     Raises:
         TestException: raise exception in case of test failed
@@ -298,14 +303,14 @@ def failed(img=pyautogui.screenshot(), msg='Тест не успешен'):
     raise TestException(img, msg)
 
 
-def check_image(ctx, img_path: str, timeout=1):
+def check_image(ctx: Context, img_path: str, timeout: Optional[int] = 1):
     """Check if image is located on screen. Timeout in second waiting image
     to occurs
 
     Args:
         ctx (Context): context
         img_path (str): path to image for check on screen
-        timeout (int): timeout in seconds to check if image occurs
+        timeout (Optional[int]): timeout in seconds to check if image occurs
     """
     img_path = platform_specific_image(img_path)
     step(ctx, f'Проверка отображения {img_path} ...')
@@ -338,7 +343,7 @@ def locate_on_screen(img_path: str):
     return coord
 
 
-def move_to_coord(ctx, x, y):
+def move_to_coord(ctx: Context, x: int, y: int):
     """Function moves mouse to coord x,y
 
     Args:
@@ -351,7 +356,7 @@ def move_to_coord(ctx, x, y):
     passed()
 
 
-def move_to(ctx, img_path: str):
+def move_to(ctx: Context, img_path: str):
     """Function move mouse to img_path
 
     Args:
@@ -372,7 +377,7 @@ def move_to(ctx, img_path: str):
     passed()
 
 
-def click_right_button(ctx):
+def click_right_button(ctx: Context):
     """function clicks right mouse button
 
     Args:
@@ -384,12 +389,12 @@ def click_right_button(ctx):
     passed()
 
 
-def click_left_button(ctx, clicks=1):
+def click_left_button(ctx: Context, clicks: Optional[int] = 1):
     """function clicks left button of mouse
 
     Args:
         ctx (Context): context
-        clicks (int, optional): number of clicks
+        clicks (Optional[int]): number of clicks
     """
     step(ctx, 'Нажать левую кнопку мыши ...')
     pyautogui.click(button='left', clicks=clicks, interval=0.2)
@@ -397,27 +402,27 @@ def click_left_button(ctx, clicks=1):
     passed()
 
 
-def click(ctx, btn, area=''):
+def click(ctx: Context, button_path: str, area: Optional[str] = ''):
     """function clicks button in area
 
     Args:
         ctx (Context): context
-        btn (string): path to button image to press
-        area (string, optional): path to area of image to print
+        button_path (str): path to button image to press
+        area (Optional[str]): path to area of image to print
     """
-    btn = platform_specific_image(btn)
+    button_path = platform_specific_image(button_path)
     area = platform_specific_image(area)
     fail_message = 'Изображение не найдено'
-    step(ctx, f'Нажать кнопку мыши {btn} ...')
+    step(ctx, f'Нажать кнопку мыши {button_path} ...')
     if area == '':
-        center = pyautogui.locateCenterOnScreen(btn, confidence=0.8)
+        center = pyautogui.locateCenterOnScreen(button_path, confidence=0.8)
         print(f'Кнопка найдена с центром в координатах {center}')
     else:
         print(" area " + area)
         area_location = pyautogui.locateOnScreen(area, confidence=0.9)
         if area_location is None:
             failed(area, fail_message)
-        box = pyautogui.locate(btn, area, confidence=0.8)
+        box = pyautogui.locate(button_path, area, confidence=0.8)
         if box is None:
             failed(area, fail_message)
 
@@ -425,7 +430,7 @@ def click(ctx, btn, area=''):
         y = area_location.top + box.top + box.height / 2
         center = pyautogui.Point(x, y)
     if center is None:
-        failed(btn, fail_message)
+        failed(button_path, fail_message)
 
     print(f'Перемещаем указатель мыши в координаты {center}')
     if sys.platform == 'darwin':
@@ -437,45 +442,47 @@ def click(ctx, btn, area=''):
     passed()
 
 
-def scroll(ctx, clicks=1):
+def scroll(ctx: Context, clicks: Optional[int] = 1):
     """mouse wheel scroll function
 
     Args:
         ctx (Context): context
-        clicks (int, optional): number of turns of mouse wheel
+        clicks (Optional[int]): number of turns of mouse wheel, if it's positive scroll to up,
+                                if it's negative to down
     """
     step(ctx, 'Прокрутка колеса мыши ...')
     pyautogui.scroll(clicks=clicks)
     passed()
 
 
-def ctrl_with_key(ctx, key):
+def ctrl_with_key(ctx: Context, key: str):
+
     """
     function presses key with ctrl key
 
     Args:
         ctx (Context): context
-        key (char): key to press CTRL+key
+        key (str): key to press CTRL + key
     """
-    step(ctx, f'Нажать клавишу ctrl+{key}')
+    step(ctx, f'Нажать клавишу ctrl + {key}')
     pyautogui.hotkey('ctrl', key)
     passed()
 
 
-def alt_with_key(ctx, key):
+def alt_with_key(ctx: Context, key: str):
     """
     function presses alt+key
 
     Args:
         ctx (Context): context
-        key (char): key to press ALT+key
+        key (str): key to press ALT + key
     """
     step(ctx, f'Нажать клавишу alt+{key}')
     pyautogui.hotkey('alt', key)
     passed()
 
 
-def drag_to(ctx, x, y):
+def drag_to(ctx: Context, x: int, y: int):
     """
     drag something to coordinates x, y
 
@@ -489,7 +496,7 @@ def drag_to(ctx, x, y):
     passed()
 
 
-def move(ctx, x, y):
+def move(ctx: Context, x: int, y: int):
     """
     function moves mouse pointer to x,y coordinates
 
@@ -505,26 +512,26 @@ def move(ctx, x, y):
     passed()
 
 
-def press(ctx, key, n=1):
+def press(ctx: Context, key: str, n: Optional[int] = 1):
     """Function press keys n times
 
     Args:
         ctx (Context): context
-        key (char): key to press
-        n (int): amount of time to press
+        key (str): key to press
+        n (Optional[int]): amount of time to press
     """
     step(ctx, f'Нажать {key} {n} раз')
     for _ in range(n):
         pyautogui.press(key)
 
 
-def typewrite(ctx, message, lang='eng'):
+def typewrite(ctx: Context, message: str, lang: Optional[str] = 'eng'):
     """function types keys on keyboard
 
     Args:
         ctx (Context): context
-        message (string): text to typewrite
-        lang (string): language in tesseract format
+        message (str): text to typewrite
+        lang (Optional[str]): language in tesseract format
 
     """
     if lang != 'eng':
@@ -539,12 +546,12 @@ def typewrite(ctx, message, lang='eng'):
         passed()
 
 
-def print_test_summary(list_passed, list_failed):
+def print_test_summary(list_passed: List, list_failed: List):
     """Functions print tests summary for executed suites
 
     Args:
-        list_passed (list): list of test passed
-        list_failed (list): list of test failed
+        list_passed (List): list of test passed
+        list_failed (List): list of test failed
     """
     # pylint: disable=consider-using-f-string
     print()
@@ -565,12 +572,12 @@ def print_test_summary(list_passed, list_failed):
     print()
 
 
-def repeater(cnts):
+def repeater(cnts: List):
     """
     This function is default selector for contours
 
     Args:
-        cnts (list): list of points to be filtered
+        cnts (List): list of points to be filtered
 
     Returns:
         list: unchanged list of points
@@ -578,14 +585,14 @@ def repeater(cnts):
     return cnts
 
 
-def filter_rect_sorted(cnts):
+def filter_rect_sorted(cnts: List[np.ndarray]) -> List[np.ndarray]:
     """Filter and sort contours to get rectangles
 
     Args:
-        cnts (List[Numpy.ndarray]): list of contours
+        cnts (List[np.ndarray]): list of contours
 
     Returns:
-        List[Numpy.ndarray]: list of filtered and sorted rectangles
+        List[np.ndarray]: list of filtered and sorted rectangles
 
     """
     def approx(x):
@@ -619,13 +626,13 @@ def filter_rect_sorted(cnts):
     return cnts
 
 
-def find_contours(ctx, img_path: str, fltr=repeater):
+def find_contours(ctx: Context, image_path: str, fltr=repeater):
     """
     Function finds contours by cv and filter them with filter
 
     Args:
         ctx (Context): context of test run
-        img_path (str): path to image where contours will be searched
+        image_path (str): path to image where contours will be searched
         fltr (function, optional): filter which will be used on contours
         results  # noqa: DAR003
 
@@ -633,9 +640,9 @@ def find_contours(ctx, img_path: str, fltr=repeater):
         list of points: list of points filtered
     """
     step(ctx, 'Поиск контуров с применением селектора')
-    img = cv.imread(img_path)
-    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    edges = cv.Canny(img_gray, 50, 100)
+    image = cv.imread(image_path)
+    image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    edges = cv.Canny(image_gray, 50, 100)
     kernel = cv.getStructuringElement(cv.MORPH_RECT, (2, 2))
     edges = cv.dilate(edges, kernel, iterations=1)
     contours, _ = cv.findContours(
@@ -643,37 +650,37 @@ def find_contours(ctx, img_path: str, fltr=repeater):
     return fltr(contours)
 
 
-def draw_contours(img, cnts):
+def draw_contours(image: Image, cnts: List[np.ndarray]) -> Image:
     """
     Draw contours on a PIL.Image instance.
 
     Args:
-        img (PIL.Image): Input image on which to draw the contours.
-        cnts (list of numpy.ndarray): List of contours, represented
+        image (Image): Input image on which to draw the contours.
+        cnts (List[np.ndarray]): List of contours, represented
         as Numpy arrays.  # noqa: DAR003
 
     Returns:
-        PIL.Image: Output image with contours drawn.
+        Image: Output image with contours drawn.
 
     Raises:
         TypeError: If `img` is not a `PIL.Image` instance.
         ValueError: If `cnts` is not a list of Numpy arrays.
     """
-    if not isinstance(img, Image.Image):
+    if not isinstance(image, Image.Image):
         raise TypeError("img must be a PIL.Image instance")
     if not all(isinstance(cnt, np.ndarray) for cnt in cnts):
         raise ValueError("cnts must be a list of Numpy arrays")
-    np_img = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
+    np_img = cv.cvtColor(np.array(image), cv.COLOR_RGB2BGR)
     cv.drawContours(np_img, cnts, -1, (0, 255, 0), lineType=cv.LINE_AA)
     return Image.fromarray(cv.cvtColor(np_img, cv.COLOR_BGR2RGB))
 
 
-def random_string(string_length, character_set=None):
+def random_string(string_length: int, character_set: Optional[str] = None):
     """Generate a randomized string of characters.
 
     Args:
         string_length (int): The length of the generated string.
-        character_set (string, optional): A string of characters to use
+        character_set (Optional[str]): A string of characters to use
         when generating the random string. Defaults are  # noqa: DAR003
         ascii letters, digits and the underscore.  # noqa: DAR003
 
@@ -697,15 +704,16 @@ def random_string(string_length, character_set=None):
     return ''.join(random.choice(character_set) for _ in range(string_length))
 
 
-def run(funcs, counter=1, output='output', screenshots_on=True):
+def run(funcs: List[str], counter: Optional[int] = 1, output: Optional[str] = 'output',
+        screenshots_on: Optional[bool] = True):
     """
     Execute test suite (list of test cases) one by one
 
     Args:
-        funcs (list of strings): list of function to be executed
-        counter (int Optional): amount to time test cases to be executed
-        output (string): path to store test results
-        screenshots_on (bool): create screenshots while running tests
+        funcs (List[str]) list of function to be executed
+        counter (Optional[int]): amount to time test cases to be executed
+        output (Optional[str]): path to store test results
+        screenshots_on (Optional[bool]): create screenshots while running tests
     """
     global OUTPUT_PATH
     global SCREENSHOTS_ON

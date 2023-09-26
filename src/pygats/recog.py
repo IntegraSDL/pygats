@@ -15,47 +15,67 @@ from pygats.pygats import step, passed, failed
 @dataclass
 class SearchedText:
     """
-    Data class to store text, lang and crop area to be passed as parameters
-    for Tesseract function
+    Data class to store text content, language and crop area to be passed
+    as parameters for Tesseract function
     """
-    text: str
+    content: str
     lang: str
     area: str
 
 
-def find_cropped_text(img, txt, skip=0, one_word=False):
+@dataclass
+class ROI:
+    """
+    Data class to store coordinates of region of interest
+    x (int), y (int): coordinates of top-left point of rectangle where
+    text resides
+    w (int), h (int): width and height of rectangle where text resides
+    """
+    x: int
+    y: int
+    w: int
+    h: int
+
+    def rectangle_center_coords(self):
+        """
+        return center of the rectangle
+
+        Returns:
+                tuple: coordinates of the rectangle center
+        """
+        return self.x + self.w / 2, self.y + self.h / 2
+
+
+def find_cropped_text(img: Image, txt: SearchedText,
+                      skip: Optional[int] = 0, one_word: Optional[bool] = False):
     """
     Find text in image. Several passes are used.
     First time found area with text on image and then
     every area passed through recognition again to improve recognition results
 
     Args:
-        img (PIL.Image): image to search text in
-        txt (pygats.recog.SearchedText): text to search
+        img (Image): image to search text in
+        txt (SearchedText): text to search
         skip (int, optional): number of occurrences of the text to skip.
         one_word (bool, optional): flag if only one word has been searched.
 
     Returns:
-        (left, top, width, height, found):
-            left (int): left coordinate of the text bounding box
-            top (int): top coordinate of the text bounding box
-            width (int): width of the text bounding box
-            height (int): height of the text bounding box
+        (roi, found):
+            roi(ROI): region of interest
             found (bool): whether the text is found in the image
 
     """
-    recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
-    recog_tuple = combine_lines(recognized, one_word)
-    ret_tuple = (-1, -1, -1, -1, False)
-    for line in recog_tuple:
-        if line[4].find(txt.text) != -1:
-            print("Найден текст " + line[4])
-            ret_tuple = (
-                line[0], line[1], line[2], line[3], True)
+    recognized_data = pytesseract.image_to_data(img, txt.lang).split('\n')
+    recognized_lines = combine_lines(recognized_data, one_word)
+    roi, found = ROI(-1, -1, -1, -1), False
+    for pos, content in recognized_lines:
+        if content.find(txt.content) != -1:
+            print("Найден текст " + content)
+            roi, found = pos, True
             if skip <= 0:
                 break
             skip -= 1
-    return ret_tuple
+    return roi, found
 
 
 def find_text_on_screen(ctx, txt, skip=0, one_word=False):
@@ -69,18 +89,15 @@ def find_text_on_screen(ctx, txt, skip=0, one_word=False):
         one_word (bool, optional): search only one world
 
     Returns:
-        (left, top, width, height, found):
-            left (int): left coordinate of the text bounding box
-            top (int): top coordinate of the text bounding box
-            width (int): width of the text bounding box
-            height (int): height of the text bounding box
+        (roi, found):
+            roi(ROI): region of interest
             found (bool): whether the text is found in the image
     """
-    step(ctx, f'Поиск текста {txt.text} на экране ...')
+    step(ctx, f'Поиск текста {txt.content} на экране ...')
     img = pyautogui.screenshot()
-    (x, y, w, h, found) = find_text(img, txt, skip, False, one_word)
+    roi, found = find_text(img, txt, skip, False, one_word)
     if found:
-        return x, y, w, h, found
+        return roi, found
     return find_text(img, txt, skip, True, one_word)
 
 
@@ -94,12 +111,12 @@ def check_text(ctx, img: Image, txt):
 
     """
     step(ctx,
-         f'Проверка отображения текста {txt.text} на изображении {img}...')
-    _, _, _, _, found = find_text(img, txt)
+         f'Проверка отображения текста {txt.content} на изображении {img}...')
+    _, found = find_text(img, txt)
     if not found:
-        _, _, _, _, found = find_text(img, txt, extend=True)
+        _, found = find_text(img, txt, extend=True)
         if not found:
-            failed(img, f'{txt.text} не найден на изображении')
+            failed(img, f'{txt.content} не найден на изображении')
     passed()
 
 
@@ -110,13 +127,13 @@ def check_text_on_screen(ctx, txt):
         ctx (Context): context
         txt (pygats.recog.SearchedText): text to search on screenshot
     """
-    step(ctx, f'Проверка отображения текста {txt.text} на экране ...')
+    step(ctx, f'Проверка отображения текста {txt.content} на экране ...')
     img = pyautogui.screenshot()
-    _, _, _, _, found = find_text(img, txt)
+    _, found = find_text(img, txt)
     if not found:
-        _, _, _, _, found = find_text(img, txt, extend=True)
+        _, found = find_text(img, txt, extend=True)
         if not found:
-            failed(img, f'{txt.text} не найден на экране')
+            failed(img, f'{txt.content} не найден на экране')
     passed()
 
 
@@ -128,15 +145,14 @@ def move_to_text(ctx, txt, skip=0):
         txt (pygats.recog.SearchedText): text to be searched and clicked
         skip (int): amount of text should be skipped
     """
-    step(ctx, f'Переместить курсор на текст {txt.text}')
-    x, y, width, height, found = find_text_on_screen(
+    step(ctx, f'Переместить курсор на текст {txt.content}')
+    roi, found = find_text_on_screen(
         ctx, txt, skip, True)
     if not found:
-        failed(msg=f'{txt.text} не найден на экране')
+        failed(msg=f'{txt.content} не найден на экране')
 
-    print(x, y, width, height)
-    center_x = x + width / 2
-    center_y = y + height / 2
+    print(roi.x, roi.y, roi.w, roi.h)
+    center_x, center_y = roi.rectangle_center_coords()
     pyautogui.moveTo(center_x, center_y)
     passed()
 
@@ -150,15 +166,14 @@ def click_text(ctx, txt, button='left', skip=0):
         button (string, optional): left, right, middle
         skip (int): amount of text should be skipped
     """
-    step(ctx, f'Нажать текст {txt.text} на экране кнопкой {button}...')
-    x, y, width, height, found = find_text_on_screen(
+    step(ctx, f'Нажать текст {txt.content} на экране кнопкой {button}...')
+    roi, found = find_text_on_screen(
         ctx, txt, skip, True)
     if not found:
-        failed(msg=f'{txt.text} не найден на экране')
+        failed(msg=f'{txt.content} не найден на экране')
 
-    print(x, y, width, height)
-    center_x = x + width / 2
-    center_y = y + height / 2
+    print(roi.x, roi.y, roi.w, roi.h)
+    center_x, center_y = roi.rectangle_center_coords()
     pyautogui.moveTo(center_x, center_y)
     pyautogui.mouseDown(center_x, center_y, button)
     pyautogui.mouseUp(center_x, center_y, button)
@@ -188,7 +203,7 @@ def combine_lines(lines, one_word=False):
         one_word (bool, optional): one word to search
 
     Returns:
-        list: combined tuples
+        list: list of (ROI, text) tuples
 
     Notes:
         There is magic number 5 to understand if words on the same line.
@@ -215,7 +230,8 @@ def combine_lines(lines, one_word=False):
                 if abs(y - int(split_line_2[7])) < 5 and len(split_line_2[11].strip()) > 0:
                     w += int(split_line_2[8])
                     text += ' ' + split_line_2[11]
-        result.append((x, y, w, h, text))
+        roi = ROI(x, y, w, h)
+        result.append((roi, text))
     return result
 
 
@@ -290,35 +306,32 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
         one_word (bool, optional): one word to search
 
     Returns:
-        (x,y,w,h,found):
-            x (int), y (int): coordinates of top-left point of rectangle where
-               text resides
-            w (int), h (int): width and height of rectangle where text resides
+        (roi,found):
+            roi(ROI): region of interest
             found (bool): whether the text is found in the image
     """
     img = find_crop_image(img, txt.area, extend=extend)
     recognized = pytesseract.image_to_data(img, txt.lang).split('\n')
-    recog_tuple = combine_lines(recognized, one_word)
-    ret_tuple = (-1, -1, -1, -1, False)
-    for line in recog_tuple[1:]:
-        if line[4].find(txt.text) != -1:
-            print("Найден текст " + line[4])
-            ret_tuple = (
-                line[0], line[1], line[2], line[3], True)
+    lines = combine_lines(recognized, one_word)
+    roi, found = ROI(-1, -1, -1, -1), False
+    for pos, content in lines[1:]:
+        if content.find(txt.content) != -1:
+            print("Найден текст " + content)
+            roi, found = pos, True
             if skip <= 0:
                 break
             skip -= 1
         else:
-            if line[0] + line[1] != 0:
+            if pos.x + pos.y != 0:
                 cropped = img.crop(
-                    (line[0], line[1],
-                        line[0] + line[2],
-                        line[1] + line[3]))
-                x, y, w, h, found = find_cropped_text(
+                    (pos.x, pos.y,
+                        pos.x + pos.w,
+                        pos.y + pos.h))
+                roi, found = find_cropped_text(
                     cropped, txt, 0, one_word)
                 if found:
-                    return (x + line[0], y + line[1], w, h, found)
-    return ret_tuple
+                    return ROI(roi.x + pos.x, roi.y + pos.y, roi.w, roi.h), found
+    return roi, found
 
 
 def recognize_text(img, lang):
@@ -340,63 +353,57 @@ def recognize_text(img, lang):
         This is wrapper function to pytesseract.image_to_data. Results of
         image_to_data are combined to lines.
     """
-    recognized = pytesseract.image_to_data(img, lang).split('\n')
-    result = combine_lines(recognized)
+    recognized_data = pytesseract.image_to_data(img, lang).split('\n')
+    result = combine_lines(recognized_data)
     return list(set(result))
 
 
-def find_fuzzy_text(recognized_list, search):
+def find_fuzzy_text(recognized_list, search: str):
     """Fuzzy search of text in list using Levenshtein ratio
     Return value is list of tuples with following format:
 
     Args:
-        recognized_list (list[tuple]): list of text to match with pattern (format: x,y,w,h,text)
-        search (string): substring to search
+        recognized_list (list[tuple]): list of text to match with pattern (format: ROI,text)
+        search (str): substring to search
 
     Returns:
-        (x,y,w,h,text, substring):
-            x (int), y (int): coordinates of top-left point of rectangle where
-               text resides
-            w (int), h (int): width and height of rectangle where text resides
-            text (string): full text which resides in rectangle
-            substring (string): substring found in text
+        (roi,text, substring):
+            roi(ROI): region of interest
+            text (str): full text which resides in rectangle
     """
     result = []
     search_len = len(search)
-    for item in recognized_list:
-        r = ratio(search, item[4], score_cutoff=0.5)
-        text = item[4]
+    for roi, content in recognized_list:
+        r = ratio(search, content, score_cutoff=0.5)
+        text = content
         if r > 0.0:
-            result.append(item)
+            result.append((roi, content))
         elif len(text) > search_len:
-            for i in range(0, len(text) - search_len):
+            for i in range(len(text) - search_len):
                 slice_for_search = text[i:i + search_len]
                 r = ratio(search, slice_for_search, score_cutoff=0.8)
                 if r > 0.0:
-                    result.append(item)
+                    result.append((roi, content))
     return list(set(result))
 
 
-def find_regexp_text(recognized_list, pattern):
+def find_regexp_text(recognized_list: list, pattern):
     """Find text in list by regexp
     Return value is list of tuples with following format
 
     Args:
-        recognized_list (list[tuple]): list of text to match with pattern.(format: x,y,w,h,text)
-        pattern (string): regex pattern to match
+        recognized_list (list): list of text to match with pattern.(format tuple: ROI,text)
+        pattern (str): regexp pattern to match
 
     Returns:
-        (x,y,w,h,text, substring):
-            x (int), y (int): coordinates of top-left point of rectangle where
-               text resides
-            w (int), h (int): width and height of rectangle where text resides
-            text (string): full text which resides in rectangle
-            substring (string): substring found in text
+        (roi,text, substring):
+            roi(ROI): region of interest
+            text (str): full text which resides in rectangle
+            substring (str): substring found in text
     """
     result = []
-    for item in recognized_list:
-        match = re.findall(pattern, item[4])
+    for roi, content in recognized_list:
+        match = re.findall(pattern, content)
         if len(match) > 0:
-            item += tuple(match)
-            result.append(item)
+            result.append((roi, content, tuple(match)))
     return list(set(result))
