@@ -298,7 +298,8 @@ def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
         'right': (img, 2, 1, extend),
         'bottom-right': (img, 2, 2, extend)
     }
-    return crop_image(*crop_area_params.get(crop_area)) if crop_area_params.get(crop_area) else (0, 0, img)
+    return crop_image(*crop_area_params.get(crop_area)) if crop_area_params.get(crop_area)\
+        else (0, 0, img)
 
 
 def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
