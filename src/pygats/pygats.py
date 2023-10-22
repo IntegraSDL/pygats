@@ -725,10 +725,11 @@ def run(funcs: List[str], counter: Optional[int] = 1, output: Optional[str] = 'o
     for _ in range(counter):
         for f in funcs:
             test_name = f.__name__
-            try:
-                os.makedirs(os.path.join(output, SUITE_NAME, test_name))
-            except FileExistsError:
-                pass
+            if SCREENSHOTS_ON:
+                try:
+                    os.makedirs(os.path.join(output, SUITE_NAME, test_name))
+                except FileExistsError:
+                    pass
             try:
                 OUTPUT_PATH = os.path.join(output, SUITE_NAME, test_name)
                 f()
