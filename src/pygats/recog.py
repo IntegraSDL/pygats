@@ -268,7 +268,7 @@ def crop_image(img: Image, width: Optional[int] = 0, height: Optional[int] = 0,
     x_offset = crop_coord[0]
     y_offset = crop_coord[1]
     img_crop = img.crop(crop_coord)
-    return (x_offset, y_offset, img_crop)
+    return x_offset, y_offset, img_crop
 
 
 def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
