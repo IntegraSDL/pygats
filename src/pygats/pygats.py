@@ -5,7 +5,6 @@ testing.
 """
 import time
 import sys
-import os
 import string
 import random
 import inspect
@@ -19,7 +18,6 @@ import numpy as np
 
 from pygats.formatters import print_color_text
 
-PLATFORM = ''
 TESTS_PASSED = []
 TESTS_FAILED = []
 STEP_INDEX = 0
@@ -50,30 +48,6 @@ class TestException(Exception):
         self.message = msg
 
 
-def platform_specific_image(image_path: str) -> str:
-    """
-    function returns platform specific path to the image. If screenshot has
-    platform specifics it should be separated in different images. Name of
-    image contains platform name picName.PLATFORM.ext
-
-    Args:
-        image_path (str): path to image
-
-    Returns:
-        str: path to image
-    """
-    if PLATFORM == '':
-        return image_path
-
-    path_parts = image_path.split('.')
-    if len(path_parts) == 2:
-        specific_image_path = path_parts[0] + '.' + PLATFORM + '.' + path_parts[1]
-        if os.path.exists(specific_image_path):
-            return specific_image_path
-
-    return image_path
-
-
 def begin_test(ctx: Context, msg: str):
     """
     Begin of test. Dump msg as name of the test
@@ -85,13 +59,6 @@ def begin_test(ctx: Context, msg: str):
     global STEP_INDEX
     ctx.formatter.print_header(3, msg)
     STEP_INDEX = 0
-    # img_path = os.path.join(OUTPUT_PATH, 'initial-state.png')
-    # pyautogui.screenshot(img_path)
-    # relative_path = img_path.split(os.path.sep)
-    # tmp_path = os.path.join('', *relative_path[1:])
-    # print('Начальное состояние')
-    # print()
-    # print(f'![Начальное состояние]({tmp_path})')
 
 
 def check(ctx: Context, msg: str, func=None):
@@ -166,17 +133,14 @@ def screenshot(ctx: Context, rect: Optional[tuple] = None):
         The screenshot is also stored in the output path as `screenshotIndex`.
     """
     global SCREENSHOT_INDEX
-    img_path = pathlib.Path(
-        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
+    img_path = str(pathlib.Path(
+        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png'))
     SCREENSHOT_INDEX += 1
 
     # Take the screenshot and store it on disk
     img = pyautogui.screenshot(img_path, region=rect)
-    # Get the relative path to the screenshot file
-    relative_path = img_path.split(os.path.sep)
-    tmp_path = pathlib.Path('', *relative_path[1:])
     # Display the screenshot
-    ctx.formatter.print_img(tmp_path)
+    ctx.formatter.print_img(img_path)
     return img
 
 
@@ -188,58 +152,54 @@ def take_snapshot(ctx: Context) -> str:
                     context.
 
     Returns:
-        tmp_path (str): path to snapshot
+        img_path (str): path to snapshot
     """
     step(ctx, 'Создание снимка для поиска изменений на экране')
     global SNAPSHOT_PATH
     global SNAPSHOT_INDEX
-    SNAPSHOT_PATH = pathlib.Path(OUTPUT_PATH, "compare")
+    SNAPSHOT_PATH = str(pathlib.Path(OUTPUT_PATH, "compare"))
     try:
         SNAPSHOT_PATH.mkdir()
     except FileExistsError:
         pass
-    img_path = pathlib.Path(SNAPSHOT_PATH, f'snapshot-{SNAPSHOT_INDEX}.png')
+    img_path = str(pathlib.Path(SNAPSHOT_PATH, f'snapshot-{SNAPSHOT_INDEX}.png'))
     pyautogui.screenshot(img_path)
-    relative_path = img_path.split(os.path.sep)
-    tmp_path = pathlib.Path('', *relative_path[1:])
     SNAPSHOT_INDEX += 1
     print()
-    print(f'![Снимок экрана]({tmp_path})')
+    print(f'![Снимок экрана]({img_path})')
     print()
-    return tmp_path
+    return img_path
 
 
-def compare_snapshots(ctx: Context, first_image: str, second_image: str) -> tuple or None:
+def compare_snapshots(ctx: Context, first_img: str, second_img: str) -> tuple or None:
     """Function for comparing two images
 
     Args:
         ctx (Context): An object that contains information about the current
                     context.
-        first_image (str): path to first snapshot for compare
-        second_image (str): path to second snapshot for compare
+        first_img (str): path to first snapshot for compare
+        second_img (str): path to second snapshot for compare
 
     Returns:
         tupple or None: coordinates of the change detection area
     """
     step(ctx, 'Поиск изменений между снимками ...')
     print()
-    print(f'![Первый снимок]({first_image})')
+    print(f'![Первый снимок]({first_img})')
     print()
-    print(f'![Второй снимок]({second_image})')
+    print(f'![Второй снимок]({second_img})')
     print()
-    first = Image.open(pathlib.Path('./output', first_image))
-    second = Image.open(pathlib.Path('./output', second_image))
+    first = Image.open(str(pathlib.Path('./output', first_img)))
+    second = Image.open(str(pathlib.Path('./output', second_img)))
     result = ImageChops.difference(first, second)
     if result.getbbox() is not None:
-        relative_path = first_image.split('-')
+        relative_path = first_img.split('-')
         first_index = relative_path[len(relative_path) - 1].split('.')[0]
-        relative_path = second_image.split('-')
+        relative_path = second_img.split('-')
         second_index = relative_path[len(relative_path) - 1].split('.')[0]
-        result_path = pathlib.Path(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png')
+        result_path = str(pathlib.Path(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png'))
         result.save(result_path)
-        relative_path = result_path.split(os.path.sep)
-        tmp_path = pathlib.Path('', *relative_path[1:])
-        print(f'![Найдены изменения]({tmp_path})')
+        print(f'![Найдены изменения]({result_path})')
         print()
         print('**Найдены изменения**')
         print()
@@ -264,13 +224,11 @@ def log_image(img: Image, msg: Optional[str] = 'Снимок экрана'):
         PIL.Image: input image
     """
     global SCREENSHOT_INDEX
-    image_path = pathlib.Path(
-        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
+    img_path = str(pathlib.Path(
+        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png'))
     SCREENSHOT_INDEX += 1
-    img.save(image_path)
-    relative_path = image_path.split(os.path.sep)
-    tmp_path = pathlib.Path('', *relative_path[1:])
-    print(f'![{msg}]({tmp_path})')
+    img.save(img_path)
+    print(f'![{msg}]({img_path})')
     print()
     return img
 
@@ -280,11 +238,9 @@ def passed():
     function prints passed information after test case
     """
     if SCREENSHOTS_ON:
-        image_path = pathlib.Path(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
-        pyautogui.screenshot(image_path)
-        relative_path = image_path.split(os.path.sep)
-        tmp_path = pathlib.Path('', *relative_path[1:])
-        print(f'![Успешно]({tmp_path})')
+        img_path = str(pathlib.Path(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png'))
+        pyautogui.screenshot(img_path)
+        print(f'![Успешно]({img_path})')
     print()
     print('**Успешно**')
     print()
@@ -313,19 +269,13 @@ def check_image(ctx: Context, img_path: str, timeout: Optional[int] = 1):
         img_path (str): path to image for check on screen
         timeout (Optional[int]): timeout in seconds to check if image occurs
     """
-    img_path = platform_specific_image(img_path)
     step(ctx, f'Проверка отображения {img_path} ...')
-    # try:
     while timeout > 0:
         if locate_on_screen(img_path) is not None:
             passed()
             return
         timeout -= 1
         time.sleep(1)
-    # except:  # pylint: disable=bare-except
-    #     print('Exception')
-    #     failed(img_path, 'Изображение не найдено')
-    # failed(img_path, 'Изображение не найдено')
 
 
 def locate_on_screen(img_path: str):
@@ -338,7 +288,6 @@ def locate_on_screen(img_path: str):
     Returns:
         (x,y): coordinates path for image on screen
     """
-    img_path = platform_specific_image(img_path)
     coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
     print(f'Изображение найдено в координатах {coord}')
     return coord
@@ -365,7 +314,6 @@ def move_to(ctx: Context, img_path: str):
         img_path (str): path to image for move to
 
     """
-    img_path = platform_specific_image(img_path)
     step(ctx, f'Переместить указатель мыши на изображение {img_path} ...')
     center = pyautogui.locateCenterOnScreen(img_path, confidence=0.8)
     if center is None:
@@ -411,8 +359,6 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
         button_path (str): path to button image to press
         area (Optional[str]): path to area of image to print
     """
-    button_path = platform_specific_image(button_path)
-    area = platform_specific_image(area)
     fail_message = 'Изображение не найдено'
     step(ctx, f'Нажать кнопку мыши {button_path} ...')
     if area == '':
@@ -627,13 +573,13 @@ def filter_rect_sorted(cnts: List[np.ndarray]) -> List[np.ndarray]:
     return cnts
 
 
-def find_contours(ctx: Context, image_path: str, fltr=repeater):
+def find_contours(ctx: Context, img_path: str, fltr=repeater):
     """
     Function finds contours by cv and filter them with filter
 
     Args:
         ctx (Context): context of test run
-        image_path (str): path to image where contours will be searched
+        img_path (str): path to image where contours will be searched
         fltr (function, optional): filter which will be used on contours
         results  # noqa: DAR003
 
@@ -641,9 +587,9 @@ def find_contours(ctx: Context, image_path: str, fltr=repeater):
         list of points: list of points filtered
     """
     step(ctx, 'Поиск контуров с применением селектора')
-    image = cv.imread(image_path)
-    image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-    edges = cv.Canny(image_gray, 50, 100)
+    img = cv.imread(img_path)
+    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    edges = cv.Canny(img_gray, 50, 100)
     kernel = cv.getStructuringElement(cv.MORPH_RECT, (2, 2))
     edges = cv.dilate(edges, kernel, iterations=1)
     contours, _ = cv.findContours(
@@ -651,12 +597,12 @@ def find_contours(ctx: Context, image_path: str, fltr=repeater):
     return fltr(contours)
 
 
-def draw_contours(image: Image, cnts: List[np.ndarray]) -> Image:
+def draw_contours(img: Image, cnts: List[np.ndarray]) -> Image:
     """
     Draw contours on a PIL.Image instance.
 
     Args:
-        image (Image): Input image on which to draw the contours.
+        img (Image): Input image on which to draw the contours.
         cnts (List[np.ndarray]): List of contours, represented
         as Numpy arrays.  # noqa: DAR003
 
@@ -667,11 +613,11 @@ def draw_contours(image: Image, cnts: List[np.ndarray]) -> Image:
         TypeError: If `img` is not a `PIL.Image` instance.
         ValueError: If `cnts` is not a list of Numpy arrays.
     """
-    if not isinstance(image, Image.Image):
+    if not isinstance(img, Image.Image):
         raise TypeError("img must be a PIL.Image instance")
     if not all(isinstance(cnt, np.ndarray) for cnt in cnts):
         raise ValueError("cnts must be a list of Numpy arrays")
-    np_img = cv.cvtColor(np.array(image), cv.COLOR_RGB2BGR)
+    np_img = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
     cv.drawContours(np_img, cnts, -1, (0, 255, 0), lineType=cv.LINE_AA)
     return Image.fromarray(cv.cvtColor(np_img, cv.COLOR_BGR2RGB))
 
@@ -719,42 +665,32 @@ def run(funcs: List[str], counter: Optional[int] = 1, output: Optional[str] = 'o
     global OUTPUT_PATH
     global SCREENSHOTS_ON
     SCREENSHOTS_ON = screenshots_on
-    try:
-        p = pathlib.Path(output)
-        p.mkdir()
-    except FileExistsError:
-        pass
+    p = pathlib.Path(output)
+    p.mkdir(exist_ok=True)
     for _ in range(counter):
         for f in funcs:
             test_name = f.__name__
             if SCREENSHOTS_ON:
-                try:
-                    p = pathlib.Path(output, SUITE_NAME, test_name)
-                    p.mkdir()
-                except FileExistsError:
-                    pass
+                p = pathlib.Path(output, SUITE_NAME, test_name)
+                p.mkdir(parents=True, exist_ok=True)
             try:
-                OUTPUT_PATH = pathlib.Path(output, SUITE_NAME, test_name)
+                OUTPUT_PATH = str(pathlib.Path(output, SUITE_NAME, test_name))
                 f()
-                TESTS_PASSED.append(pathlib.Path(SUITE_NAME, test_name))
+                TESTS_PASSED.append(str(pathlib.Path(SUITE_NAME, test_name)))
                 if SCREENSHOTS_ON:
-                    img_path = pathlib.Path(
-                        output, SUITE_NAME, test_name, 'test-passed.png')
+                    img_path = str(pathlib.Path(
+                        output, SUITE_NAME, test_name, 'test-passed.png'))
                     pyautogui.screenshot(img_path)
-                    relative_path = img_path.split(os.path.sep)
-                    tmp_path = pathlib.Path('', *relative_path[1:])
-                    print(f'![Тест пройден]({tmp_path})')
+                    print(f'![Тест пройден]({img_path})')
                 print_color_text('\n**Тест пройден**', 'green')
             except TestException as e:
                 if SCREENSHOTS_ON:
-                    img_path = pathlib.Path(
-                        output, SUITE_NAME, test_name, 'test-failed.png')
+                    img_path = str(pathlib.Path(
+                        output, SUITE_NAME, test_name, 'test-failed.png'))
                     pyautogui.screenshot(img_path)
-                    relative_path = img_path.split(os.path.sep)
-                    tmp_path = pathlib.Path('', *relative_path[1:])
-                    print(f'![Тест не пройден]({tmp_path})')
+                    print(f'![Тест не пройден]({img_path})')
                 print_color_text('\n> Error : ' + e.message + '\n', 'red')
                 print_color_text('**Тест не пройден**', 'red')
-                TESTS_FAILED.append(pathlib.Path(SUITE_NAME, test_name))
+                TESTS_FAILED.append(str(pathlib.Path(SUITE_NAME, test_name)))
 
     print_test_summary(TESTS_PASSED, TESTS_FAILED)
