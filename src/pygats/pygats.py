@@ -23,8 +23,8 @@ TESTS_FAILED = []
 STEP_INDEX = 0
 SCREENSHOTS_ON = True
 SCREENSHOT_INDEX = 0
-OUTPUT_PATH = 'output'
-SNAPSHOT_PATH = ''
+OUTPUT_PATH = pathlib.Path('output')
+SNAPSHOT_PATH = None
 SNAPSHOT_INDEX = 0
 SUITE_NAME = ''
 
@@ -133,12 +133,12 @@ def screenshot(ctx: Context, rect: Optional[tuple] = None):
         The screenshot is also stored in the output path as `screenshotIndex`.
     """
     global SCREENSHOT_INDEX
-    img_path = str(pathlib.Path(
-        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png'))
+    img_path = pathlib.Path(
+        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
     SCREENSHOT_INDEX += 1
 
     # Take the screenshot and store it on disk
-    img = pyautogui.screenshot(img_path, region=rect)
+    img = pyautogui.screenshot(str(img_path), region=rect)
     # Display the screenshot
     ctx.formatter.print_img(img_path)
     return img
@@ -152,18 +152,15 @@ def take_snapshot(ctx: Context) -> str:
                     context.
 
     Returns:
-        img_path (str): path to snapshot
+        img_path (PosixPath): path to snapshot
     """
     step(ctx, 'Создание снимка для поиска изменений на экране')
     global SNAPSHOT_PATH
     global SNAPSHOT_INDEX
-    SNAPSHOT_PATH = str(pathlib.Path(OUTPUT_PATH, "compare"))
-    try:
-        SNAPSHOT_PATH.mkdir()
-    except FileExistsError:
-        pass
-    img_path = str(pathlib.Path(SNAPSHOT_PATH, f'snapshot-{SNAPSHOT_INDEX}.png'))
-    pyautogui.screenshot(img_path)
+    SNAPSHOT_PATH = pathlib.Path(OUTPUT_PATH, "compare")
+    SNAPSHOT_PATH.mkdir(exist_ok=True)
+    img_path = pathlib.Path(SNAPSHOT_PATH, f'snapshot-{SNAPSHOT_INDEX}.png')
+    pyautogui.screenshot(str(img_path))
     SNAPSHOT_INDEX += 1
     print()
     print(f'![Снимок экрана]({img_path})')
@@ -189,15 +186,15 @@ def compare_snapshots(ctx: Context, first_img: str, second_img: str) -> tuple or
     print()
     print(f'![Второй снимок]({second_img})')
     print()
-    first = Image.open(str(pathlib.Path('./output', first_img)))
-    second = Image.open(str(pathlib.Path('./output', second_img)))
+    first = Image.open(first_img)
+    second = Image.open(second_img)
     result = ImageChops.difference(first, second)
     if result.getbbox() is not None:
         relative_path = first_img.split('-')
         first_index = relative_path[len(relative_path) - 1].split('.')[0]
         relative_path = second_img.split('-')
         second_index = relative_path[len(relative_path) - 1].split('.')[0]
-        result_path = str(pathlib.Path(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png'))
+        result_path = pathlib.Path(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png')
         result.save(result_path)
         print(f'![Найдены изменения]({result_path})')
         print()
@@ -224,8 +221,8 @@ def log_image(img: Image, msg: Optional[str] = 'Снимок экрана'):
         PIL.Image: input image
     """
     global SCREENSHOT_INDEX
-    img_path = str(pathlib.Path(
-        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png'))
+    img_path = pathlib.Path(
+        OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
     SCREENSHOT_INDEX += 1
     img.save(img_path)
     print(f'![{msg}]({img_path})')
@@ -238,8 +235,8 @@ def passed():
     function prints passed information after test case
     """
     if SCREENSHOTS_ON:
-        img_path = str(pathlib.Path(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png'))
-        pyautogui.screenshot(img_path)
+        img_path = pathlib.Path(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
+        pyautogui.screenshot(str(img_path))
         print(f'![Успешно]({img_path})')
     print()
     print('**Успешно**')
@@ -674,20 +671,20 @@ def run(funcs: List[str], counter: Optional[int] = 1, output: Optional[str] = 'o
                 p = pathlib.Path(output, SUITE_NAME, test_name)
                 p.mkdir(parents=True, exist_ok=True)
             try:
-                OUTPUT_PATH = str(pathlib.Path(output, SUITE_NAME, test_name))
+                OUTPUT_PATH = pathlib.Path(output, SUITE_NAME, test_name)
                 f()
                 TESTS_PASSED.append(str(pathlib.Path(SUITE_NAME, test_name)))
                 if SCREENSHOTS_ON:
-                    img_path = str(pathlib.Path(
-                        output, SUITE_NAME, test_name, 'test-passed.png'))
-                    pyautogui.screenshot(img_path)
+                    img_path = pathlib.Path(
+                        output, SUITE_NAME, test_name, 'test-passed.png')
+                    pyautogui.screenshot(str(img_path))
                     print(f'![Тест пройден]({img_path})')
                 print_color_text('\n**Тест пройден**', 'green')
             except TestException as e:
                 if SCREENSHOTS_ON:
-                    img_path = str(pathlib.Path(
-                        output, SUITE_NAME, test_name, 'test-failed.png'))
-                    pyautogui.screenshot(img_path)
+                    img_path = pathlib.Path(
+                        output, SUITE_NAME, test_name, 'test-failed.png')
+                    pyautogui.screenshot(str(img_path))
                     print(f'![Тест не пройден]({img_path})')
                 print_color_text('\n> Error : ' + e.message + '\n', 'red')
                 print_color_text('**Тест не пройден**', 'red')
