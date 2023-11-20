@@ -324,7 +324,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
     for pos, content in lines[1:]:
         if content.find(txt.content) != -1:
             print("Найден текст " + content)
-            roi = ROI(pos[0] + x_offset, pos[1] + y_offset, pos[2], pos[3])
+            roi = ROI(pos.x + x_offset, pos.y + y_offset, pos.w, pos.h)
             found = True
             if skip <= 0:
                 break

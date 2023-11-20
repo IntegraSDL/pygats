@@ -285,7 +285,10 @@ def locate_on_screen(img_path: str):
     Returns:
         (x,y): coordinates path for image on screen
     """
-    coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
+    try:
+        coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
+    except pyautogui.ImageNotFoundException:
+            failed(msg='Изображение не найдено')
     print(f'Изображение найдено в координатах {coord}')
     return coord
 
@@ -312,7 +315,10 @@ def move_to(ctx: Context, img_path: str):
 
     """
     step(ctx, f'Переместить указатель мыши на изображение {img_path} ...')
-    center = pyautogui.locateCenterOnScreen(img_path, confidence=0.8)
+    try:
+        center = pyautogui.locateCenterOnScreen(img_path, confidence=0.8)
+    except pyautogui.ImageNotFoundException:
+            failed(msg='Изображение не найдено')
     if center is None:
         failed(img_path, 'Изображение не найдено')
     if sys.platform == 'darwin':
@@ -359,14 +365,23 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
     fail_message = 'Изображение не найдено'
     step(ctx, f'Нажать кнопку мыши {button_path} ...')
     if area == '':
-        center = pyautogui.locateCenterOnScreen(button_path, confidence=0.8)
+        try:
+            center = pyautogui.locateCenterOnScreen(button_path, confidence=0.8)
+        except pyautogui.ImageNotFoundException:
+            failed(msg='Изображение не найдено')
         print(f'Кнопка найдена с центром в координатах {center}')
     else:
         print(" area " + area)
-        area_location = pyautogui.locateOnScreen(area, confidence=0.9)
+        try:
+            area_location = pyautogui.locateOnScreen(area, confidence=0.9)
+        except pyautogui.ImageNotFoundException:
+            failed(msg='Изображение не найдено')
         if area_location is None:
             failed(area, fail_message)
-        box = pyautogui.locate(button_path, area, confidence=0.8)
+        try:
+            box = pyautogui.locate(button_path, area, confidence=0.8)
+        except pyautogui.ImageNotFoundException:
+            failed(msg='Изображение не найдено')
         if box is None:
             failed(area, fail_message)
 
