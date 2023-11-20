@@ -288,7 +288,7 @@ def locate_on_screen(img_path: str):
     try:
         coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
     except pyautogui.ImageNotFoundException:
-            failed(msg='Изображение не найдено')
+        failed(msg='Изображение не найдено')
     print(f'Изображение найдено в координатах {coord}')
     return coord
 
@@ -318,7 +318,7 @@ def move_to(ctx: Context, img_path: str):
     try:
         center = pyautogui.locateCenterOnScreen(img_path, confidence=0.8)
     except pyautogui.ImageNotFoundException:
-            failed(msg='Изображение не найдено')
+        failed(msg='Изображение не найдено')
     if center is None:
         failed(img_path, 'Изображение не найдено')
     if sys.platform == 'darwin':
