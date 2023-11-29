@@ -5,11 +5,7 @@ pyperclip==1.8.2
 pytesseract==0.3.10
 pytest==7.2.2
 python_Levenshtein==0.20.9
-<<<<<<< HEAD
 colorama==0.4.6
 opencv-python==4.7.0.72
 mss==9.0.1
 qat==0.4.2
-=======
-colorama
->>>>>>> ea7e629 (test)
