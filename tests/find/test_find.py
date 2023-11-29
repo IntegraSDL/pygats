@@ -23,7 +23,7 @@ def time_decorator(func):
 
 
 def find(img, txt):
-    _, key = r.find_text(img, txt)
+    _, key = r.find_text(ctx, img, txt)
     if not key:
         global count_false
         count_false += 1
