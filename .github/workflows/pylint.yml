@@ -19,7 +19,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pylint flake8 darglint
         pip install Pillow==6.2.1 pyautogui python-xlib opencv-python
-        pip install pytesseract levenshtein pytest
+        pip install pytesseract levenshtein pytest colorama
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files 'src/*.py')
