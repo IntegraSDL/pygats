@@ -145,7 +145,7 @@ def screenshot(ctx: Context, rect: Optional[tuple] = None):
     img = pyautogui.screenshot(str(img_path), region=rect)
     # Display the screenshot
     tmp_path = pathlib.Path(*img_path.parts[1:])
-    ctx.formatter.print_img(tmp_path)
+    ctx.formatter.print_img(tmp_path, 'Screenshot')
     return img
 
 
