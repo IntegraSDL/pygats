@@ -15,7 +15,6 @@ class MarkdownFormatter:
             level (int): Level of header. Count of # in markdown header.
             text (string): Header text
         """
-        print()
         header_level = '#' * level
         print(f'{header_level} {text}')
         print()
@@ -28,20 +27,7 @@ class MarkdownFormatter:
         Args:
             text (string): paragraph text
         """
-        print()
-        print(f'{text}')
-        print()
-
-    @staticmethod
-    def print_footer(text):
-        """
-        Print footer
-
-        Args:
-            text (string): footer text
-        """
-        print()
-        print(f'{text}')
+        print(text)
         print()
 
     @staticmethod
@@ -57,36 +43,33 @@ class MarkdownFormatter:
         print('```')
 
     @staticmethod
-    def print_img(img_path):
+    def print_img(img_path, text):
         """
         Print image path
 
         Args:
             img_path (string): path to image
         """
-        print(f'![Screenshot]({img_path})')
+        print(f'![{text}]({img_path})')
         print()
 
+    @staticmethod
+    def print_bold(text):
+        """
+        Print Markdown bold text
 
-def print_color_text(text: str, color: str):
-    """
-    Display text in a specific color
+        Args:
+            text (string): bold text
+        """
+        print(f'**{text}**')
+        print()
 
-    Args:
-        text (str): text to be printed
-        color (str): text color
-    """
-    # pylint: disable=consider-using-f-string
-    colors = {
-        'red': "\033[31m{}\033[0m",
-        'green': "\033[32m{}\033[0m",
-        'yellow': "\033[33m{}\033[0m",
-        'blue': "\033[34m{}\033[0m",
-        'purple': "\033[35m{}\033[0m",
-        'light blue': "\033[36m{}\033[0m",
-        'white': "\033[37m{}\033[0m"
-    }
-    if colors.get(color):
-        print(colors.get(color).format(text))
-    else:
-        print(text)
+    @staticmethod
+    def print_list(text):
+        """
+        Print Markdown unordered list text
+
+        Args:
+            text (string): unordered list text
+        """
+        print(f'* {text}')
