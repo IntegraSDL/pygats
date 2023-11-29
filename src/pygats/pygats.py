@@ -693,7 +693,7 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
 
     Args:
         ctx (Context): An object that contains information about the current
-                       context.
+                    context.
         funcs (List[str]) list of function to be executed
         counter (Optional[int]): amount to time test cases to be executed
         output (Optional[str]): path to store test results
