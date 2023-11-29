@@ -26,6 +26,6 @@ def test_setup(formatter):
     assert ctx
     with open('output/stdout.txt', 'w', encoding='utf-8') as out:
         with open('output/stderr.txt', 'w', encoding='utf-8') as err:
-            p = setup_test_env('python3', out, err)
+            p = setup_test_env(ctx, 'python3', out, err)
             assert p
             teardown_test_env(ctx, p)
