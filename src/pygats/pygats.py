@@ -689,7 +689,8 @@ def random_string(string_length: int, character_set: Optional[str] = None):
 
 def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
         output: Optional[str] = 'output', screenshots_on: Optional[bool] = True):
-    """Execute test suite (list of test cases) one by one
+    """
+    Execute test suite (list of test cases) one by one
 
     Args:
         ctx (Context): An object that contains information about the current
