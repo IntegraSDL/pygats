@@ -699,6 +699,7 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
         counter (Optional[int]): amount to time test cases to be executed
         output (Optional[str]): path to store test results
         screenshots_on (Optional[bool]): create screenshots while running tests
+        # noqa: DAR003
     """
     global OUTPUT_PATH
     global SCREENSHOTS_ON
