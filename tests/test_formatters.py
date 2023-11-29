@@ -16,11 +16,11 @@ def test_formatter(formatter, capsys):  # pylint: disable=redefined-outer-name
     assert ctx
     begin_test(ctx, 'First message')
     cptrd = capsys.readouterr()
-    assert cptrd.out == '\n### First message\n\n'
+    assert cptrd.out == '### First message\n\n'
 
     step(ctx, 'Hello world')
     cptrd = capsys.readouterr()
-    assert cptrd.out == '\nStep 1: Hello world\n\n'
+    assert cptrd.out == 'Step 1: Hello world\n\n'
 
 
 def test_check(formatter, capsys):  # pylint: disable=redefined-outer-name
@@ -30,7 +30,7 @@ def test_check(formatter, capsys):  # pylint: disable=redefined-outer-name
     result = check(ctx, 'Hello world', None)
     assert result is None
     cptrd = capsys.readouterr()
-    assert cptrd.out == '\nHello world\n\n'
+    assert cptrd.out == 'Hello world\n\n'
 
 
 def test_suite(formatter, capsys):
@@ -39,4 +39,4 @@ def test_suite(formatter, capsys):
     assert ctx
     suite(ctx, 'suite name', 'Hello world')
     cptrd = capsys.readouterr()
-    assert cptrd.out == '\n\n## Hello world\n\n'
+    assert cptrd.out == '## Hello world\n\n'
