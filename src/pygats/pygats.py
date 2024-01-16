@@ -15,6 +15,7 @@ import pyperclip
 from PIL import Image, ImageChops
 import cv2 as cv
 import numpy as np
+import mss
 
 from pygats.formatters import print_color_text
 
@@ -41,10 +42,9 @@ class Context:  # pylint: disable=too-few-public-methods
 
 class TestException(Exception):
     """
-    Test exception class stores msg and screenshot when error occurs
+    Test exception class stores msg when error occurs
     """
-    def __init__(self, img, msg):
-        self.image = img
+    def __init__(self, msg):
         self.message = msg
 
 
@@ -138,7 +138,15 @@ def screenshot(ctx: Context, rect: Optional[tuple] = None):
     SCREENSHOT_INDEX += 1
 
     # Take the screenshot and store it on disk
-    img = pyautogui.screenshot(str(img_path), region=rect)
+    with mss.mss() as sct:
+        if rect is None:
+            img = np.array(sct.grab(sct.monitors[0]))
+        else:
+            monitor = {'left': rect[0], 'top': rect[1], 'width': rect[2], 'height': rect[3]}
+            img = np.array(sct.grab(monitor))
+        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
+        cv.imwrite(str(img_path), img)
     # Display the screenshot
     ctx.formatter.print_img(img_path)
     return img
@@ -160,7 +168,11 @@ def take_snapshot(ctx: Context) -> str:
     SNAPSHOT_PATH = pathlib.Path(OUTPUT_PATH, "compare")
     SNAPSHOT_PATH.mkdir(exist_ok=True)
     img_path = pathlib.Path(SNAPSHOT_PATH, f'snapshot-{SNAPSHOT_INDEX}.png')
-    pyautogui.screenshot(str(img_path))
+    with mss.mss() as sct:
+        img = np.array(sct.grab(sct.monitors[0]))
+        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
+        cv.imwrite(str(img_path), img)
     SNAPSHOT_INDEX += 1
     print()
     print(f'![Снимок экрана]({img_path})')
@@ -236,25 +248,28 @@ def passed():
     """
     if SCREENSHOTS_ON:
         img_path = pathlib.Path(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
-        pyautogui.screenshot(str(img_path))
+        with mss.mss() as sct:
+            img = np.array(sct.grab(sct.monitors[0]))
+            img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+            img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
+            cv.imwrite(str(img_path), img)
         print(f'![Успешно]({img_path})')
     print()
     print('**Успешно**')
     print()
 
 
-def failed(img=pyautogui.screenshot(), msg: Optional[str] = 'Тест не успешен'):
+def failed(msg: Optional[str] = 'Тест не успешен'):
     """
     function generates exception while error occurs
 
     Args:
-        img (PIL.Image, optional): image or screenshot
         msg (Optional[str]): failed text
 
     Raises:
         TestException: raise exception in case of test failed
     """
-    raise TestException(img, msg)
+    raise TestException(msg)
 
 
 def check_image(ctx: Context, img_path: str, timeout: Optional[int] = 1):
@@ -288,7 +303,7 @@ def locate_on_screen(img_path: str):
     try:
         coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
     except pyautogui.ImageNotFoundException:
-            failed(msg='Изображение не найдено')
+        failed(msg='Изображение не найдено')
     print(f'Изображение найдено в координатах {coord}')
     return coord
 
@@ -318,9 +333,9 @@ def move_to(ctx: Context, img_path: str):
     try:
         center = pyautogui.locateCenterOnScreen(img_path, confidence=0.8)
     except pyautogui.ImageNotFoundException:
-            failed(msg='Изображение не найдено')
+        failed(msg='Изображение не найдено')
     if center is None:
-        failed(img_path, 'Изображение не найдено')
+        failed('Изображение не найдено')
     if sys.platform == 'darwin':
         pyautogui.moveTo(center.x / 2, center.y / 2)
     else:
@@ -377,19 +392,19 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
         except pyautogui.ImageNotFoundException:
             failed(msg='Изображение не найдено')
         if area_location is None:
-            failed(area, fail_message)
+            failed(fail_message)
         try:
             box = pyautogui.locate(button_path, area, confidence=0.8)
         except pyautogui.ImageNotFoundException:
             failed(msg='Изображение не найдено')
         if box is None:
-            failed(area, fail_message)
+            failed(fail_message)
 
         x = area_location.left + box.left + box.width / 2
         y = area_location.top + box.top + box.height / 2
         center = pyautogui.Point(x, y)
     if center is None:
-        failed(button_path, fail_message)
+        failed(fail_message)
 
     print(f'Перемещаем указатель мыши в координаты {center}')
     if sys.platform == 'darwin':
@@ -692,14 +707,22 @@ def run(funcs: List[str], counter: Optional[int] = 1, output: Optional[str] = 'o
                 if SCREENSHOTS_ON:
                     img_path = pathlib.Path(
                         output, SUITE_NAME, test_name, 'test-passed.png')
-                    pyautogui.screenshot(str(img_path))
+                    with mss.mss() as sct:
+                        img = np.array(sct.grab(sct.monitors[0]))
+                        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+                        img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
+                        cv.imwrite(str(img_path), img)
                     print(f'![Тест пройден]({img_path})')
                 print_color_text('\n**Тест пройден**', 'green')
             except TestException as e:
                 if SCREENSHOTS_ON:
                     img_path = pathlib.Path(
                         output, SUITE_NAME, test_name, 'test-failed.png')
-                    pyautogui.screenshot(str(img_path))
+                    with mss.mss() as sct:
+                        img = np.array(sct.grab(sct.monitors[0]))
+                        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+                        img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
+                        cv.imwrite(str(img_path), img)
                     print(f'![Тест не пройден]({img_path})')
                 print_color_text('\n> Error : ' + e.message + '\n', 'red')
                 print_color_text('**Тест не пройден**', 'red')

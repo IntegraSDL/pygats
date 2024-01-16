@@ -21,15 +21,14 @@ jobs:
         sudo apt-get install -y scrot tesseract-ocr tesseract-ocr-rus fluxbox
         python -m pip install --upgrade pip
         python -m pip install pytest
-        python -m pip install Pillow==6.2.1 pyautogui python-xlib opencv-python
-        python -m pip install pytesseract levenshtein
+        python -m pip install -r requirements.txt
         python -m pip install --editable .
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Prepare virtual frame buffer
       run: |
         Xvfb -shmem -screen 0 1280x1024x24 &
         export LANG=ru_RU.UTF-8
         DISPLAY=:0 fluxbox -display :0 &
+        touch /home/runner/.Xauthority
     - name: Test with pytest
       run: |
         FIND_RUN=True DISPLAY=:0 python -m pytest
