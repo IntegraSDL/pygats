@@ -22,7 +22,8 @@ dependencies = [
     'pytesseract',
     'Levenshtein',
     'opencv-python',
-    'numpy'
+    'numpy',
+    'mss'
 ]
 license = {file = "LICENSE"}
 

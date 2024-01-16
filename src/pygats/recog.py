@@ -7,6 +7,9 @@ import re
 from typing import Optional
 import pyautogui
 import pytesseract
+import mss
+import numpy as np
+import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
 from pygats.pygats import step, passed, failed
@@ -94,7 +97,10 @@ def find_text_on_screen(ctx, txt, skip=0, one_word=False):
             found (bool): whether the text is found in the image
     """
     step(ctx, f'Поиск текста {txt.content} на экране ...')
-    img = pyautogui.screenshot()
+    with mss.mss() as sct:
+        img = np.array(sct.grab(sct.monitors[0]))
+        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        img = Image.fromarray(img)
     roi, found = find_text(img, txt, skip, False, one_word)
     if found:
         return roi, found
@@ -116,7 +122,7 @@ def check_text(ctx, img: Image, txt):
     if not found:
         _, found = find_text(img, txt, extend=True)
         if not found:
-            failed(img, f'{txt.content} не найден на изображении')
+            failed(f'{txt.content} не найден на изображении')
     passed()
 
 
@@ -128,12 +134,15 @@ def check_text_on_screen(ctx, txt):
         txt (pygats.recog.SearchedText): text to search on screenshot
     """
     step(ctx, f'Проверка отображения текста {txt.content} на экране ...')
-    img = pyautogui.screenshot()
+    with mss.mss() as sct:
+        img = np.array(sct.grab(sct.monitors[0]))
+        img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        img = Image.fromarray(img)
     _, found = find_text(img, txt)
     if not found:
         _, found = find_text(img, txt, extend=True)
         if not found:
-            failed(img, f'{txt.content} не найден на экране')
+            failed(f'{txt.content} не найден на экране')
     passed()
 
 
