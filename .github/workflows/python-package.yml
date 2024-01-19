@@ -30,10 +30,23 @@ jobs:
         sudo apt-get install -y scrot tesseract-ocr tesseract-ocr-rus fluxbox
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
-        python -m pip install -r requirements.txt
+        python_version=$(python -c 'import platform; _, minor, _ = \
+          platform.python_version_tuple(); print("minor")')
+        if [[ ${python_version} -ge 9 ]]; then
+          python -m pip install -r requirements.txt
+        else
+          while read requirement; do
+            if [[ $requirement == "qat==0.4.2" ]]; then
+              echo "Unsupported module"
+            else
+              python -m pip install $requirement
+            fi
+          done < requirements.txt
+        fi
         python -m pip install --editable .
     - name: Lint with flake8
       run: |
+        
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
