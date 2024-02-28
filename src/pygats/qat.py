@@ -219,7 +219,7 @@ def compare_object_tree(ctx, window, dir_name):
             id += str(index)
             if item.children != []:
                 tree(item, indent + '  ', index=0, parent_path=current_path, id=id)
-                id = id[:len(id)-1]
+                id = id[:len(id) - 1]
                 index += 1
             else:
                 duplicate = current_path.with_suffix('._d.yaml')
