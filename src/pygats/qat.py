@@ -151,7 +151,7 @@ def get_object_by_id(ctx, window, id=''):
     step(ctx, f'Поиск объекта по индексу {id} ...')
     obj = window.children[int(id[0])]
     id = id[1:]
-    while id != '': 
+    while id != '':
         obj = obj.children[int(id[0])]
         id = id[1:]
     return obj
@@ -181,7 +181,7 @@ def generate_object_tree(ctx, window, dir_name='temp'):
                 tree_file.write(f'{indent}[{index}]{item.type}\n')
                 current_path.mkdir(exist_ok=True)
                 tree(item, indent + '  ', index=0, parent_path=current_path, id=id)
-                id = id[:len(id)-1]
+                id = id[:len(id) - 1]
                 index += 1
             else:
                 tree_file.write(f'{indent}[{index}]{item.type}\n')
@@ -192,7 +192,7 @@ def generate_object_tree(ctx, window, dir_name='temp'):
                     for prop in item.list_properties():
                         pair = f'{prop[0]}: {prop[1]}'
                         file.write(pair + '\n')
-                id = id[:len(id)-1]
+                id = id[:len(id) - 1]
                 index += 1
 
     tree(window)
@@ -234,8 +234,7 @@ def compare_object_tree(ctx, window, dir_name):
                     for prop in item.list_properties():
                         pair = f'{prop[0]}: {prop[1]}'
                         file.write(pair + '\n')
-            
-                with open(current_path, 'r') as file_1, open(duplicate, 'r') as file_2,\
+                with open(current_path, 'r') as file_1, open(duplicate, 'r') as file_2, \
                      open(temp_file, 'w') as temp:
                     key = False
                     for line_1, line_2 in zip(file_1, file_2):
@@ -252,7 +251,7 @@ def compare_object_tree(ctx, window, dir_name):
                 file_2.close()
                 temp_file.replace(current_path)
                 duplicate.unlink()
-                id = id[:len(id)-1]
+                id = id[:len(id) - 1]
                 index += 1
 
     tree(window)
