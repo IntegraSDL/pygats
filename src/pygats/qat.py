@@ -159,7 +159,7 @@ def get_object_by_id(ctx, window, id=''):
 
 def generate_object_tree(ctx, window, dir_name='temp'):
     """
-    Function
+    Function generates tree of directories and files that repeats the structure of the object tree
 
     Args:
         ctx (Context): context of test execution
