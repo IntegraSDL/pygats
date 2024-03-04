@@ -217,7 +217,7 @@ def compare_object_tree(ctx, window, dir_name):
             current_path = parent_path / f'{index}_{item.type}'
             id += str(index)
             if item.children != []:
-                tree(item, indent + '  ', index=0, parent_path=current_path, id=id)
+                tree(item, indent + '  ', 0, current_path, id)
                 id = id[:len(id) - 1]
                 index += 1
             else:
