@@ -137,7 +137,7 @@ def find_all_objects(ctx, definition: dict):
     return QtObjects
 
 
-def get_object_by_id(ctx, window, id=''):
+def find_object_by_id(ctx, window, id=''):
     """
     Function returns object by the specified id
 
@@ -151,7 +151,7 @@ def get_object_by_id(ctx, window, id=''):
     step(ctx, f'Поиск объекта по индексу {id} ...')
     obj = window.children[int(id[0])]
     id = id[1:]
-    while id != '':
+    while id:
         obj = obj.children[int(id[0])]
         id = id[1:]
     return obj
@@ -189,9 +189,8 @@ def generate_object_tree(ctx, window, dir_name='temp'):
                 current_path.touch(exist_ok=True)
                 with open(current_path, 'w') as file:
                     file.write(f'{item.type}: \"{id}\"\n\n')
-                    for prop in item.list_properties():
-                        pair = f'{prop[0]}: {prop[1]}'
-                        file.write(pair + '\n')
+                    for property in item.list_properties():
+                        file.write(f'{property[0]}: {property[1]}\n')
                 id = id[:len(id) - 1]
                 index += 1
 
@@ -231,24 +230,20 @@ def compare_object_tree(ctx, window, dir_name):
                 duplicate.touch(exist_ok=True)
                 with open(duplicate, 'w') as file:
                     file.write(f'{item.type}: \"{id}\"\n\n')
-                    for prop in item.list_properties():
-                        pair = f'{prop[0]}: {prop[1]}'
-                        file.write(pair + '\n')
-                with open(current_path, 'r') as file_1, open(duplicate, 'r') as file_2, \
+                    for property in item.list_properties():
+                        file.write(f'{property[0]}: {property[1]}\n')
+                with open(current_path, 'r') as old_file, open(duplicate, 'r') as new_file, \
                      open(temp_file, 'w') as temp:
                     key = False
-                    for line_1, line_2 in zip(file_1, file_2):
-                        if line_1 != line_2:
+                    for old_line, new_line in zip(old_file, new_file):
+                        if old_line != new_line:
                             key = True
-                            temp.write(f'| old: {line_1}')
-                            temp.write(f'| new: {line_2}')
+                            temp.write(f'| old: {old_line}')
+                            temp.write(f'| new: {new_line}')
                         else:
-                            temp.write(line_1)
+                            temp.write(old_line)
                     if key:
                         diff_file.write(f'Несоответствие: {current_path}\n')
-                temp.close()
-                file_1.close()
-                file_2.close()
                 temp_file.replace(current_path)
                 duplicate.unlink()
                 id = id[:len(id) - 1]
