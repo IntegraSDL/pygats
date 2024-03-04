@@ -1,5 +1,5 @@
 """
-Module for interacting with qt applications
+Module for qt applications interacting
 """
 
 from typing import Optional
@@ -14,8 +14,8 @@ def register_application(name: str, path: str, args: Optional[str] = ''):
 
     Args:
         name (str): application name
-        path (str): application parh
-        args (Optional[str]): arguments that used when launching the application
+        path (str): application path
+        args (Optional[str]): application launch arguments
     """
     qat.register_application(name=name, path=path, args=args)
 
@@ -27,7 +27,7 @@ def start_application(ctx, name: str, args: Optional[str] = ''):
     Args:
         ctx (Context): context of test execution
         name (str): application name
-        args (Optional[str]): arguments that used when launching the application
+        args (Optional[str]): application launch arguments
 
     Returns:
         app_ctx (qat.Globals.current_app_context): uniquely identifies the started
@@ -202,7 +202,7 @@ def generate_object_tree(ctx, window, dir_name='temp'):
 
 def compare_object_tree(ctx, window, dir_name):
     """
-    Function for comparing changes in the properties of window object
+    Function for comparison of changes in the properties of window object
 
     Args:
         window (qat.internal.qt_object.QtObject): uniquely identifies the QtObject (target window)
