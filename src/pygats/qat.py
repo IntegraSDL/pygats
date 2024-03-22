@@ -38,7 +38,7 @@ def start_application(ctx, name: str, args: Optional[str] = ''):
         app_ctx = qat.start_application(app_name=name, args=args)
         qat.unlock_application()
     except Exception as e:
-        failed(ctx, msg=f'Ошибка запуска приложения\n{e}')
+        failed(msg=f'Ошибка запуска приложения\n{e}')
     passed()
     return app_ctx
 
@@ -56,7 +56,7 @@ def close_application(ctx, app_ctx):
     try:
         qat.close_application(app_ctx)
     except Exception as e:
-        failed(ctx, msg=f'Ошибка закрытия приложения\n{e}')
+        failed(msg=f'Ошибка закрытия приложения\n{e}')
     passed()
 
 
@@ -75,7 +75,7 @@ def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
         for _ in range(count):
             qat.type_in(definition, message)
     except Exception as e:
-        failed(ctx, msg=f'Ошибка набора текста\n{e}')
+        failed(msg=f'Ошибка набора текста\n{e}')
     passed()
 
 
