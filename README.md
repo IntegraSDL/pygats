@@ -34,3 +34,40 @@ pylint $(git ls-files '*.py')
 cd docs
 make html
 ```
+
+# Example Usage
+
+```python
+import pygats.pygats as pygats
+import pygats.recog as recog
+
+from pygats.formatters import MarkdownFormatter as MD
+
+
+ctx = pygats.Context(MD())
+
+
+def test_launch_app():
+    pygats.begin_test(ctx, "Checking registration and launch of the application")
+    ...
+
+def test_login():
+    pygats.begin_test(ctx, "Verification of the implementation of login identification and password authentication")
+    ...
+
+...
+
+test_suites = [
+    test_launch_app,
+    test_login,
+    ...
+]
+
+
+if __name__ == '__main__':
+    pygats.suite(ctx, "report_directory", "Test case")
+    pygats.run(test_suites)
+
+```
+
+As a result of executing the script, we get a report in Markdown format in the "output" directory
