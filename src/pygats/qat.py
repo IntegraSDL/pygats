@@ -70,6 +70,8 @@ def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
         message (str): text to typewrite
         count (Optional[int]): number of writes
     """
+    if message.startswith('<') and message.endswith('>'):
+        message = message[1:-1]
     step(ctx, f'Набрать на клавиатуре {message} ...')
     try:
         for _ in range(count):
