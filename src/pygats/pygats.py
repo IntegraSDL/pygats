@@ -16,8 +16,9 @@ from PIL import Image, ImageChops
 import cv2 as cv
 import numpy as np
 import mss
+from colorama import init, Fore
 
-from pygats.formatters import print_color_text
+init(autoreset=True)
 
 TESTS_PASSED = []
 TESTS_FAILED = []
@@ -53,7 +54,8 @@ def begin_test(ctx: Context, msg: str):
     Begin of test. Dump msg as name of the test
 
     Args:
-        ctx (Context): context of test execution
+        ctx (Context): An object that contains information about the current
+                    context.
         msg (str): message to print at the beginning of test case
     """
     global STEP_INDEX
@@ -66,7 +68,8 @@ def check(ctx: Context, msg: str, func=None):
     Prints message as check block
 
     Args:
-        ctx (Context): context of test execution
+        ctx (Context): An object that contains information about the current
+                    context.
         msg (str): message to print at the beginning of test case
         func: pointer to function to be printed and called
         during test  # noqa: DAR003
@@ -87,12 +90,12 @@ def suite(ctx: Context, name: str, desc: str):
     function prints test suite name in reports
 
     Args:
-        ctx (Context): context of test execution
+        ctx (Context): An object that contains information about the current
+                    context.
         name (str): name of test suite
         desc (str): description of test suite to be printed
     """
     global SUITE_NAME
-    print()
     SUITE_NAME = name
     ctx.formatter.print_header(2, desc)
 
@@ -102,7 +105,8 @@ def step(ctx: Context, msg: str):
     function prints step name and starts new screenshot index
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         msg (str): message to print
     """
     global STEP_INDEX, SCREENSHOT_INDEX
@@ -148,7 +152,8 @@ def screenshot(ctx: Context, rect: Optional[tuple] = None):
         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
         cv.imwrite(str(img_path), img)
     # Display the screenshot
-    ctx.formatter.print_img(img_path)
+    tmp_path = pathlib.Path(*img_path.parts[1:])
+    ctx.formatter.print_img(tmp_path)
     return img
 
 
@@ -174,9 +179,8 @@ def take_snapshot(ctx: Context) -> str:
         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
         cv.imwrite(str(img_path), img)
     SNAPSHOT_INDEX += 1
-    print()
-    print(f'![Снимок экрана]({img_path})')
-    print()
+    tmp_path = pathlib.Path(*img_path.parts[1:])
+    ctx.formatter.print_img(tmp_path, 'Снимок экрана')
     return img_path
 
 
@@ -193,11 +197,8 @@ def compare_snapshots(ctx: Context, first_img: str, second_img: str) -> tuple or
         tupple or None: coordinates of the change detection area
     """
     step(ctx, 'Поиск изменений между снимками ...')
-    print()
-    print(f'![Первый снимок]({first_img})')
-    print()
-    print(f'![Второй снимок]({second_img})')
-    print()
+    ctx.formatter.print_img(first_img, 'Первый снимок')
+    ctx.formatter.print_img(second_img, 'Второй снимок')
     first = Image.open(first_img)
     second = Image.open(second_img)
     result = ImageChops.difference(first, second)
@@ -208,23 +209,22 @@ def compare_snapshots(ctx: Context, first_img: str, second_img: str) -> tuple or
         second_index = relative_path[len(relative_path) - 1].split('.')[0]
         result_path = pathlib.Path(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png')
         result.save(result_path)
-        print(f'![Найдены изменения]({result_path})')
-        print()
-        print('**Найдены изменения**')
-        print()
+        tmp_path = pathlib.Path(*result_path.parts[1:])
+        ctx.formatter.print_img(tmp_path, 'Найдены изменения')
+        ctx.formatter.print_bold('Найдены изменения')
         return result.getbbox()
-    print()
-    print('**Изменения не найдены**')
-    print()
+    ctx.formatter.print_bold('Изменения не найдены')
     return None
 
 
-def log_image(img: Image, msg: Optional[str] = 'Снимок экрана'):
+def log_image(ctx: Context, img: Image, msg: Optional[str] = 'Снимок экрана'):
     """
     Function log img with msg into report
     image is stored in output path as screenshotIndex
 
     Args:
+        ctx (Context): An object that contains information about the current
+                    context.
         img (Image): image to be logged
         msg (str, optional): description of the screenshot.
         Defaults to 'Снимок экрана'.  # noqa: DAR003
@@ -237,14 +237,18 @@ def log_image(img: Image, msg: Optional[str] = 'Снимок экрана'):
         OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
     SCREENSHOT_INDEX += 1
     img.save(img_path)
-    print(f'![{msg}]({img_path})')
-    print()
+    tmp_path = pathlib.Path(*img_path.parts[1:])
+    ctx.formatter.print_img(tmp_path, msg)
     return img
 
 
-def passed():
+def passed(ctx: Context):
     """
     function prints passed information after test case
+
+    Args:
+        ctx (Context): An object that contains information about the current
+                    context.
     """
     if SCREENSHOTS_ON:
         img_path = pathlib.Path(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
@@ -253,10 +257,8 @@ def passed():
             img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
             img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
             cv.imwrite(str(img_path), img)
-        print(f'![Успешно]({img_path})')
-    print()
-    print('**Успешно**')
-    print()
+        ctx.formatter.print_img(img_path, 'Успешно')
+    ctx.formatter.print_bold('Успешно')
 
 
 def failed(msg: Optional[str] = 'Тест не успешен'):
@@ -277,24 +279,27 @@ def check_image(ctx: Context, img_path: str, timeout: Optional[int] = 1):
     to occurs
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         img_path (str): path to image for check on screen
         timeout (Optional[int]): timeout in seconds to check if image occurs
     """
     step(ctx, f'Проверка отображения {img_path} ...')
     while timeout > 0:
-        if locate_on_screen(img_path) is not None:
-            passed()
+        if locate_on_screen(ctx, img_path) is not None:
+            passed(ctx)
             return
         timeout -= 1
         time.sleep(1)
 
 
-def locate_on_screen(img_path: str):
+def locate_on_screen(ctx: Context, img_path: str):
     """Function return coord of path to image located on screen.
     If not found returns None
 
     Args:
+        ctx (Context): An object that contains information about the current
+                    context.
         img_path (str): path to image to find
 
     Returns:
@@ -304,7 +309,7 @@ def locate_on_screen(img_path: str):
         coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
     except pyautogui.ImageNotFoundException:
         failed(msg='Изображение не найдено')
-    print(f'Изображение найдено в координатах {coord}')
+    ctx.formatter.print_para(f'Изображение найдено в координатах {coord}')
     return coord
 
 
@@ -312,20 +317,22 @@ def move_to_coord(ctx: Context, x: int, y: int):
     """Function moves mouse to coord x,y
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         x (int): x coordinate
         y (int): y coordinate
     """
     step(ctx, f'Переместить указатель мыши в координаты {x},{y}')
     pyautogui.moveTo(x, y)
-    passed()
+    passed(ctx)
 
 
 def move_to(ctx: Context, img_path: str):
     """Function move mouse to img_path
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         img_path (str): path to image for move to
 
     """
@@ -340,40 +347,43 @@ def move_to(ctx: Context, img_path: str):
         pyautogui.moveTo(center.x / 2, center.y / 2)
     else:
         pyautogui.moveTo(center.x, center.y)
-    print(f'Текущая позиция указателя мыши {pyautogui.position()}')
-    passed()
+        ctx.formatter.print_para(f'Текущая позиция указателя мыши {pyautogui.position()}')
+    passed(ctx)
 
 
 def click_right_button(ctx: Context):
     """function clicks right mouse button
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
     """
     step(ctx, 'Нажать правую кнопку мыши ...')
     pyautogui.click(button='right')
-    print(f'Текущая позиция указателя мыши {pyautogui.position()}')
-    passed()
+    ctx.formatter.print_para(f'Текущая позиция указателя мыши {pyautogui.position()}')
+    passed(ctx)
 
 
 def click_left_button(ctx: Context, clicks: Optional[int] = 1):
     """function clicks left button of mouse
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         clicks (Optional[int]): number of clicks
     """
     step(ctx, 'Нажать левую кнопку мыши ...')
     pyautogui.click(button='left', clicks=clicks, interval=0.2)
-    print(f'Текущая позиция указателя мыши {pyautogui.position()}')
-    passed()
+    ctx.formatter.print_para(f'Текущая позиция указателя мыши {pyautogui.position()}')
+    passed(ctx)
 
 
 def click(ctx: Context, button_path: str, area: Optional[str] = ''):
     """function clicks button in area
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         button_path (str): path to button image to press
         area (Optional[str]): path to area of image to print
     """
@@ -384,9 +394,9 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
             center = pyautogui.locateCenterOnScreen(button_path, confidence=0.8)
         except pyautogui.ImageNotFoundException:
             failed(msg='Изображение не найдено')
-        print(f'Кнопка найдена с центром в координатах {center}')
+        ctx.formatter.print_para(f'Кнопка найдена с центром в координатах {center}')
     else:
-        print(" area " + area)
+        ctx.formatter.print_para(' area ' + area)
         try:
             area_location = pyautogui.locateOnScreen(area, confidence=0.9)
         except pyautogui.ImageNotFoundException:
@@ -404,29 +414,28 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
         y = area_location.top + box.top + box.height / 2
         center = pyautogui.Point(x, y)
     if center is None:
-        failed(fail_message)
-
-    print(f'Перемещаем указатель мыши в координаты {center}')
+        failed(button_path, fail_message)
+    ctx.formatter.print_para(f'Перемещаем указатель мыши в координаты {center}')
     if sys.platform == 'darwin':
         pyautogui.moveTo(center.x / 2, center.y / 2)
     else:
         pyautogui.moveTo(center.x, center.y)
-    # pyautogui.dragTo()
     pyautogui.click()
-    passed()
+    passed(ctx)
 
 
 def scroll(ctx: Context, clicks: Optional[int] = 1):
     """mouse wheel scroll function
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         clicks (Optional[int]): number of turns of mouse wheel, if it's positive scroll to up,
                                 if it's negative to down
     """
     step(ctx, 'Прокрутка колеса мыши ...')
     pyautogui.scroll(clicks=clicks)
-    passed()
+    passed(ctx)
 
 
 def ctrl_with_key(ctx: Context, key: str):
@@ -435,12 +444,13 @@ def ctrl_with_key(ctx: Context, key: str):
     function presses key with ctrl key
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         key (str): key to press CTRL + key
     """
     step(ctx, f'Нажать клавишу ctrl + {key}')
     pyautogui.hotkey('ctrl', key)
-    passed()
+    passed(ctx)
 
 
 def alt_with_key(ctx: Context, key: str):
@@ -448,12 +458,13 @@ def alt_with_key(ctx: Context, key: str):
     function presses alt+key
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         key (str): key to press ALT + key
     """
     step(ctx, f'Нажать клавишу alt+{key}')
     pyautogui.hotkey('alt', key)
-    passed()
+    passed(ctx)
 
 
 def drag_to(ctx: Context, x: int, y: int):
@@ -461,13 +472,14 @@ def drag_to(ctx: Context, x: int, y: int):
     drag something to coordinates x, y
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         x (int): coordinates to move mouse pointer
         y (int): coordinates to move mouse pointer
     """
     step(ctx, f'Переместить в координаты {x}, {y} ...')
     pyautogui.dragTo(x, y, button='left', duration=0.5)
-    passed()
+    passed(ctx)
 
 
 def move(ctx: Context, x: int, y: int):
@@ -475,22 +487,24 @@ def move(ctx: Context, x: int, y: int):
     function moves mouse pointer to x,y coordinates
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         x (int): coordinates to move mouse pointer
         y (int): coordinates to move mouse pointer
     """
     step(ctx, f'Относительное перемещение указателя мыши x={x}, y={y} ...')
-    print(f'из координат {pyautogui.position()}')
+    ctx.formatter.print_para(f'из координат {pyautogui.position()}')
     pyautogui.move(x, y)
-    print(f'новые координаты {pyautogui.position()}')
-    passed()
+    ctx.formatter.print_para(f'новые координаты {pyautogui.position()}')
+    passed(ctx)
 
 
 def press(ctx: Context, key: str, n: Optional[int] = 1):
     """Function press keys n times
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         key (str): key to press
         n (Optional[int]): amount of time to press
     """
@@ -503,7 +517,8 @@ def typewrite(ctx: Context, message: str, lang: Optional[str] = 'eng'):
     """function types keys on keyboard
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         message (str): text to typewrite
         lang (Optional[str]): language in tesseract format
 
@@ -513,37 +528,34 @@ def typewrite(ctx: Context, message: str, lang: Optional[str] = 'eng'):
         pyperclip.copy(message)
         pyautogui.hotkey('ctrl', 'v')
         pyperclip.copy(clipboard)
-        passed()
+        passed(ctx)
     else:
         step(ctx, f'Набрать на клавиатуре {message} ...')
         pyautogui.write(message)
-        passed()
+        passed(ctx)
 
 
-def print_test_summary(list_passed: List, list_failed: List):
+def print_test_summary(ctx: Context, list_passed: List, list_failed: List):
     """Functions print tests summary for executed suites
 
     Args:
+        ctx (Context): An object that contains information about the current
+                    context.
         list_passed (List): list of test passed
         list_failed (List): list of test failed
     """
     # pylint: disable=consider-using-f-string
-    print()
-    print('## Результаты тестирования')
-    print_color_text('Тесты завершенные успешно:', 'green')
+    ctx.formatter.print_header(2, 'Результаты тестирования')
+    ctx.formatter.print_para(Fore.GREEN + 'Тесты завершенные успешно:' + Fore.RESET)
     for t in list_passed:
-        print_color_text('* ' + t, 'green')
-    print()
-    print_color_text('Тесты завершенные неуспешно:', 'red')
+        ctx.formatter.print_list(Fore.GREEN + t + Fore.RESET)
+    ctx.formatter.print_para(Fore.RED + '\nТесты завершенные неуспешно:' + Fore.RESET)
     for t in list_failed:
-        print_color_text('* ' + t, 'red')
-    print()
-    print('**Всего выполнено**')
-    print()
-    print(
+        ctx.formatter.print_list(Fore.RED + t + Fore.RESET)
+    ctx.formatter.print_bold('Всего выполнено')
+    ctx.formatter.print_para(
         'Успешно: {:04d} / Неуспешно: {:04d}'.format(
             len(list_passed), len(list_failed)))
-    print()
 
 
 def repeater(cnts: List):
@@ -605,7 +617,8 @@ def find_contours(ctx: Context, img_path: str, fltr=repeater):
     Function finds contours by cv and filter them with filter
 
     Args:
-        ctx (Context): context of test run
+        ctx (Context): An object that contains information about the current
+                    context.
         img_path (str): path to image where contours will be searched
         fltr (function, optional): filter which will be used on contours
         results  # noqa: DAR003
@@ -678,12 +691,14 @@ def random_string(string_length: int, character_set: Optional[str] = None):
     return ''.join(random.choice(character_set) for _ in range(string_length))
 
 
-def run(funcs: List[str], counter: Optional[int] = 1, output: Optional[str] = 'output',
-        screenshots_on: Optional[bool] = True):
+def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
+        output: Optional[str] = 'output', screenshots_on: Optional[bool] = True):
     """
     Execute test suite (list of test cases) one by one
 
     Args:
+        ctx (Context): An object that contains information about the current
+                    context.
         funcs (List[str]) list of function to be executed
         counter (Optional[int]): amount to time test cases to be executed
         output (Optional[str]): path to store test results
@@ -712,8 +727,8 @@ def run(funcs: List[str], counter: Optional[int] = 1, output: Optional[str] = 'o
                         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
                         cv.imwrite(str(img_path), img)
-                    print(f'![Тест пройден]({img_path})')
-                print_color_text('\n**Тест пройден**', 'green')
+                    ctx.formatter.print_img(img_path, 'Тест пройден')
+                ctx.formatter.print_bold(Fore.GREEN + 'Тест пройден' + Fore.RESET)
             except TestException as e:
                 if SCREENSHOTS_ON:
                     img_path = pathlib.Path(
@@ -723,9 +738,9 @@ def run(funcs: List[str], counter: Optional[int] = 1, output: Optional[str] = 'o
                         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
                         cv.imwrite(str(img_path), img)
-                    print(f'![Тест не пройден]({img_path})')
-                print_color_text('\n> Error : ' + e.message + '\n', 'red')
-                print_color_text('**Тест не пройден**', 'red')
+                    ctx.formatter.print_img(img_path, 'Тест не пройден')
+                ctx.formatter.print_bold(Fore.RED + '> Error : ' + e.message + Fore.RESET)
+                ctx.formatter.print_bold(Fore.RED + 'Тест не пройден' + Fore.RESET)
                 TESTS_FAILED.append(str(pathlib.Path(SUITE_NAME, test_name)))
 
-    print_test_summary(TESTS_PASSED, TESTS_FAILED)
+    print_test_summary(ctx, TESTS_PASSED, TESTS_FAILED)

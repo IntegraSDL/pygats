@@ -8,3 +8,4 @@ python_Levenshtein==0.20.9
 opencv-python==4.7.0.72
 mss==9.0.1
 qat==0.4.2
+colorama==0.4.6
