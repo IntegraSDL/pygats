@@ -49,7 +49,7 @@ class ROI:
         return self.x + self.w / 2, self.y + self.h / 2
 
 
-def find_cropped_text(img: Image, txt: SearchedText,
+def find_cropped_text(ctx, img: Image, txt: SearchedText,
                       skip: Optional[int] = 0, one_word: Optional[bool] = False):
     """
     Find text in image. Several passes are used.
@@ -57,6 +57,8 @@ def find_cropped_text(img: Image, txt: SearchedText,
     every area passed through recognition again to improve recognition results
 
     Args:
+        ctx (Context): An object that contains information about the current
+                    context.
         img (Image): image to search text in
         txt (SearchedText): text to search
         skip (int, optional): number of occurrences of the text to skip.
@@ -73,7 +75,7 @@ def find_cropped_text(img: Image, txt: SearchedText,
     roi, found = ROI(-1, -1, -1, -1), False
     for pos, content in recognized_lines:
         if content.find(txt.content) != -1:
-            print("Найден текст " + content)
+            ctx.formatter.print_para('Найден текст ' + content)
             roi, found = pos, True
             if skip <= 0:
                 break
@@ -86,7 +88,8 @@ def find_text_on_screen(ctx, txt, skip=0, one_word=False):
     Function finds text on the screen
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         txt (pygats.recog.SearchedText): text to find
         skip (int, optional): amount of findings which should be skipped
         one_word (bool, optional): search only one world
@@ -101,36 +104,38 @@ def find_text_on_screen(ctx, txt, skip=0, one_word=False):
         img = np.array(sct.grab(sct.monitors[0]))
         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         img = Image.fromarray(img)
-    roi, found = find_text(img, txt, skip, False, one_word)
+    roi, found = find_text(ctx, img, txt, skip, False, one_word)
     if found:
         return roi, found
-    return find_text(img, txt, skip, True, one_word)
+    return find_text(ctx, img, txt, skip, True, one_word)
 
 
 def check_text(ctx, img: Image, txt):
     """Checks if text (txt) exists on image (img) printed with language (lang)
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         img (Image): image to find text
         txt (pygats.recog.SearchedText): text to search
 
     """
     step(ctx,
          f'Проверка отображения текста {txt.content} на изображении {img}...')
-    _, found = find_text(img, txt)
+    _, found = find_text(ctx, img, txt)
     if not found:
-        _, found = find_text(img, txt, extend=True)
+        _, found = find_text(ctx, img, txt, extend=True)
         if not found:
-            failed(f'{txt.content} не найден на изображении')
-    passed()
+            failed(msg=f'{txt.content} не найден на изображении')
+    passed(ctx)
 
 
 def check_text_on_screen(ctx, txt):
     """Checks if text (txt) exists on the screen
 
     Args:
-        ctx (Context): context
+        ctx (Context): An object that contains information about the current
+                    context.
         txt (pygats.recog.SearchedText): text to search on screenshot
     """
     step(ctx, f'Проверка отображения текста {txt.content} на экране ...')
@@ -138,19 +143,20 @@ def check_text_on_screen(ctx, txt):
         img = np.array(sct.grab(sct.monitors[0]))
         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         img = Image.fromarray(img)
-    _, found = find_text(img, txt)
+    _, found = find_text(ctx, img, txt)
     if not found:
-        _, found = find_text(img, txt, extend=True)
+        _, found = find_text(ctx, img, txt, extend=True)
         if not found:
-            failed(f'{txt.content} не найден на экране')
-    passed()
+            failed(msg=f'{txt.content} не найден на экране')
+    passed(ctx)
 
 
 def move_to_text(ctx, txt, skip=0):
     """Finds text on the screen and moves the cursor to it
 
     Args:
-        ctx (Context): execution context
+        ctx (Context): An object that contains information about the current
+                    context.
         txt (pygats.recog.SearchedText): text to be searched and clicked
         skip (int): amount of text should be skipped
     """
@@ -159,18 +165,18 @@ def move_to_text(ctx, txt, skip=0):
         ctx, txt, skip, True)
     if not found:
         failed(msg=f'{txt.content} не найден на экране')
-
-    print(roi.x, roi.y, roi.w, roi.h)
+    ctx.formatter.print_para(f'{roi.x} {roi.y} {roi.w} {roi.h}')
     center_x, center_y = roi.rectangle_center_coords()
     pyautogui.moveTo(center_x, center_y)
-    passed()
+    passed(ctx)
 
 
 def click_text(ctx, txt, button='left', skip=0):
     """Finds text on screen and press mouse button on it
 
     Args:
-        ctx (Context): execution context
+        ctx (Context): An object that contains information about the current
+                    context.
         txt (pygats.recog.SearchedText): text to be searched and clicked
         button (string, optional): left, right, middle
         skip (int): amount of text should be skipped
@@ -181,12 +187,12 @@ def click_text(ctx, txt, button='left', skip=0):
     if not found:
         failed(msg=f'{txt.content} не найден на экране')
 
-    print(roi.x, roi.y, roi.w, roi.h)
+    ctx.formatter.print_para(f'{roi.x} {roi.y} {roi.w} {roi.h}')
     center_x, center_y = roi.rectangle_center_coords()
     pyautogui.moveTo(center_x, center_y)
     pyautogui.mouseDown(center_x, center_y, button)
     pyautogui.mouseUp(center_x, center_y, button)
-    passed()
+    passed(ctx)
 
 
 def recognize_text_with_data(img, lang):
@@ -311,10 +317,12 @@ def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
         else (0, 0, img)
 
 
-def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
+def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False):
     """Function finds text in image with Tesseract
 
     Args:
+        ctx (Context): An object that contains information about the current
+                    context.
         img (Image): image where text will be recognized
         txt (pygats.recog.SearchedText): text which fill be searched
         skip (int): amount of skipped finding
@@ -332,7 +340,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
     roi, found = ROI(-1, -1, -1, -1), False
     for pos, content in lines[1:]:
         if content.find(txt.content) != -1:
-            print("Найден текст " + content)
+            ctx.formatter.print_para('Найден текст ' + content)
             roi = ROI(pos.x + x_offset, pos.y + y_offset, pos.w, pos.h)
             found = True
             if skip <= 0:
@@ -345,7 +353,7 @@ def find_text(img: Image, txt, skip=0, extend=False, one_word=False):
                         pos.x + pos.w,
                         pos.y + pos.h))
                 roi, found = find_cropped_text(
-                    cropped, txt, 0, one_word)
+                    ctx, cropped, txt, 0, one_word)
                 if found:
                     return ROI(roi.x + pos.x, roi.y + pos.y, roi.w, roi.h), found
     return roi, found
