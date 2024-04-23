@@ -152,7 +152,7 @@ def screenshot(ctx: Context, rect: Optional[tuple] = None):
         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
         cv.imwrite(str(img_path), img)
     # Display the screenshot
-    ctx.formatter.print_img(img, img_path)
+    ctx.formatter.print_img(img_path, 'Screenshot')
     return img
 
 
