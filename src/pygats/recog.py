@@ -143,8 +143,6 @@ def check_text_on_screen(ctx, txt):
         img = np.array(sct.grab(sct.monitors[0]))
         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         img = Image.fromarray(img)
-    _, found = find_text(img, txt)
-    img = pyautogui.screenshot()
     _, found = find_text(ctx, img, txt)
     if not found:
         _, found = find_text(ctx, img, txt, extend=True)

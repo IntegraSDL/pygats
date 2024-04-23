@@ -152,8 +152,7 @@ def screenshot(ctx: Context, rect: Optional[tuple] = None):
         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
         cv.imwrite(str(img_path), img)
     # Display the screenshot
-    tmp_path = pathlib.Path(*img_path.parts[1:])
-    ctx.formatter.print_img(tmp_path)
+    ctx.formatter.print_img(img_path)
     return img
 
 
@@ -179,8 +178,7 @@ def take_snapshot(ctx: Context) -> str:
         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
         cv.imwrite(str(img_path), img)
     SNAPSHOT_INDEX += 1
-    tmp_path = pathlib.Path(*img_path.parts[1:])
-    ctx.formatter.print_img(tmp_path, 'Снимок экрана')
+    ctx.formatter.print_img(img_path, 'Снимок экрана')
     return img_path
 
 
@@ -209,8 +207,7 @@ def compare_snapshots(ctx: Context, first_img: str, second_img: str) -> tuple or
         second_index = relative_path[len(relative_path) - 1].split('.')[0]
         result_path = pathlib.Path(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png')
         result.save(result_path)
-        tmp_path = pathlib.Path(*result_path.parts[1:])
-        ctx.formatter.print_img(tmp_path, 'Найдены изменения')
+        ctx.formatter.print_img(result_path, 'Найдены изменения')
         ctx.formatter.print_bold('Найдены изменения')
         return result.getbbox()
     ctx.formatter.print_bold('Изменения не найдены')
@@ -237,8 +234,7 @@ def log_image(ctx: Context, img: Image, msg: Optional[str] = 'Снимок эк�
         OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
     SCREENSHOT_INDEX += 1
     img.save(img_path)
-    tmp_path = pathlib.Path(*img_path.parts[1:])
-    ctx.formatter.print_img(tmp_path, msg)
+    ctx.formatter.print_img(img_path, msg)
     return img
 
 
