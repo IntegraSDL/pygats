@@ -548,6 +548,7 @@ def print_test_summary(ctx: Context, list_passed: List, list_failed: List):
     ctx.formatter.print_para(Fore.RED + '\nТесты завершенные неуспешно:' + Fore.RESET)
     for t in list_failed:
         ctx.formatter.print_list(Fore.RED + t + Fore.RESET)
+    print()
     ctx.formatter.print_bold('Всего выполнено')
     ctx.formatter.print_para(
         'Успешно: {:04d} / Неуспешно: {:04d}'.format(
@@ -736,7 +737,7 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
                         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
                         cv.imwrite(str(img_path), img)
                     ctx.formatter.print_img(img_path, 'Тест не пройден')
-                ctx.formatter.print_bold(Fore.RED + '> Error : ' + e.message + Fore.RESET)
+                ctx.formatter.print_para(Fore.RED + '> Error : ' + e.message + Fore.RESET)
                 ctx.formatter.print_bold(Fore.RED + 'Тест не пройден' + Fore.RESET)
                 TESTS_FAILED.append(str(pathlib.Path(SUITE_NAME, test_name)))
 

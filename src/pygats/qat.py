@@ -39,7 +39,7 @@ def start_application(ctx, name: str, args: Optional[str] = ''):
         qat.unlock_application()
     except Exception as e:
         failed(msg=f'Ошибка запуска приложения\n{e}')
-    passed()
+    passed(ctx)
     return app_ctx
 
 
@@ -57,16 +57,16 @@ def close_application(ctx, app_ctx):
         qat.close_application(app_ctx)
     except Exception as e:
         failed(msg=f'Ошибка закрытия приложения\n{e}')
-    passed()
+    passed(ctx)
 
 
-def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
+def typewrite(ctx, definition: str, message: str, count: Optional[int] = 1):
     """
     Function types keys on keyboard
 
     Args:
         ctx (Context): context of test execution
-        definition (dict): uniquely identifies the QtObject
+        definition (str): uniquely identifies the QtObject
         message (str): text to typewrite
         count (Optional[int]): number of writes
     """
@@ -78,28 +78,31 @@ def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
             qat.type_in(definition, message)
     except Exception as e:
         failed(msg=f'Ошибка набора текста\n{e}')
-    passed()
+    passed(ctx)
 
 
-def click_left_button(ctx, definition: dict, x: Optional[int] = None, y: Optional[int] = None,
+def click_left_button(ctx, definition: str, x: Optional[int] = None, y: Optional[int] = None,
                       clicks: Optional[int] = 1):
     """
     Function clicks left button of mouse
 
     Args:
         ctx (Context): context of test execution
-        definition (dict): uniquely identifies the QtObject
+        definition (str): uniquely identifies the QtObject
         x (Optional[int]): coordinates to move mouse pointer
         y (Optional[int]): coordinates to move mouse pointer
         clicks (Optional[int]): number of clicks
     """
-    step(ctx, f'Нажать левую кнопку мыши {definition}')
+    message = str(definition)
+    if message.startswith('<') and message.endswith('>'):
+        message = message[1:-1]
+    step(ctx, f'Нажать левую кнопку мыши {message}')
     try:
         for _ in range(clicks):
             qat.mouse_click(definition, x, y)
     except Exception as e:
         failed(msg=f'Ошибка {e}')
-    passed()
+    passed(ctx)
 
 
 def find_object(ctx, definition: dict):
@@ -118,7 +121,7 @@ def find_object(ctx, definition: dict):
         QtObject = qat.wait_for_object_exists(definition)
     except Exception as e:
         failed(msg=f'Ошибка поиска объекта\n{e}')
-    passed()
+    passed(ctx)
     return QtObject
 
 
@@ -135,7 +138,7 @@ def find_all_objects(ctx, definition: dict):
     """
     step(ctx, f'Поиск всех объектов, соответствующих данному определению {definition} ...')
     QtObjects = qat.find_all_objects(definition)
-    passed()
+    passed(ctx)
     return QtObjects
 
 
@@ -198,7 +201,7 @@ def generate_object_tree(ctx, window, dir_name='temp'):
 
     tree(window)
     tree_file.close()
-    passed()
+    passed(ctx)
 
 
 def compare_object_tree(ctx, window, dir_name):
