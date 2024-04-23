@@ -23,8 +23,8 @@ dependencies = [
     'Levenshtein',
     'opencv-python',
     'numpy',
+    'colorama',
     'mss'
-    'colorama'
 ]
 license = {file = "LICENSE"}
 
