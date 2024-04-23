@@ -152,7 +152,7 @@ def screenshot(ctx: Context, rect: Optional[tuple] = None):
         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
         cv.imwrite(str(img_path), img)
     # Display the screenshot
-    ctx.formatter.print_img(img_path)
+    ctx.formatter.print_img(img, img_path)
     return img
 
 
@@ -410,7 +410,7 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
         y = area_location.top + box.top + box.height / 2
         center = pyautogui.Point(x, y)
     if center is None:
-        failed(button_path, fail_message)
+        failed(msg=fail_message)
     ctx.formatter.print_para(f'Перемещаем указатель мыши в координаты {center}')
     if sys.platform == 'darwin':
         pyautogui.moveTo(center.x / 2, center.y / 2)

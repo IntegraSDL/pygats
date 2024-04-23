@@ -126,7 +126,7 @@ def check_text(ctx, img: Image, txt):
     if not found:
         _, found = find_text(ctx, img, txt, extend=True)
         if not found:
-            failed(img, f'{txt.content} не найден на изображении')
+            failed(msg=f'{txt.content} не найден на изображении')
     passed(ctx)
 
 
@@ -147,7 +147,7 @@ def check_text_on_screen(ctx, txt):
     if not found:
         _, found = find_text(ctx, img, txt, extend=True)
         if not found:
-            failed(img, f'{txt.content} не найден на экране')
+            failed(msg=f'{txt.content} не найден на экране')
     passed(ctx)
 
 
