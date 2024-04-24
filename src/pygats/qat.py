@@ -66,7 +66,7 @@ def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
 
     Args:
         ctx (Context): context of test execution
-        definition (str): uniquely identifies the QtObject
+        definition (dict): uniquely identifies the QtObject
         message (str): text to typewrite
         count (Optional[int]): number of writes
     """
