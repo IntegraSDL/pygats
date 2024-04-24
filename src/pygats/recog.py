@@ -234,18 +234,14 @@ def combine_lines(lines, one_word=False):
         split_line_1 = lines[i].split('\t')
         if len(split_line_1) != 12:
             return result
-        x = int(split_line_1[6])
-        y = int(split_line_1[7])
-        w = int(split_line_1[8])
-        h = int(split_line_1[9])
+        roi = ROI(*map(int, split_line_1[6:10]))
         text = split_line_1[11]
         if not one_word:
             for j in range(i + 1, len(lines) - 1):
                 split_line_2 = lines[j].split('\t')
-                if abs(y - int(split_line_2[7])) < 5 and len(split_line_2[11].strip()) > 0:
-                    w += int(split_line_2[8])
+                if abs(roi.y - int(split_line_2[7])) < 5 and len(split_line_2[11].strip()) > 0:
+                    roi.w += int(split_line_2[8])
                     text += ' ' + split_line_2[11]
-        roi = ROI(x, y, w, h)
         result.append((roi, text))
     return result
 
