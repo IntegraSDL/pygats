@@ -71,8 +71,9 @@ def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
         count (Optional[int]): number of writes
     """
     if message.startswith('<') and message.endswith('>'):
-        message = message[1:-1]
-    step(ctx, f'Набрать на клавиатуре {message} ...')
+        step(ctx, f'Набрать на клавиатуре {message[1:-1]} ...')
+    else:
+        step(ctx, f'Набрать на клавиатуре {message} ...')
     try:
         for _ in range(count):
             qat.type_in(definition, message)
