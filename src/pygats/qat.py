@@ -60,7 +60,7 @@ def close_application(ctx, app_ctx):
     passed(ctx)
 
 
-def typewrite(ctx, definition: str, message: str, count: Optional[int] = 1):
+def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
     """
     Function types keys on keyboard
 
