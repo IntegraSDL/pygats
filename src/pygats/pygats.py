@@ -67,7 +67,7 @@ def start_action(ctx: Context, action=None):
     ACTION_INDEX += 1
     ctx.formatter.print_header(3, DOCSTRING['Actions'][ACTION_INDEX])
     STEP_INDEX = 0
-    if OUTPUT_PATH.parts[len(OUTPUT_PATH.parts)-2] != SUITE_NAME:
+    if OUTPUT_PATH.parts[len(OUTPUT_PATH.parts) - 2] != SUITE_NAME:
         OUTPUT_PATH = pathlib.Path(*OUTPUT_PATH.parts[:-1])
     OUTPUT_PATH = pathlib.Path(OUTPUT_PATH, f'action_{ACTION_INDEX}')
     OUTPUT_PATH.mkdir(exist_ok=True)
@@ -708,6 +708,7 @@ def create_stm(ctx: Context, funcs: List[str]):
         ctx (Context): An object that contains information about the current
                     context.
         funcs (List[str]) list of function to be executed
+        # noqa: DAR003
     """
     global DOCSTRING
     module = inspect.getmodule(funcs[0])
@@ -717,7 +718,7 @@ def create_stm(ctx: Context, funcs: List[str]):
     for f in funcs:
         DOCSTRING = yaml.safe_load(f.__doc__)
         ctx.formatter.print_header(2, DOCSTRING['Definition'])
-        ctx.formatter.print_header(3,'Порядок выполнения проверки:')
+        ctx.formatter.print_header(3, 'Порядок выполнения проверки:')
         for i in range(1, len(DOCSTRING['Actions']) + 1):
             ctx.formatter.print_list(DOCSTRING['Actions'][i])
         print()
