@@ -75,7 +75,6 @@ def start_action(ctx: Context, action=None):
         action()
 
 
-
 def check(ctx: Context, msg: str, func=None):
     """
     Prints message as check block
