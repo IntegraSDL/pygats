@@ -53,16 +53,24 @@ class TestException(Exception):
 
 
 def start_action(ctx: Context, action=None):
-    global SUITE_NAME
+    """
+    The function that determines start of the action
+
+    Args:
+        ctx (Context): An object that contains information about the current
+                    context.
+        action (function): Function that performs the necessary steps
+    """
     global STEP_INDEX
     global OUTPUT_PATH
     global ACTION_INDEX
     ACTION_INDEX += 1
     ctx.formatter.print_header(3, DOCSTRING['Actions'][ACTION_INDEX])
     STEP_INDEX = 0
-    if OUTPUT_PATH.name != SUITE_NAME:
+    if OUTPUT_PATH.parts[len(OUTPUT_PATH.parts)-2] != SUITE_NAME:
         OUTPUT_PATH = pathlib.Path(*OUTPUT_PATH.parts[:-1])
     OUTPUT_PATH = pathlib.Path(OUTPUT_PATH, f'action_{ACTION_INDEX}')
+    OUTPUT_PATH.mkdir(exist_ok=True)
     if action is not None:
         action()
 
@@ -693,6 +701,29 @@ def random_string(string_length: int, character_set: Optional[str] = None):
     return ''.join(random.choice(character_set) for _ in range(string_length))
 
 
+def create_stm(ctx: Context, funcs: List[str]):
+    """
+    Print а software test methodology based on docstring functions.
+
+    Args:
+        ctx (Context): An object that contains information about the current
+                    context.
+        funcs (List[str]) list of function to be executed
+    """
+    module = inspect.getmodule(funcs[0])
+    module_name = pathlib.Path(module.__file__).name.removesuffix('.py')
+    module_docstring = yaml.safe_load(module.__doc__)
+    suite(ctx, module_name, module_docstring['Definition'])
+    for f in funcs:
+        DOCSTRING = yaml.safe_load(f.__doc__)
+        ctx.formatter.print_header(2, DOCSTRING['Definition'])
+        ctx.formatter.print_header(3,'Порядок выполнения проверки:')
+        for i in range(1, len(DOCSTRING['Actions']) + 1):
+            ctx.formatter.print_list(DOCSTRING['Actions'][i])
+        print()
+        ctx.formatter.print_header(2, f"Ожидаемый результат: {DOCSTRING['Expected']}")
+
+
 def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
         output: Optional[str] = 'output', screenshots_on: Optional[bool] = True):
     """
@@ -714,14 +745,15 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
     SCREENSHOTS_ON = screenshots_on
     p = pathlib.Path(output)
     p.mkdir(exist_ok=True)
+    module = inspect.getmodule(funcs[0])
+    module_name = pathlib.Path(module.__file__).name.removesuffix('.py')
+    module_docstring = yaml.safe_load(module.__doc__)
+    suite(ctx, module_name, module_docstring['Definition'])
     for _ in range(counter):
         for f in funcs:
             ACTION_INDEX = 0
             test_name = f.__name__
             DOCSTRING = yaml.safe_load(f.__doc__)
-            module = inspect.getmodule(f)
-            module_name = pathlib.Path(module.__file__).name.removesuffix('.py')
-            suite(ctx, module_name, trim(module.__doc__).replace('\n', ' '))
             ctx.formatter.print_header(2, DOCSTRING['Definition'])
             if SCREENSHOTS_ON:
                 p = pathlib.Path(output, SUITE_NAME, test_name)
@@ -757,24 +789,3 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
                 TESTS_FAILED.append(str(pathlib.Path(SUITE_NAME, test_name)))
 
     print_test_summary(ctx, TESTS_PASSED, TESTS_FAILED)
-
-
-# Фукнкция для обработки docstring
-def trim(docstring):
-    if not docstring:
-        return ''
-    lines = docstring.expandtabs().splitlines()
-    indent = sys.maxsize
-    for line in lines[1:]:
-        stripped = line.lstrip()
-        if stripped:
-            indent = min(indent, len(line) - len(stripped))
-    trimmed = [lines[0].strip()]
-    if indent < sys.maxsize:
-        for line in lines[1:]:
-            trimmed.append(line[indent:].rstrip())
-    while trimmed and not trimmed[-1]:
-        trimmed.pop()
-    while trimmed and not trimmed[0]:
-        trimmed.pop(0)
-    return '\n'.join(trimmed)
