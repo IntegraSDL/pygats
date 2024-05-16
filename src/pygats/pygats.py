@@ -17,18 +17,21 @@ import cv2 as cv
 import numpy as np
 import mss
 from colorama import init, Fore
+import yaml
 
 init(autoreset=True)
 
 TESTS_PASSED = []
 TESTS_FAILED = []
 STEP_INDEX = 0
+ACTION_INDEX = 0
 SCREENSHOTS_ON = True
 SCREENSHOT_INDEX = 0
 OUTPUT_PATH = pathlib.Path('output')
 SNAPSHOT_PATH = None
 SNAPSHOT_INDEX = 0
 SUITE_NAME = ''
+DOCSTRING = {}
 
 
 class Context:  # pylint: disable=too-few-public-methods
@@ -49,18 +52,20 @@ class TestException(Exception):
         self.message = msg
 
 
-def begin_test(ctx: Context, msg: str):
-    """
-    Begin of test. Dump msg as name of the test
-
-    Args:
-        ctx (Context): An object that contains information about the current
-                    context.
-        msg (str): message to print at the beginning of test case
-    """
+def start_action(ctx: Context, action=None):
+    global SUITE_NAME
     global STEP_INDEX
-    ctx.formatter.print_header(3, msg)
+    global OUTPUT_PATH
+    global ACTION_INDEX
+    ACTION_INDEX += 1
+    ctx.formatter.print_header(3, DOCSTRING['Actions'][ACTION_INDEX])
     STEP_INDEX = 0
+    if OUTPUT_PATH.name != SUITE_NAME:
+        OUTPUT_PATH = pathlib.Path(*OUTPUT_PATH.parts[:-1])
+    OUTPUT_PATH = pathlib.Path(OUTPUT_PATH, f'action_{ACTION_INDEX}')
+    if action is not None:
+        action()
+
 
 
 def check(ctx: Context, msg: str, func=None):
@@ -97,7 +102,7 @@ def suite(ctx: Context, name: str, desc: str):
     """
     global SUITE_NAME
     SUITE_NAME = name
-    ctx.formatter.print_header(2, desc)
+    ctx.formatter.print_header(1, desc)
 
 
 def step(ctx: Context, msg: str):
@@ -704,12 +709,20 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
     """
     global OUTPUT_PATH
     global SCREENSHOTS_ON
+    global DOCSTRING
+    global ACTION_INDEX
     SCREENSHOTS_ON = screenshots_on
     p = pathlib.Path(output)
     p.mkdir(exist_ok=True)
     for _ in range(counter):
         for f in funcs:
+            ACTION_INDEX = 0
             test_name = f.__name__
+            DOCSTRING = yaml.safe_load(f.__doc__)
+            module = inspect.getmodule(f)
+            module_name = pathlib.Path(module.__file__).name.removesuffix('.py')
+            suite(ctx, module_name, trim(module.__doc__).replace('\n', ' '))
+            ctx.formatter.print_header(2, DOCSTRING['Definition'])
             if SCREENSHOTS_ON:
                 p = pathlib.Path(output, SUITE_NAME, test_name)
                 p.mkdir(parents=True, exist_ok=True)
@@ -726,6 +739,7 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
                         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
                         cv.imwrite(str(img_path), img)
                     ctx.formatter.print_img(img_path, 'Тест пройден')
+                ctx.formatter.print_header(2, f"Ожидаемый результат: {DOCSTRING['Expected']}")
                 ctx.formatter.print_bold(Fore.GREEN + 'Тест пройден' + Fore.RESET)
             except TestException as e:
                 if SCREENSHOTS_ON:
@@ -737,8 +751,30 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
                         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
                         cv.imwrite(str(img_path), img)
                     ctx.formatter.print_img(img_path, 'Тест не пройден')
+                ctx.formatter.print_header(2, f"Ожидаемый результат: {DOCSTRING['Expected']}")
                 ctx.formatter.print_para(Fore.RED + '> Error : ' + e.message + Fore.RESET)
                 ctx.formatter.print_bold(Fore.RED + 'Тест не пройден' + Fore.RESET)
                 TESTS_FAILED.append(str(pathlib.Path(SUITE_NAME, test_name)))
 
     print_test_summary(ctx, TESTS_PASSED, TESTS_FAILED)
+
+
+# Фукнкция для обработки docstring
+def trim(docstring):
+    if not docstring:
+        return ''
+    lines = docstring.expandtabs().splitlines()
+    indent = sys.maxsize
+    for line in lines[1:]:
+        stripped = line.lstrip()
+        if stripped:
+            indent = min(indent, len(line) - len(stripped))
+    trimmed = [lines[0].strip()]
+    if indent < sys.maxsize:
+        for line in lines[1:]:
+            trimmed.append(line[indent:].rstrip())
+    while trimmed and not trimmed[-1]:
+        trimmed.pop()
+    while trimmed and not trimmed[0]:
+        trimmed.pop(0)
+    return '\n'.join(trimmed)
