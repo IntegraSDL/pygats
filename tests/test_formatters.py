@@ -39,4 +39,4 @@ def test_suite(formatter, capsys):
     assert ctx
     suite(ctx, 'suite name', 'Hello world')
     cptrd = capsys.readouterr()
-    assert cptrd.out == '## Hello world\n\n'
+    assert cptrd.out == '# Hello world\n\n'
