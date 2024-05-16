@@ -1,6 +1,6 @@
 """Module with formatters tests"""
 import pytest
-from pygats.pygats import Context, begin_test, step, check, suite
+from pygats.pygats import Context, step, check, suite
 from pygats.formatters import MarkdownFormatter as MD
 
 
