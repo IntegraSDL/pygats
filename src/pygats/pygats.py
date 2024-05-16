@@ -709,6 +709,7 @@ def create_stm(ctx: Context, funcs: List[str]):
                     context.
         funcs (List[str]) list of function to be executed
     """
+    global DOCSTRING
     module = inspect.getmodule(funcs[0])
     module_name = pathlib.Path(module.__file__).name.removesuffix('.py')
     module_docstring = yaml.safe_load(module.__doc__)
