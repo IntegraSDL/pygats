@@ -67,7 +67,7 @@ def start_action(ctx: Context, action=None):
     ACTION_INDEX += 1
     ctx.formatter.print_header(3, DOCSTRING['Actions'][ACTION_INDEX])
     STEP_INDEX = 0
-    if OUTPUT_PATH.parts[len(OUTPUT_PATH.parts) - 2] != SUITE_NAME:
+    if OUTPUT_PATH.parts[len(OUTPUT_PATH.parts)-2] != SUITE_NAME:
         OUTPUT_PATH = pathlib.Path(*OUTPUT_PATH.parts[:-1])
     OUTPUT_PATH = pathlib.Path(OUTPUT_PATH, f'action_{ACTION_INDEX}')
     OUTPUT_PATH.mkdir(exist_ok=True)
@@ -164,7 +164,7 @@ def screenshot(ctx: Context, rect: Optional[tuple] = None):
         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
         cv.imwrite(str(img_path), img)
     # Display the screenshot
-    ctx.formatter.print_img(img_path, 'Screenshot')
+    ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]), 'Screenshot')
     return img
 
 
@@ -190,7 +190,7 @@ def take_snapshot(ctx: Context) -> str:
         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
         cv.imwrite(str(img_path), img)
     SNAPSHOT_INDEX += 1
-    ctx.formatter.print_img(img_path, 'Снимок экрана')
+    ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]), 'Снимок экрана')
     return img_path
 
 
@@ -207,8 +207,8 @@ def compare_snapshots(ctx: Context, first_img: str, second_img: str) -> tuple or
         tupple or None: coordinates of the change detection area
     """
     step(ctx, 'Поиск изменений между снимками ...')
-    ctx.formatter.print_img(first_img, 'Первый снимок')
-    ctx.formatter.print_img(second_img, 'Второй снимок')
+    ctx.formatter.print_img(first_img.relative_to(first_img.parts[0]), 'Первый снимок')
+    ctx.formatter.print_img(second_img.relative_to(second_img.parts[0]), 'Второй снимок')
     first = Image.open(first_img)
     second = Image.open(second_img)
     result = ImageChops.difference(first, second)
@@ -219,7 +219,7 @@ def compare_snapshots(ctx: Context, first_img: str, second_img: str) -> tuple or
         second_index = relative_path[len(relative_path) - 1].split('.')[0]
         result_path = pathlib.Path(SNAPSHOT_PATH, f'result-{first_index}-{second_index}.png')
         result.save(result_path)
-        ctx.formatter.print_img(result_path, 'Найдены изменения')
+        ctx.formatter.print_img(result_path.relative_to(result_path.parts[0]), 'Найдены изменения')
         ctx.formatter.print_bold('Найдены изменения')
         return result.getbbox()
     ctx.formatter.print_bold('Изменения не найдены')
@@ -246,7 +246,7 @@ def log_image(ctx: Context, img: Image, msg: Optional[str] = 'Снимок эк�
         OUTPUT_PATH, f'step-{STEP_INDEX}-{SCREENSHOT_INDEX}-passed.png')
     SCREENSHOT_INDEX += 1
     img.save(img_path)
-    ctx.formatter.print_img(img_path, msg)
+    ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]), msg)
     return img
 
 
@@ -265,7 +265,7 @@ def passed(ctx: Context):
             img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
             img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
             cv.imwrite(str(img_path), img)
-        ctx.formatter.print_img(img_path, 'Успешно')
+        ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]), 'Успешно')
     ctx.formatter.print_bold('Успешно')
 
 
@@ -718,7 +718,7 @@ def create_stm(ctx: Context, funcs: List[str]):
     for f in funcs:
         DOCSTRING = yaml.safe_load(f.__doc__)
         ctx.formatter.print_header(2, DOCSTRING['Definition'])
-        ctx.formatter.print_header(3, 'Порядок выполнения проверки:')
+        ctx.formatter.print_header(3,'Порядок выполнения проверки:')
         for i in range(1, len(DOCSTRING['Actions']) + 1):
             ctx.formatter.print_list(DOCSTRING['Actions'][i])
         print()
@@ -771,7 +771,7 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
                         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
                         cv.imwrite(str(img_path), img)
-                    ctx.formatter.print_img(img_path, 'Тест пройден')
+                    ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]), 'Тест пройден')
                 ctx.formatter.print_header(2, f"Ожидаемый результат: {DOCSTRING['Expected']}")
                 ctx.formatter.print_bold(Fore.GREEN + 'Тест пройден' + Fore.RESET)
             except TestException as e:
@@ -783,7 +783,7 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
                         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
                         cv.imwrite(str(img_path), img)
-                    ctx.formatter.print_img(img_path, 'Тест не пройден')
+                    ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]), 'Тест не пройден')
                 ctx.formatter.print_header(2, f"Ожидаемый результат: {DOCSTRING['Expected']}")
                 ctx.formatter.print_para(Fore.RED + '> Error : ' + e.message + Fore.RESET)
                 ctx.formatter.print_bold(Fore.RED + 'Тест не пройден' + Fore.RESET)

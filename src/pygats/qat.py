@@ -43,6 +43,18 @@ def start_application(ctx, name: str, args: Optional[str] = ''):
     return app_ctx
 
 
+def set_current_application_context(ctx, app_ctx):
+    """
+    Change the current application context.
+    """
+    step(ctx, f'Смена текущего рабочего окна приложения')
+    try:
+        qat.set_current_application_context(app_ctx)
+    except Exception as e:
+        failed(msg=f'Ошибка смены рабочего окна приложения\n{e}')
+    passed(ctx)
+
+
 def close_application(ctx, app_ctx):
     """
     Close the application
