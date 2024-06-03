@@ -52,7 +52,7 @@ def set_current_application_context(ctx, app_ctx):
         app_ctx (qat.Globals.current_app_context): uniquely identifies the started
             application instance
     """
-    step(ctx, f'Смена текущего рабочего окна приложения')
+    step(ctx, 'Смена текущего рабочего окна приложения')
     try:
         qat.set_current_application_context(app_ctx)
     except Exception as e:
