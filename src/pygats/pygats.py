@@ -41,7 +41,7 @@ class Context:  # pylint: disable=too-few-public-methods
     formatter = None
     timeout = 0
 
-    def __init__(self, formatter, timeout):
+    def __init__(self, formatter, timeout=0):
         self.formatter = formatter
         self.timeout = timeout
 
@@ -775,7 +775,8 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
                         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
                         cv.imwrite(str(img_path), img)
-                    ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]), 'Тест пройден')
+                    ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]),
+                                            'Тест пройден')
                 ctx.formatter.print_header(2, f"Ожидаемый результат: {DOCSTRING['Expected']}")
                 ctx.formatter.print_bold(Fore.GREEN + 'Тест пройден' + Fore.RESET)
             except TestException as e:
@@ -787,7 +788,8 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
                         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
                         img = cv.cvtColor(img, cv.COLOR_RGB2BGR)
                         cv.imwrite(str(img_path), img)
-                    ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]), 'Тест не пройден')
+                    ctx.formatter.print_img(img_path.relative_to(img_path.parts[0]),
+                                            'Тест не пройден')
                 ctx.formatter.print_header(2, f"Ожидаемый результат: {DOCSTRING['Expected']}")
                 ctx.formatter.print_para(Fore.RED + '> Error : ' + e.message + Fore.RESET)
                 ctx.formatter.print_bold(Fore.RED + 'Тест не пройден' + Fore.RESET)
