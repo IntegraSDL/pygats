@@ -39,9 +39,11 @@ class Context:  # pylint: disable=too-few-public-methods
     Context stores information about
     """
     formatter = None
+    timeout = 0
 
-    def __init__(self, formatter):
+    def __init__(self, formatter, timeout):
         self.formatter = formatter
+        self.timeout = timeout
 
 
 class TestException(Exception):
@@ -73,6 +75,7 @@ def start_action(ctx: Context, action=None):
     OUTPUT_PATH.mkdir(exist_ok=True)
     if action is not None:
         action()
+
 
 
 def check(ctx: Context, msg: str, func=None):
@@ -259,6 +262,7 @@ def passed(ctx: Context):
                     context.
     """
     if SCREENSHOTS_ON:
+        time.sleep(ctx.timeout)
         img_path = pathlib.Path(OUTPUT_PATH, f'step-{STEP_INDEX}-passed.png')
         with mss.mss() as sct:
             img = np.array(sct.grab(sct.monitors[0]))

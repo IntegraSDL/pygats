@@ -33,7 +33,7 @@ def start_application(ctx, name: str, args: Optional[str] = ''):
         app_ctx (qat.Globals.current_app_context): uniquely identifies the started
             application instance
     """
-    step(ctx, f'Запуск приложения {name}')
+    step(ctx, f'Запуск приложения "{name}"')
     try:
         app_ctx = qat.start_application(app_name=name, args=args)
         qat.unlock_application()
@@ -46,6 +46,11 @@ def start_application(ctx, name: str, args: Optional[str] = ''):
 def set_current_application_context(ctx, app_ctx):
     """
     Change the current application context.
+
+    Args:
+        ctx (Context): context of test execution
+        app_ctx (qat.Globals.current_app_context): uniquely identifies the started
+            application instance
     """
     step(ctx, f'Смена текущего рабочего окна приложения')
     try:
@@ -83,9 +88,9 @@ def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
         count (Optional[int]): number of writes
     """
     if message.startswith('<') and message.endswith('>'):
-        step(ctx, f'Набрать на клавиатуре {message[1:-1]} ...')
+        step(ctx, f'Набрать на клавиатуре "{message[1:-1]}" ...')
     else:
-        step(ctx, f'Набрать на клавиатуре {message} ...')
+        step(ctx, f'Набрать на клавиатуре "{message}" ...')
     try:
         for _ in range(count):
             qat.type_in(definition, message)
@@ -95,7 +100,7 @@ def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
 
 
 def click_left_button(ctx, definition: str, x: Optional[int] = None, y: Optional[int] = None,
-                      clicks: Optional[int] = 1):
+                      clicks: Optional[int] = 1, object_name='None'):
     """
     Function clicks left button of mouse
 
@@ -109,7 +114,7 @@ def click_left_button(ctx, definition: str, x: Optional[int] = None, y: Optional
     message = str(definition)
     if message.startswith('<') and message.endswith('>'):
         message = message[1:-1]
-    step(ctx, f'Нажать левую кнопку мыши {message}')
+    step(ctx, f'Нажать левую кнопку мыши по объекту "{object_name}"')
     try:
         for _ in range(clicks):
             qat.mouse_click(definition, x, y)
@@ -118,7 +123,7 @@ def click_left_button(ctx, definition: str, x: Optional[int] = None, y: Optional
     passed(ctx)
 
 
-def find_object(ctx, definition: dict):
+def find_object(ctx, definition: dict, object_name='QtObject'):
     """
     Function finds QtObject in application
 
@@ -129,7 +134,7 @@ def find_object(ctx, definition: dict):
     Returns:
         QtObject (qat.internal.qt_object.QtObject): uniquely identifies the QtObject
     """
-    step(ctx, f'Поиск объекта {definition} ...')
+    step(ctx, f'Поиск объекта "{object_name}" ...')
     try:
         QtObject = qat.wait_for_object_exists(definition)
     except Exception as e:
@@ -149,7 +154,7 @@ def find_all_objects(ctx, definition: dict):
     Returns:
         QtObjects (qat.internal.qt_object.QtObject): uniquely identifies the QtObject
     """
-    step(ctx, f'Поиск всех объектов, соответствующих данному определению {definition} ...')
+    step(ctx, f'Поиск всех объектов, соответствующих данному определению "{definition}" ...')
     QtObjects = qat.find_all_objects(definition)
     passed(ctx)
     return QtObjects
@@ -166,12 +171,13 @@ def find_object_by_id(ctx, window, id=''):
     Returns:
         obj (qat.internal.qt_object.QtObject): uniquely identifies the QtObject
     """
-    step(ctx, f'Поиск объекта по индексу {id} ...')
+    step(ctx, f'Поиск объекта по индексу "{id}" ...')
     obj = window.children[int(id[0])]
     id = id[1:]
     while id:
         obj = obj.children[int(id[0])]
         id = id[1:]
+    passed(ctx)
     return obj
 
 
@@ -269,3 +275,4 @@ def compare_object_tree(ctx, window, dir_name):
 
     tree(window)
     diff_file.close()
+    passed(ctx)
