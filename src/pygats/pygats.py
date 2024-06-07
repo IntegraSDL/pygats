@@ -54,7 +54,7 @@ class TestException(Exception):
         self.message = msg
 
 
-def start_action(ctx: Context, action=None):
+def run_action(ctx: Context, action=None, **kwargs):
     """
     The function that determines start of the action
 
@@ -74,7 +74,7 @@ def start_action(ctx: Context, action=None):
     OUTPUT_PATH = pathlib.Path(OUTPUT_PATH, f'action_{ACTION_INDEX}')
     OUTPUT_PATH.mkdir(exist_ok=True)
     if action is not None:
-        action()
+        action(**kwargs)
 
 
 def check(ctx: Context, msg: str, func=None):
@@ -99,19 +99,20 @@ def check(ctx: Context, msg: str, func=None):
     return None
 
 
-def suite(ctx: Context, name: str, desc: str):
+def suite(ctx: Context, module):
     """
     function prints test suite name in reports
 
     Args:
         ctx (Context): An object that contains information about the current
                     context.
-        name (str): name of test suite
-        desc (str): description of test suite to be printed
+        module (inspect.module): module with tests
     """
+    module_name = pathlib.Path(module.__file__).name.removesuffix('.py')
+    module_docstring = yaml.safe_load(module.__doc__)
     global SUITE_NAME
-    SUITE_NAME = name
-    ctx.formatter.print_header(1, desc)
+    SUITE_NAME = module_name
+    ctx.formatter.print_header(1, module_docstring['Header'])
 
 
 def step(ctx: Context, msg: str):
@@ -715,9 +716,7 @@ def create_stm(ctx: Context, funcs: List[str]):
     """
     global DOCSTRING
     module = inspect.getmodule(funcs[0])
-    module_name = pathlib.Path(module.__file__).name.removesuffix('.py')
-    module_docstring = yaml.safe_load(module.__doc__)
-    suite(ctx, module_name, module_docstring['Definition'])
+    suite(ctx, module)
     for f in funcs:
         DOCSTRING = yaml.safe_load(f.__doc__)
         ctx.formatter.print_header(2, DOCSTRING['Definition'])
@@ -750,9 +749,7 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
     p = pathlib.Path(output)
     p.mkdir(exist_ok=True)
     module = inspect.getmodule(funcs[0])
-    module_name = pathlib.Path(module.__file__).name.removesuffix('.py')
-    module_docstring = yaml.safe_load(module.__doc__)
-    suite(ctx, module_name, module_docstring['Definition'])
+    suite(ctx, module)
     for _ in range(counter):
         for f in funcs:
             ACTION_INDEX = 0
