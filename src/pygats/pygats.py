@@ -72,7 +72,7 @@ def run_action(ctx: Context, action=None, **kwargs):
     else:
         try:
             ctx.formatter.print_header(3, DOCSTRING['Actions'][ACTION_INDEX])
-        except KeyError:
+        except (KeyError, TypeError):
             ctx.formatter.print_header(3, f'Действие {ACTION_INDEX}')
     STEP_INDEX = 0
     if OUTPUT_PATH.parts[len(OUTPUT_PATH.parts) - 2] != SUITE_NAME:
@@ -120,7 +120,7 @@ def suite(ctx: Context, module):
         module_docstring = yaml.safe_load(module.__doc__)
         try:
             module_docstring['Header']
-        except KeyError:
+        except (KeyError, TypeError):
             module_docstring['Header'] = f'Тестовый набор {module_name}'
     else:
         module_docstring['Header'] = f'Тестовый набор {module_name}'
@@ -756,15 +756,15 @@ def docstring_handler(func):
         docstr = yaml.safe_load(func.__doc__)
         try:
             docstr['Definition']
-        except KeyError:
+        except (KeyError, TypeError):
             docstr['Definition'] = f'Тестовая функция {func.__name__}'
         try:
             docstr['Actions']
-        except KeyError:
+        except (KeyError, TypeError):
             docstr['Actions'] = 'default'
         try:
             docstr['Expected']
-        except KeyError:
+        except (KeyError, TypeError):
             docstr['Expected'] = 'Успешное выполнение тестовой функции'
     else:
         docstr['Definition'] = f'Тестовая функция {func.__name__}'
