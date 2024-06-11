@@ -115,7 +115,15 @@ def suite(ctx: Context, module):
         module (inspect.module): module with tests
     """
     module_name = pathlib.Path(module.__file__).name.removesuffix('.py')
-    module_docstring = yaml.safe_load(module.__doc__)
+    module_docstring = {}
+    if module.__doc__:
+        module_docstring = yaml.safe_load(module.__doc__)
+        try:
+            module_docstring['Header']
+        except KeyError:
+            module_docstring['Header'] = 'Тестовый сценарий'
+    else:
+        module_docstring['Header'] = 'Тестовый сценарий'
     global SUITE_NAME
     SUITE_NAME = module_name
     ctx.formatter.print_header(1, module_docstring['Header'])

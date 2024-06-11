@@ -24,7 +24,7 @@ jobs:
           python -m pip install -r requirements.txt
         else
           while read requirement; do
-            if [[ $requirement == "qat==0.4.2" ]]; then
+            if [[ $requirement == "qat==1.1.2" ]]; then
               echo "Unsupported module"
             else
               python -m pip install $requirement
