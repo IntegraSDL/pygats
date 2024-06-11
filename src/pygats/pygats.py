@@ -121,9 +121,9 @@ def suite(ctx: Context, module):
         try:
             module_docstring['Header']
         except KeyError:
-            module_docstring['Header'] = 'Тестовый сценарий'
+            module_docstring['Header'] = f'Тестовый набор {module_name}'
     else:
-        module_docstring['Header'] = 'Тестовый сценарий'
+        module_docstring['Header'] = f'Тестовый набор {module_name}'
     global SUITE_NAME
     SUITE_NAME = module_name
     ctx.formatter.print_header(1, module_docstring['Header'])

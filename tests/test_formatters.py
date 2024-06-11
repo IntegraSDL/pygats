@@ -1,5 +1,6 @@
 """Module with formatters tests"""
 import pytest
+import inspect
 from pygats.pygats import Context, step, check, suite
 from pygats.formatters import MarkdownFormatter as MD
 
@@ -14,9 +15,6 @@ def test_formatter(formatter, capsys):  # pylint: disable=redefined-outer-name
     """Test formatter"""
     ctx = Context(formatter)
     assert ctx
-    # begin_test(ctx, 'First message')
-    # cptrd = capsys.readouterr()
-    # assert cptrd.out == '### First message\n\n'
 
     step(ctx, 'Hello world')
     cptrd = capsys.readouterr()
@@ -37,6 +35,6 @@ def test_suite(formatter, capsys):
     """Test suite function"""
     ctx = Context(formatter)
     assert ctx
-    suite(ctx, 'suite name', 'Hello world')
+    suite(ctx, inspect.getmodule(test_suite))
     cptrd = capsys.readouterr()
-    assert cptrd.out == '# Hello world\n\n'
+    assert cptrd.out == '# Тестовый набор test_formatters\n\n'
