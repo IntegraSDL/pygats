@@ -121,6 +121,7 @@ def suite(ctx: Context, module):
         try:
             module_docstring['Header']
         except (KeyError, TypeError):
+            module_docstring = {}
             module_docstring['Header'] = f'Тестовый набор {module_name}'
     else:
         module_docstring['Header'] = f'Тестовый набор {module_name}'
