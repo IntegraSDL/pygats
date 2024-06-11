@@ -67,7 +67,13 @@ def run_action(ctx: Context, action=None, **kwargs):
     global OUTPUT_PATH
     global ACTION_INDEX
     ACTION_INDEX += 1
-    ctx.formatter.print_header(3, DOCSTRING['Actions'][ACTION_INDEX])
+    if DOCSTRING['Actions'] == 'default' or not DOCSTRING['Actions']:
+        ctx.formatter.print_header(3, f'Действие {ACTION_INDEX}')
+    else:
+        try:
+            ctx.formatter.print_header(3, DOCSTRING['Actions'][ACTION_INDEX])
+        except KeyError:
+            ctx.formatter.print_header(3, f'Действие {ACTION_INDEX}')
     STEP_INDEX = 0
     if OUTPUT_PATH.parts[len(OUTPUT_PATH.parts) - 2] != SUITE_NAME:
         OUTPUT_PATH = pathlib.Path(*OUTPUT_PATH.parts[:-1])
@@ -727,6 +733,38 @@ def create_stm(ctx: Context, funcs: List[str]):
         ctx.formatter.print_header(2, f"Ожидаемый результат: {DOCSTRING['Expected']}")
 
 
+def docstring_handler(func):
+    """
+    Addition and modification of the docstring in case of missing elements
+
+    Args:
+        func (function): Function for getting a docstring
+
+    Returns:
+        dict: docstring of function
+    """
+    docstr = {}
+    if func.__doc__:
+        docstr = yaml.safe_load(func.__doc__)
+        try:
+            docstr['Definition']
+        except KeyError:
+            docstr['Definition'] = f'Тестовая функция {func.__name__}'
+        try:
+            docstr['Actions']
+        except KeyError:
+            docstr['Actions'] = 'default'
+        try:
+            docstr['Expected']
+        except KeyError:
+            docstr['Expected'] = 'Успешное выполнение тестовой функции'
+    else:
+        docstr['Definition'] = f'Тестовая функция {func.__name__}'
+        docstr['Actions'] = 'default'
+        docstr['Expected'] = 'Успешное выполнение тестовой функции'
+    return docstr
+
+
 def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
         output: Optional[str] = 'output', screenshots_on: Optional[bool] = True):
     """
@@ -754,7 +792,7 @@ def run(ctx: Context, funcs: List[str], counter: Optional[int] = 1,
         for f in funcs:
             ACTION_INDEX = 0
             test_name = f.__name__
-            DOCSTRING = yaml.safe_load(f.__doc__)
+            DOCSTRING = docstring_handler(f)
             ctx.formatter.print_header(2, DOCSTRING['Definition'])
             if SCREENSHOTS_ON:
                 p = pathlib.Path(output, SUITE_NAME, test_name)
