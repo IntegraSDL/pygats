@@ -38,36 +38,63 @@ make html
 # Example Usage
 
 ```python
+"""
+Header: Description of test suites
+"""
 import pygats.pygats as pygats
 import pygats.recog as recog
 
 from pygats.formatters import MarkdownFormatter as MD
 
 
-ctx = pygats.Context(MD())
+ctx = pygats.Context(formatter=MD(), timeout=0.5)
 
 
-def test_launch_app():
-    pygats.begin_test(ctx, "Checking registration and launch of the application")
+def test_function():
+    """
+    Definition: definition of the test function
+
+    Actions:
+        1: action 1
+        2: action 2
+        3: ...
+
+    Expected: expected result
+    """
+    pygats.run_action(ctx)
+    ...
+    pygats.run_action(ctx, action_2_function)
     ...
 
-def test_login():
-    pygats.begin_test(ctx, "Verification of the implementation of login identification and password authentication")
-    ...
 
 ...
 
+
 test_suites = [
-    test_launch_app,
-    test_login,
+    test_function,
     ...
 ]
 
 
 if __name__ == '__main__':
-    pygats.suite(ctx, "report_directory", "Test case")
-    pygats.run(test_suites)
+    pygats.run(ctx, test_suites)
 
 ```
 
 As a result of executing the script, we get a report in Markdown format in the "output" directory
+
+## Usage features
+
+Docstring of the document and the test functions are required attributes to get the required test report.
+> If you do not specify a docstring, the corresponding report entries will be replaced with standard entries.
+
+Docstring must be in YAML format. Docstring may contain additional entries in this format, if necessary.
+
+When writing a test function, it is necessary to have a docstring that has 3 key entries:
+- Definition - definition of the test function, what it checks;
+- Actions - a list of actions to perform the verification;
+- Expected - expected result.
+
+`run_action()` function is required to print the description of the action before executing it. It can be used in 2 ways:
+- `pygats.run_action(ctx)`, after which the steps of executing the action are performed;
+- `pygats.run_action(ctx, function, **kwargs)`. In this case, we pass a function containing the necessary steps. If it has additional arguments, we pass them separated by commas. The arguments must be named.
