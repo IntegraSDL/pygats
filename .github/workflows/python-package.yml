@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10"]
 
     steps:
     - uses: actions/checkout@v3
@@ -36,7 +36,7 @@ jobs:
           python -m pip install -r requirements.txt
         else
           while read requirement; do
-            if [[ $requirement == "qat==0.4.2" ]]; then
+            if [[ $requirement == "qat==1.1.2" ]]; then
               echo "Unsupported module"
             else
               python -m pip install $requirement

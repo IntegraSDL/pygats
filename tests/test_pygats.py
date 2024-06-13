@@ -26,4 +26,4 @@ def test_screenshot(formatter, capsys):
     screenshot(ctx)
     cptrd = capsys.readouterr()
     print(cptrd.out)
-    assert cptrd.out == '![Screenshot](output/step-2-0-passed.png)\n\n'
+    assert cptrd.out == '![Screenshot](step-2-0-passed.png)\n\n'
