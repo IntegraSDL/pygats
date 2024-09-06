@@ -123,6 +123,30 @@ def click_left_button(ctx, definition: str, x: Optional[int] = None, y: Optional
     passed(ctx)
 
 
+def click_right_button(ctx, definition: str, x: Optional[int] = None, y: Optional[int] = None,
+                      clicks: Optional[int] = 1, object_name='None'):
+    """
+    Function clicks left button of mouse
+
+    Args:
+        ctx (Context): context of test execution
+        definition (str): uniquely identifies the QtObject
+        x (Optional[int]): coordinates to move mouse pointer
+        y (Optional[int]): coordinates to move mouse pointer
+        clicks (Optional[int]): number of clicks
+    """
+    message = str(definition)
+    if message.startswith('<') and message.endswith('>'):
+        message = message[1:-1]
+    step(ctx, f'Нажать правую кнопку мыши по объекту "{object_name}"')
+    try:
+        for _ in range(clicks):
+            qat.mouse_click(definition, x, y, button=qat.Button.RIGHT)
+    except Exception as e:
+        failed(msg=f'Ошибка {e}')
+    passed(ctx)
+
+
 def find_object(ctx, definition: dict, object_name='QtObject'):
     """
     Function finds QtObject in application
