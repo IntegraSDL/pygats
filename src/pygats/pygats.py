@@ -106,7 +106,7 @@ def check(ctx: Context, msg: str, func=None):
 
 def suite(ctx: Context, module):
     """
-    function prints test x name in reports
+    function prints test suite name in reports
 
     Args:
         ctx (Context): An object that contains information about the current

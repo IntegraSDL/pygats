@@ -63,7 +63,7 @@ def test_passed(capsys):
         assert cptrd.out == '![Успешно](step-0-passed.png)\n\n**Успешно**\n\n'
 
 
-def test_step():  
+def test_step():
     """ test step"""
     __step(ctx,"test_message")
     from pygats.pygats import STEP_INDEX
@@ -103,11 +103,12 @@ def test_failed(exception, msg):
         ]
 )
 def test_random_string(string_length, character_set, expectation):
-    with expectation :
+    with expectation:
         symbol = random_string(string_length, character_set )
         print(symbol)
-    if character_set is not "" and string_length > 0:
+    if character_set != "" and string_length > 0:
         assert string_length == len(symbol)
+
 
 @pytest.mark.parametrize(
         "img_path, expectation",
@@ -119,6 +120,14 @@ def test_random_string(string_length, character_set, expectation):
 def test_locate_on_screen(img_path,expectation):
     with expectation:
         locate_on_screen(ctx, img_path)
-        
+
+
+def test_check(): # wanna do __check()
+    none_result = check(ctx,"test with func=None")
+    assert none_result == None
+    func_result = check(ctx ,"test with func=",__step(ctx,"test"))
+    assert func_result == __step(ctx,"test")
+    
+
 #approx()
 
