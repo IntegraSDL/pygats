@@ -12,7 +12,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import step, passed, failed
+from pygats.pygats import __step, __passed, __failed
 
 
 @dataclass
@@ -99,7 +99,7 @@ def find_text_on_screen(ctx, txt, skip=0, one_word=False):
             roi(ROI): region of interest
             found (bool): whether the text is found in the image
     """
-    step(ctx, f'Поиск текста {txt.content} на экране ...')
+    __step(ctx, f'Поиск текста {txt.content} на экране ...')
     with mss.mss() as sct:
         img = np.array(sct.grab(sct.monitors[0]))
         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
@@ -120,14 +120,14 @@ def check_text(ctx, img: Image, txt):
         txt (pygats.recog.SearchedText): text to search
 
     """
-    step(ctx,
+    __step(ctx,
          f'Проверка отображения текста {txt.content} на изображении {img}...')
     _, found = find_text(ctx, img, txt)
     if not found:
         _, found = find_text(ctx, img, txt, extend=True)
         if not found:
-            failed(msg=f'{txt.content} не найден на изображении')
-    passed(ctx)
+            __failed(msg=f'{txt.content} не найден на изображении')
+    __passed(ctx)
 
 
 def check_text_on_screen(ctx, txt):
@@ -138,7 +138,7 @@ def check_text_on_screen(ctx, txt):
                     context.
         txt (pygats.recog.SearchedText): text to search on screenshot
     """
-    step(ctx, f'Проверка отображения текста {txt.content} на экране ...')
+    __step(ctx, f'Проверка отображения текста {txt.content} на экране ...')
     with mss.mss() as sct:
         img = np.array(sct.grab(sct.monitors[0]))
         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
@@ -147,8 +147,8 @@ def check_text_on_screen(ctx, txt):
     if not found:
         _, found = find_text(ctx, img, txt, extend=True)
         if not found:
-            failed(msg=f'{txt.content} не найден на экране')
-    passed(ctx)
+            __failed(msg=f'{txt.content} не найден на экране')
+    __passed(ctx)
 
 
 def move_to_text(ctx, txt, skip=0):
@@ -160,15 +160,15 @@ def move_to_text(ctx, txt, skip=0):
         txt (pygats.recog.SearchedText): text to be searched and clicked
         skip (int): amount of text should be skipped
     """
-    step(ctx, f'Переместить курсор на текст {txt.content}')
+    __step(ctx, f'Переместить курсор на текст {txt.content}')
     roi, found = find_text_on_screen(
         ctx, txt, skip, True)
     if not found:
-        failed(msg=f'{txt.content} не найден на экране')
+        __failed(msg=f'{txt.content} не найден на экране')
     ctx.formatter.print_para(f'{roi.x} {roi.y} {roi.w} {roi.h}')
     center_x, center_y = roi.rectangle_center_coords()
     pyautogui.moveTo(center_x, center_y)
-    passed(ctx)
+    __passed(ctx)
 
 
 def click_text(ctx, txt, button='left', skip=0):
@@ -181,18 +181,18 @@ def click_text(ctx, txt, button='left', skip=0):
         button (string, optional): left, right, middle
         skip (int): amount of text should be skipped
     """
-    step(ctx, f'Нажать текст {txt.content} на экране кнопкой {button}...')
+    __step(ctx, f'Нажать текст {txt.content} на экране кнопкой {button}...')
     roi, found = find_text_on_screen(
         ctx, txt, skip, True)
     if not found:
-        failed(msg=f'{txt.content} не найден на экране')
+        __failed(msg=f'{txt.content} не найден на экране')
 
     ctx.formatter.print_para(f'{roi.x} {roi.y} {roi.w} {roi.h}')
     center_x, center_y = roi.rectangle_center_coords()
     pyautogui.moveTo(center_x, center_y)
     pyautogui.mouseDown(center_x, center_y, button)
     pyautogui.mouseUp(center_x, center_y, button)
-    passed(ctx)
+    __passed(ctx)
 
 
 def recognize_text_with_data(img, lang):
