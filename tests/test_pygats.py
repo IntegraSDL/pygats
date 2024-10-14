@@ -35,6 +35,7 @@ def fixture_create_ctx(formatter: MD):
 
 @pytest.fixture(scope="function", autouse=True)
 def fixture_variables():
+    """a fixture for initializing variables and clearing them after tests"""
     global SCREENSHOT_INDEX, STEP_INDEX
     SCREENSHOT_INDEX = 0
     STEP_INDEX = 0
@@ -64,7 +65,7 @@ def test_passed(capsys):
 
 
 def test_step():
-    """ test step"""
+    """test step"""
     __step(ctx,"test_message")
     from pygats.pygats import STEP_INDEX
     print(STEP_INDEX)
@@ -103,6 +104,7 @@ def test_failed(exception, msg):
         ]
 )
 def test_random_string(string_length, character_set, expectation):
+    """test random_string"""
     with expectation:
         symbol = random_string(string_length, character_set )
         print(symbol)
@@ -118,14 +120,16 @@ def test_random_string(string_length, character_set, expectation):
         ]
 )
 def test_locate_on_screen(img_path,expectation):
+    """test locate_on_screen"""
     with expectation:
         locate_on_screen(ctx, img_path)
 
 
 def test_check(): # wanna do __check()
+    """test check"""
     none_result = check(ctx,"test with func=None")
     assert none_result == None
-    func_result = check(ctx ,"test with func=",__step(ctx,"test"))
+    func_result = check(ctx ,"test with func=__step()",__step(ctx,"test"))
     assert func_result == __step(ctx,"test")
     
 
