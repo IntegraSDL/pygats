@@ -18,6 +18,7 @@ import numpy as np
 import mss
 from colorama import init, Fore
 import yaml 
+
 init(autoreset=True)
 
 TESTS_PASSED = []

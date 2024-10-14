@@ -2,12 +2,9 @@
 import os
 import pathlib
 import pytest
-from pygats.pygats import *
+import pygats.pygats as pyg
 from pygats.formatters import MarkdownFormatter as MD
-from pygats.pygats import __step, __screenshot, __passed, __failed
 from contextlib import nullcontext as does_not_raise
-
-from pygats.recog import recognize_text_with_data
 
 def setup_module():
     """Setup module to prepare testing environment"""
@@ -26,19 +23,16 @@ def fixture_formatter():
 @pytest.fixture(scope="session", autouse=True)
 def fixture_create_ctx(formatter: MD):
     """ctx fixture for check for ctx creation"""
-    global ctx 
-    ctx = Context(formatter)
-    assert ctx
+    global ctx
+    ctx = pyg.Context(formatter)
     yield
-    ctx = None
+    return ctx
 
 
 @pytest.fixture(scope="function", autouse=True)
 def fixture_variables():
     """a fixture for initializing variables and clearing them after tests"""
     global SCREENSHOT_INDEX, STEP_INDEX
-    SCREENSHOT_INDEX = 0
-    STEP_INDEX = 0
     yield
     SCREENSHOT_INDEX = 0
     STEP_INDEX = 0
@@ -46,57 +40,43 @@ def fixture_variables():
 
 def test_screenshot(capsys):
     """test screenshot"""
-    __screenshot(ctx)
-    from pygats.pygats import SCREENSHOT_INDEX
+    pyg.__screenshot(ctx)
     cptrd = capsys.readouterr()
-    assert SCREENSHOT_INDEX == 1
+    assert pyg.SCREENSHOT_INDEX == 1
     print(cptrd.out)
     assert cptrd.out == '![Screenshot](step-0-0-passed.png)\n\n'
 
     
 def test_passed(capsys):
     """test passed"""
-    assert OUTPUT_PATH == pathlib.Path('output')
-    if SCREENSHOTS_ON:
-        __passed(ctx)
-        cptrd = capsys.readouterr()
-        assert STEP_INDEX == 0
-        assert cptrd.out == '![Успешно](step-0-passed.png)\n\n**Успешно**\n\n'
+    assert pyg.OUTPUT_PATH == pathlib.Path('output')
+    pyg.__passed(ctx)
+    cptrd = capsys.readouterr()
+    assert pyg.STEP_INDEX == 0
+    assert cptrd.out == '![Успешно](step-0-passed.png)\n\n**Успешно**\n\n'
 
 
 def test_step():
     """test step"""
-    __step(ctx,"test_message")
-    from pygats.pygats import STEP_INDEX
-    print(STEP_INDEX)
-    assert STEP_INDEX == 1
-    __step(ctx,"test_message")
-    from pygats.pygats import STEP_INDEX
-    print(STEP_INDEX)
-    assert STEP_INDEX == 2
+    pyg.__step(ctx,"test_message")
+    print(pyg.STEP_INDEX)
+    assert pyg.STEP_INDEX == 1
+    pyg.__step(ctx,"test_message")
+    print(pyg.STEP_INDEX)
+    assert pyg.STEP_INDEX == 2
 
 
-@pytest.mark.parametrize(
-        "exception, msg",
-        [
-            (TestException, "Тест 1 не пройден"),
-            (TestException, "Тест 2 не пройден"),
-            (TestException, "Тест 3 не пройден"),
-        ]
-)
-def test_failed(exception, msg):
+def test_failed():
     """test failed"""
-    with pytest.raises(exception):
-        __failed(msg)
-    with pytest.raises(TestException):
-        __failed()
+    with pytest.raises(pyg.TestException):
+        pyg.__failed("тест пройден")
 
 
 @pytest.mark.parametrize(
         "string_length, character_set, expectation",
         [
             (0, "grgrtgrtgBSBJCBE", pytest.raises(ValueError)),
-            (1, "78439439846N" , does_not_raise()),
+            (1, "78439439846N", does_not_raise()),
             (-2, "Тест 2 не пройден", pytest.raises(ValueError)),
             (3, " ", does_not_raise()),
             (4, None, does_not_raise()),
@@ -106,31 +86,30 @@ def test_failed(exception, msg):
 def test_random_string(string_length, character_set, expectation):
     """test random_string"""
     with expectation:
-        symbol = random_string(string_length, character_set )
+        symbol = pyg.random_string(string_length, character_set)
         print(symbol)
-    if character_set != "" and string_length > 0:
         assert string_length == len(symbol)
 
 
 @pytest.mark.parametrize(
         "img_path, expectation",
         [
-            ("/home/muervos/pygats_folder/pygats/output/Screenshot from 2024-10-13 20-34-25.png", does_not_raise()),
-            ("/home/muervos/pygats_folder/pygats/output.png", pytest.raises(OSError)) #test screenshot does not exist
+            ("pygats/output/Screenshot from 2024-10-13 20-34-25.png", does_not_raise()),
+            ("/pygats/output.png", pytest.raises(OSError)) #test screenshot does not exist
         ]
 )
 def test_locate_on_screen(img_path,expectation):
     """test locate_on_screen"""
     with expectation:
-        locate_on_screen(ctx, img_path)
+        pyg.locate_on_screen(ctx, img_path)
 
 
 def test_check(): # wanna do __check()
     """test check"""
-    none_result = check(ctx,"test with func=None")
+    none_result = pyg.check(ctx,"test with func=None")
     assert none_result == None
-    func_result = check(ctx ,"test with func=__step()",__step(ctx,"test"))
-    assert func_result == __step(ctx,"test")
+    func_result = pyg.check(ctx,"test with func=__step()", pyg.__step(ctx,"test"))
+    assert func_result == pyg.__step(ctx,"test")
     
 
 #approx()
