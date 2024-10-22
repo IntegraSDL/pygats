@@ -21,7 +21,7 @@ def fixture_formatter():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def fixture_create_ctx(formatter: MD):  
+def fixture_create_ctx(formatter: MD):
     """ctx fixture for check for ctx creation"""
     global ctx
     ctx = pyg.Context(formatter)
