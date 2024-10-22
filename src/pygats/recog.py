@@ -12,7 +12,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import __step, __passed, __failed
+from pygats.pygats import __step, __passed, failed
 
 
 @dataclass
@@ -126,7 +126,7 @@ def check_text(ctx, img: Image, txt):
     if not found:
         _, found = find_text(ctx, img, txt, extend=True)
         if not found:
-            __failed(msg=f'{txt.content} не найден на изображении')
+            failed(msg=f'{txt.content} не найден на изображении')
     __passed(ctx)
 
 
@@ -147,7 +147,7 @@ def check_text_on_screen(ctx, txt):
     if not found:
         _, found = find_text(ctx, img, txt, extend=True)
         if not found:
-            __failed(msg=f'{txt.content} не найден на экране')
+            failed(msg=f'{txt.content} не найден на экране')
     __passed(ctx)
 
 
@@ -164,7 +164,7 @@ def move_to_text(ctx, txt, skip=0):
     roi, found = find_text_on_screen(
         ctx, txt, skip, True)
     if not found:
-        __failed(msg=f'{txt.content} не найден на экране')
+        failed(msg=f'{txt.content} не найден на экране')
     ctx.formatter.print_para(f'{roi.x} {roi.y} {roi.w} {roi.h}')
     center_x, center_y = roi.rectangle_center_coords()
     pyautogui.moveTo(center_x, center_y)
@@ -185,7 +185,7 @@ def click_text(ctx, txt, button='left', skip=0):
     roi, found = find_text_on_screen(
         ctx, txt, skip, True)
     if not found:
-        __failed(msg=f'{txt.content} не найден на экране')
+        failed(msg=f'{txt.content} не найден на экране')
 
     ctx.formatter.print_para(f'{roi.x} {roi.y} {roi.w} {roi.h}')
     center_x, center_y = roi.rectangle_center_coords()
@@ -313,7 +313,7 @@ def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
         else (0, 0, img)
 
 
-def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False):
+def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False): # pylint: disable=R0913
     """Function finds text in image with Tesseract
 
     Args:

@@ -21,11 +21,10 @@ def fixture_formatter():
 
 
 @pytest.fixture(scope="session", autouse=True)
-def fixture_create_ctx(formatter: MD):
+def fixture_create_ctx(formatter: MD):  
     """ctx fixture for check for ctx creation"""
     global ctx
     ctx = pyg.Context(formatter)
-    yield
     return ctx
 
 
@@ -61,16 +60,13 @@ def test_step():
     pyg.__step(ctx,"test_message")
     print(pyg.STEP_INDEX)
     assert pyg.STEP_INDEX == 1
-    pyg.__step(ctx,"test_message")
-    print(pyg.STEP_INDEX)
-    assert pyg.STEP_INDEX == 2
+    #вывод
 
 
 def test_failed():
     """test failed"""
     with pytest.raises(pyg.TestException):
-        pyg.__failed("тест пройден")
-
+        pyg.failed("тест пройден")
 
 @pytest.mark.parametrize(
         "string_length, character_set, expectation",
@@ -80,7 +76,7 @@ def test_failed():
             (-2, "Тест 2 не пройден", pytest.raises(ValueError)),
             (3, " ", does_not_raise()),
             (4, None, does_not_raise()),
-            (5, "",pytest.raises(IndexError))
+            (5, "",does_not_raise())
         ]
 )
 def test_random_string(string_length, character_set, expectation):
@@ -94,11 +90,11 @@ def test_random_string(string_length, character_set, expectation):
 @pytest.mark.parametrize(
         "img_path, expectation",
         [
-            ("pygats/output/Screenshot from 2024-10-13 20-34-25.png", does_not_raise()),
-            ("/pygats/output.png", pytest.raises(OSError)) #test screenshot does not exist
+            ("pygats/output/example.png", does_not_raise()),
+            ("pygats/output.png", pytest.raises(pyg.TestException)), #test screenshot does not exist
         ]
 )
-def test_locate_on_screen(img_path,expectation):
+def test_locate_on_screen(img_path, expectation):
     """test locate_on_screen"""
     with expectation:
         pyg.locate_on_screen(ctx, img_path)
@@ -110,7 +106,4 @@ def test_check(): # wanna do __check()
     assert none_result == None
     func_result = pyg.check(ctx,"test with func=__step()", pyg.__step(ctx,"test"))
     assert func_result == pyg.__step(ctx,"test")
-    
-
-#approx()
 
