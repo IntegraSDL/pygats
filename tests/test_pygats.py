@@ -57,16 +57,18 @@ def test_passed(capsys):
 
 def test_step():
     """test step"""
-    pyg.__step(ctx,"test_message")
+    result = pyg.__step(ctx,"test_message")
     print(pyg.STEP_INDEX)
     assert pyg.STEP_INDEX == 1
-    #вывод
+    print(result)
+    assert result == "Step 1: test_message" #ошибка, так как result == None
 
 
 def test_failed():
     """test failed"""
     with pytest.raises(pyg.TestException):
         pyg.failed("тест пройден")
+
 
 @pytest.mark.parametrize(
         "string_length, character_set, expectation",
