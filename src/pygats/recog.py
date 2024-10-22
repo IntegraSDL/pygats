@@ -121,7 +121,7 @@ def check_text(ctx, img: Image, txt):
 
     """
     __step(ctx,
-         f'Проверка отображения текста {txt.content} на изображении {img}...')
+        f'Проверка отображения текста {txt.content} на изображении {img}...')
     _, found = find_text(ctx, img, txt)
     if not found:
         _, found = find_text(ctx, img, txt, extend=True)
@@ -313,7 +313,7 @@ def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
         else (0, 0, img)
 
 
-def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False): # pylint: disable=R0917
+def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False):  # pylint: disable=R0917
     """Function finds text in image with Tesseract
 
     Args:
