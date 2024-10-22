@@ -120,8 +120,7 @@ def check_text(ctx, img: Image, txt):
         txt (pygats.recog.SearchedText): text to search
 
     """
-    __step(ctx,
-        f'Проверка отображения текста {txt.content} на изображении {img}...')
+    __step(ctx, f'Проверка отображения текста {txt.content} на изображении {img}...')
     _, found = find_text(ctx, img, txt)
     if not found:
         _, found = find_text(ctx, img, txt, extend=True)
