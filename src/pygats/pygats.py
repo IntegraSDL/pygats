@@ -714,7 +714,7 @@ def random_string(string_length: int, character_set: Optional[str] = None):
     """
     if string_length <= 0:
         raise ValueError("string_length must be a positive integer")
-    if character_set is None or "":
+    if character_set is None or character_set == "":
         character_set = string.ascii_letters + ' _' + string.digits
     return ''.join(random.choice(character_set) for _ in range(string_length))
 
