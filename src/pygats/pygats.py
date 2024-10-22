@@ -17,7 +17,7 @@ import cv2 as cv
 import numpy as np
 import mss
 from colorama import init, Fore
-import yaml 
+import yaml
 
 init(autoreset=True)
 
