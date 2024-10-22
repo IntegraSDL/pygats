@@ -17,7 +17,7 @@ import cv2 as cv
 import numpy as np
 import mss
 from colorama import init, Fore
-import yaml 
+import yaml
 
 init(autoreset=True)
 
@@ -288,7 +288,7 @@ def __passed(ctx: Context):
     ctx.formatter.print_bold('Успешно')
 
 
-def __failed(msg: Optional[str] = 'Тест не успешен'):
+def failed(msg: Optional[str] = 'Тест не успешен'):
     """
     function generates exception while error occurs
 
@@ -335,7 +335,7 @@ def locate_on_screen(ctx: Context, img_path: str):
     try:
         coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
     except pyautogui.ImageNotFoundException or OSError:
-        __failed(msg='Изображение не найдено')
+        failed(msg='Изображение не найдено')
     ctx.formatter.print_para(f'Изображение найдено в координатах {coord}')
     return coord
 
@@ -367,9 +367,9 @@ def move_to(ctx: Context, img_path: str):
     try:
         center = pyautogui.locateCenterOnScreen(img_path, confidence=0.8)
     except pyautogui.ImageNotFoundException:
-        __failed(msg='Изображение не найдено')
+        failed(msg='Изображение не найдено')
     if center is None:
-        __failed('Изображение не найдено')
+        failed('Изображение не найдено')
     if sys.platform == 'darwin':
         pyautogui.moveTo(center.x / 2, center.y / 2)
     else:
@@ -420,28 +420,28 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
         try:
             center = pyautogui.locateCenterOnScreen(button_path, confidence=0.8)
         except pyautogui.ImageNotFoundException:
-            __failed(msg='Изображение не найдено')
+            failed(msg='Изображение не найдено')
         ctx.formatter.print_para(f'Кнопка найдена с центром в координатах {center}')
     else:
         ctx.formatter.print_para(' area ' + area)
         try:
             area_location = pyautogui.locateOnScreen(area, confidence=0.9)
         except pyautogui.ImageNotFoundException:
-            __failed(msg='Изображение не найдено')
+            failed(msg='Изображение не найдено')
         if area_location is None:
-            __failed(fail_message)
+            failed(fail_message)
         try:
             box = pyautogui.locate(button_path, area, confidence=0.8)
         except pyautogui.ImageNotFoundException:
-            __failed(msg='Изображение не найдено')
+            failed(msg='Изображение не найдено')
         if box is None:
-            __failed(fail_message)
+            failed(fail_message)
 
         x = area_location.left + box.left + box.width / 2
         y = area_location.top + box.top + box.height / 2
         center = pyautogui.Point(x, y)
     if center is None:
-        __failed(msg=fail_message)
+        failed(msg=fail_message)
     ctx.formatter.print_para(f'Перемещаем указатель мыши в координаты {center}')
     if sys.platform == 'darwin':
         pyautogui.moveTo(center.x / 2, center.y / 2)
@@ -714,10 +714,8 @@ def random_string(string_length: int, character_set: Optional[str] = None):
     """
     if string_length <= 0:
         raise ValueError("string_length must be a positive integer")
-    if character_set is None:
+    if character_set is None or "":
         character_set = string.ascii_letters + ' _' + string.digits
-    elif character_set == "":
-        raise IndexError("Cannot choose from an empty sequence")
     return ''.join(random.choice(character_set) for _ in range(string_length))
 
 
