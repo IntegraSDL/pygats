@@ -23,16 +23,17 @@ def test_rectangle_center_coords():
     """test rectangle_center_coords"""
     coord = rec.ROI(1,3,1,3)
     abscissa_and_ordinate = rec.ROI.rectangle_center_coords(coord)
-    print(rec.ROI.rectangle_center_coords(coord))
+    print(rec.ROI.__rectangle_center_coords(coord))
     assert abscissa_and_ordinate == (1.5, 4.5)
 
 
 def test_check_text():
-    
     text = rec.SearchedText("File", "eng", None)
     img = Image.open("pygats/output/example.png")
     rec.check_text(ctx, img, text)
-
+    # assert passed
+    # cant find file
+    # empty string
     text = rec.SearchedText("Fie", "eng", None)
     img = Image.open("pygats/output/example.png")
     with pytest.raises(pyg.TestException):

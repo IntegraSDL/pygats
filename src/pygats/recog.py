@@ -39,7 +39,7 @@ class ROI:
     w: int
     h: int
 
-    def rectangle_center_coords(self):
+    def __rectangle_center_coords(self):
         """
         return center of the rectangle
 
