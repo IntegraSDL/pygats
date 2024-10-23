@@ -334,7 +334,7 @@ def locate_on_screen(ctx: Context, img_path: str):
     """
     try:
         coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
-    except pyautogui.ImageNotFoundException:
+    except (pyautogui.ImageNotFoundException, OSError, TestException):
         failed(msg='Изображение не найдено')
     ctx.formatter.print_para(f'Изображение найдено в координатах {coord}')
     return coord
