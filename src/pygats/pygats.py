@@ -130,7 +130,7 @@ def suite(ctx: Context, module):
     ctx.formatter.print_header(1, module_docstring['Header'])
 
 
-def __step(ctx: Context, msg: str):
+def step(ctx: Context, msg: str):
     """
     function prints step name and starts new screenshot index
 
@@ -146,7 +146,7 @@ def __step(ctx: Context, msg: str):
     ctx.formatter.print_para(msg)
 
 
-def __screenshot(ctx: Context, rect: Optional[tuple] = None):
+def screenshot(ctx: Context, rect: Optional[tuple] = None):
     """Takes a screenshot, optionally limited to the rectangle
     defined by `rect`.
 
@@ -196,7 +196,7 @@ def take_snapshot(ctx: Context) -> str:
     Returns:
         img_path (PosixPath): path to snapshot
     """
-    __step(ctx, 'Создание снимка для поиска изменений на экране')
+    step(ctx, 'Создание снимка для поиска изменений на экране')
     global SNAPSHOT_PATH
     global SNAPSHOT_INDEX
     SNAPSHOT_PATH = pathlib.Path(OUTPUT_PATH, "compare")
@@ -224,7 +224,7 @@ def compare_snapshots(ctx: Context, first_img: str, second_img: str) -> tuple or
     Returns:
         tupple or None: coordinates of the change detection area
     """
-    __step(ctx, 'Поиск изменений между снимками ...')
+    step(ctx, 'Поиск изменений между снимками ...')
     ctx.formatter.print_img(first_img.relative_to(first_img.parts[0]), 'Первый снимок')
     ctx.formatter.print_img(second_img.relative_to(second_img.parts[0]), 'Второй снимок')
     first = Image.open(first_img)
@@ -268,7 +268,7 @@ def log_image(ctx: Context, img: Image, msg: Optional[str] = 'Снимок эк�
     return img
 
 
-def __passed(ctx: Context):
+def passed(ctx: Context):
     """
     function prints passed information after test case
 
@@ -311,10 +311,10 @@ def check_image(ctx: Context, img_path: str, timeout: Optional[int] = 1):
         img_path (str): path to image for check on screen
         timeout (Optional[int]): timeout in seconds to check if image occurs
     """
-    __step(ctx, f'Проверка отображения {img_path} ...')
+    step(ctx, f'Проверка отображения {img_path} ...')
     while timeout > 0:
         if locate_on_screen(ctx, img_path) is not None:
-            __passed(ctx)
+            passed(ctx)
             return
         timeout -= 1
         time.sleep(1)
@@ -349,9 +349,9 @@ def move_to_coord(ctx: Context, x: int, y: int):
         x (int): x coordinate
         y (int): y coordinate
     """
-    __step(ctx, f'Переместить указатель мыши в координаты {x},{y}')
+    step(ctx, f'Переместить указатель мыши в координаты {x},{y}')
     pyautogui.moveTo(x, y)
-    __passed(ctx)
+    passed(ctx)
 
 
 def move_to(ctx: Context, img_path: str):
@@ -363,7 +363,7 @@ def move_to(ctx: Context, img_path: str):
         img_path (str): path to image for move to
 
     """
-    __step(ctx, f'Переместить указатель мыши на изображение {img_path} ...')
+    step(ctx, f'Переместить указатель мыши на изображение {img_path} ...')
     try:
         center = pyautogui.locateCenterOnScreen(img_path, confidence=0.8)
     except pyautogui.ImageNotFoundException:
@@ -375,7 +375,7 @@ def move_to(ctx: Context, img_path: str):
     else:
         pyautogui.moveTo(center.x, center.y)
         ctx.formatter.print_para(f'Текущая позиция указателя мыши {pyautogui.position()}')
-    __passed(ctx)
+    passed(ctx)
 
 
 def click_right_button(ctx: Context):
@@ -385,10 +385,10 @@ def click_right_button(ctx: Context):
         ctx (Context): An object that contains information about the current
                     context.
     """
-    __step(ctx, 'Нажать правую кнопку мыши ...')
+    step(ctx, 'Нажать правую кнопку мыши ...')
     pyautogui.click(button='right')
     ctx.formatter.print_para(f'Текущая позиция указателя мыши {pyautogui.position()}')
-    __passed(ctx)
+    passed(ctx)
 
 
 def click_left_button(ctx: Context, clicks: Optional[int] = 1):
@@ -399,10 +399,10 @@ def click_left_button(ctx: Context, clicks: Optional[int] = 1):
                     context.
         clicks (Optional[int]): number of clicks
     """
-    __step(ctx, 'Нажать левую кнопку мыши ...')
+    step(ctx, 'Нажать левую кнопку мыши ...')
     pyautogui.click(button='left', clicks=clicks, interval=0.2)
     ctx.formatter.print_para(f'Текущая позиция указателя мыши {pyautogui.position()}')
-    __passed(ctx)
+    passed(ctx)
 
 
 def click(ctx: Context, button_path: str, area: Optional[str] = ''):
@@ -415,7 +415,7 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
         area (Optional[str]): path to area of image to print
     """
     fail_message = 'Изображение не найдено'
-    __step(ctx, f'Нажать кнопку мыши {button_path} ...')
+    step(ctx, f'Нажать кнопку мыши {button_path} ...')
     if area == '':
         try:
             center = pyautogui.locateCenterOnScreen(button_path, confidence=0.8)
@@ -448,7 +448,7 @@ def click(ctx: Context, button_path: str, area: Optional[str] = ''):
     else:
         pyautogui.moveTo(center.x, center.y)
     pyautogui.click()
-    __passed(ctx)
+    passed(ctx)
 
 
 def scroll(ctx: Context, clicks: Optional[int] = 1):
@@ -460,9 +460,9 @@ def scroll(ctx: Context, clicks: Optional[int] = 1):
         clicks (Optional[int]): number of turns of mouse wheel, if it's positive scroll to up,
                                 if it's negative to down
     """
-    __step(ctx, 'Прокрутка колеса мыши ...')
+    step(ctx, 'Прокрутка колеса мыши ...')
     pyautogui.scroll(clicks=clicks)
-    __passed(ctx)
+    passed(ctx)
 
 
 def ctrl_with_key(ctx: Context, key: str):
@@ -475,9 +475,9 @@ def ctrl_with_key(ctx: Context, key: str):
                     context.
         key (str): key to press CTRL + key
     """
-    __step(ctx, f'Нажать клавишу ctrl + {key}')
+    step(ctx, f'Нажать клавишу ctrl + {key}')
     pyautogui.hotkey('ctrl', key)
-    __passed(ctx)
+    passed(ctx)
 
 
 def alt_with_key(ctx: Context, key: str):
@@ -489,9 +489,9 @@ def alt_with_key(ctx: Context, key: str):
                     context.
         key (str): key to press ALT + key
     """
-    __step(ctx, f'Нажать клавишу alt+{key}')
+    step(ctx, f'Нажать клавишу alt+{key}')
     pyautogui.hotkey('alt', key)
-    __passed(ctx)
+    passed(ctx)
 
 
 def drag_to(ctx: Context, x: int, y: int):
@@ -504,9 +504,9 @@ def drag_to(ctx: Context, x: int, y: int):
         x (int): coordinates to move mouse pointer
         y (int): coordinates to move mouse pointer
     """
-    __step(ctx, f'Переместить в координаты {x}, {y} ...')
+    step(ctx, f'Переместить в координаты {x}, {y} ...')
     pyautogui.dragTo(x, y, button='left', duration=0.5)
-    __passed(ctx)
+    passed(ctx)
 
 
 def move(ctx: Context, x: int, y: int):
@@ -519,11 +519,11 @@ def move(ctx: Context, x: int, y: int):
         x (int): coordinates to move mouse pointer
         y (int): coordinates to move mouse pointer
     """
-    __step(ctx, f'Относительное перемещение указателя мыши x={x}, y={y} ...')
+    step(ctx, f'Относительное перемещение указателя мыши x={x}, y={y} ...')
     ctx.formatter.print_para(f'из координат {pyautogui.position()}')
     pyautogui.move(x, y)
     ctx.formatter.print_para(f'новые координаты {pyautogui.position()}')
-    __passed(ctx)
+    passed(ctx)
 
 
 def press(ctx: Context, key: str, n: Optional[int] = 1):
@@ -535,7 +535,7 @@ def press(ctx: Context, key: str, n: Optional[int] = 1):
         key (str): key to press
         n (Optional[int]): amount of time to press
     """
-    __step(ctx, f'Нажать {key} {n} раз')
+    step(ctx, f'Нажать {key} {n} раз')
     for _ in range(n):
         pyautogui.press(key)
 
@@ -555,11 +555,11 @@ def typewrite(ctx: Context, message: str, lang: Optional[str] = 'eng'):
         pyperclip.copy(message)
         pyautogui.hotkey('ctrl', 'v')
         pyperclip.copy(clipboard)
-        __passed(ctx)
+        passed(ctx)
     else:
-        __step(ctx, f'Набрать на клавиатуре {message} ...')
+        step(ctx, f'Набрать на клавиатуре {message} ...')
         pyautogui.write(message)
-        __passed(ctx)
+        passed(ctx)
 
 
 def print_test_summary(ctx: Context, list_passed: List, list_failed: List):
@@ -654,7 +654,7 @@ def find_contours(ctx: Context, img_path: str, fltr=repeater):
     Returns:
         list of points: list of points filtered
     """
-    __step(ctx, 'Поиск контуров с применением селектора')
+    step(ctx, 'Поиск контуров с применением селектора')
     img = cv.imread(img_path)
     img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     edges = cv.Canny(img_gray, 50, 100)
