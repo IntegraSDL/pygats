@@ -23,7 +23,7 @@ def test_rectangle_center_coords():
     """test rectangle_center_coords"""
     coord = rec.ROI(1,3,1,3)
     abscissa_and_ordinate = rec.ROI.rectangle_center_coords(coord)
-    print(rec.ROI.__rectangle_center_coords(coord))
+    print(rec.ROI.rectangle_center_coords(coord))
     assert abscissa_and_ordinate == (1.5, 4.5)
 
 
