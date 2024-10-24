@@ -5,7 +5,7 @@ Module for qt applications interacting
 from typing import Optional
 import qat
 import pathlib
-from pygats.pygats import __step, __passed, __failed
+from pygats.pygats import step, passed, failed
 
 
 def register_application(name: str, path: str, args: Optional[str] = ''):
@@ -33,13 +33,13 @@ def start_application(ctx, name: str, args: Optional[str] = ''):
         app_ctx (qat.Globals.current_app_context): uniquely identifies the started
             application instance
     """
-    __step(ctx, f'Запуск приложения "{name}"')
+    step(ctx, f'Запуск приложения "{name}"')
     try:
         app_ctx = qat.start_application(app_name=name, args=args)
         qat.unlock_application()
     except Exception as e:
-        __failed(msg=f'Ошибка запуска приложения\n{e}')
-    __passed(ctx)
+        failed(msg=f'Ошибка запуска приложения\n{e}')
+    passed(ctx)
     return app_ctx
 
 
@@ -52,12 +52,12 @@ def set_current_application_context(ctx, app_ctx):
         app_ctx (qat.Globals.current_app_context): uniquely identifies the started
             application instance
     """
-    __step(ctx, 'Смена текущего рабочего окна приложения')
+    step(ctx, 'Смена текущего рабочего окна приложения')
     try:
         qat.set_current_application_context(app_ctx)
     except Exception as e:
-        __failed(msg=f'Ошибка смены рабочего окна приложения\n{e}')
-    __passed(ctx)
+        failed(msg=f'Ошибка смены рабочего окна приложения\n{e}')
+    passed(ctx)
 
 
 def close_application(ctx, app_ctx):
@@ -69,12 +69,12 @@ def close_application(ctx, app_ctx):
         app_ctx (qat.Globals.current_app_context): uniquely identifies the started
             application instance
     """
-    __step(ctx, 'Закрытие приложения ...')
+    step(ctx, 'Закрытие приложения ...')
     try:
         qat.close_application(app_ctx)
     except Exception as e:
-        __failed(msg=f'Ошибка закрытия приложения\n{e}')
-    __passed(ctx)
+        failed(msg=f'Ошибка закрытия приложения\n{e}')
+    passed(ctx)
 
 
 def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
@@ -88,15 +88,15 @@ def typewrite(ctx, definition: dict, message: str, count: Optional[int] = 1):
         count (Optional[int]): number of writes
     """
     if message.startswith('<') and message.endswith('>'):
-        __step(ctx, f'Набрать на клавиатуре "{message[1:-1]}" ...')
+        step(ctx, f'Набрать на клавиатуре "{message[1:-1]}" ...')
     else:
-        __step(ctx, f'Набрать на клавиатуре "{message}" ...')
+        step(ctx, f'Набрать на клавиатуре "{message}" ...')
     try:
         for _ in range(count):
             qat.type_in(definition, message)
     except Exception as e:
-        __failed(msg=f'Ошибка набора текста\n{e}')
-    __passed(ctx)
+        failed(msg=f'Ошибка набора текста\n{e}')
+    passed(ctx)
 
 
 def click_left_button(ctx, definition: str, x: Optional[int] = None, y: Optional[int] = None,
@@ -114,13 +114,13 @@ def click_left_button(ctx, definition: str, x: Optional[int] = None, y: Optional
     message = str(definition)
     if message.startswith('<') and message.endswith('>'):
         message = message[1:-1]
-    __step(ctx, f'Нажать левую кнопку мыши по объекту "{object_name}"')
+    step(ctx, f'Нажать левую кнопку мыши по объекту "{object_name}"')
     try:
         for _ in range(clicks):
             qat.mouse_click(definition, x, y)
     except Exception as e:
-        __failed(msg=f'Ошибка {e}')
-    __passed(ctx)
+        failed(msg=f'Ошибка {e}')
+    passed(ctx)
 
 
 def find_object(ctx, definition: dict, object_name='QtObject'):
@@ -134,12 +134,12 @@ def find_object(ctx, definition: dict, object_name='QtObject'):
     Returns:
         QtObject (qat.internal.qt_object.QtObject): uniquely identifies the QtObject
     """
-    __step(ctx, f'Поиск объекта "{object_name}" ...')
+    step(ctx, f'Поиск объекта "{object_name}" ...')
     try:
         QtObject = qat.wait_for_object_exists(definition)
     except Exception as e:
-        __failed(msg=f'Ошибка поиска объекта\n{e}')
-    __passed(ctx)
+        failed(msg=f'Ошибка поиска объекта\n{e}')
+    passed(ctx)
     return QtObject
 
 
@@ -154,9 +154,9 @@ def find_all_objects(ctx, definition: dict):
     Returns:
         QtObjects (qat.internal.qt_object.QtObject): uniquely identifies the QtObject
     """
-    __step(ctx, f'Поиск всех объектов, соответствующих данному определению "{definition}" ...')
+    step(ctx, f'Поиск всех объектов, соответствующих данному определению "{definition}" ...')
     QtObjects = qat.find_all_objects(definition)
-    __passed(ctx)
+    passed(ctx)
     return QtObjects
 
 
@@ -171,13 +171,13 @@ def find_object_by_id(ctx, window, id=''):
     Returns:
         obj (qat.internal.qt_object.QtObject): uniquely identifies the QtObject
     """
-    __step(ctx, f'Поиск объекта по индексу "{id}" ...')
+    step(ctx, f'Поиск объекта по индексу "{id}" ...')
     obj = window.children[int(id[0])]
     id = id[1:]
     while id:
         obj = obj.children[int(id[0])]
         id = id[1:]
-    __passed(ctx)
+    passed(ctx)
     return obj
 
 
@@ -190,7 +190,7 @@ def generate_object_tree(ctx, window, dir_name='temp'):
         window (qat.internal.qt_object.QtObject): uniquely identifies the QtObject (target window)
         dir_name (str): name of directory. Defaults to './temp'.
     """
-    __step(ctx, f'Создание директории {dir_name}, повторяющей структуру дерева объектов')
+    step(ctx, f'Создание директории {dir_name}, повторяющей структуру дерева объектов')
     path = pathlib.Path(f'./{dir_name}')
     path.mkdir(exist_ok=True)
     path = path / 'tree.yaml'
@@ -220,7 +220,7 @@ def generate_object_tree(ctx, window, dir_name='temp'):
 
     tree(window)
     tree_file.close()
-    __passed(ctx)
+    passed(ctx)
 
 
 def compare_object_tree(ctx, window, dir_name):
@@ -231,7 +231,7 @@ def compare_object_tree(ctx, window, dir_name):
         window (qat.internal.qt_object.QtObject): uniquely identifies the QtObject (target window)
         dir_name (str): name of directory. Defaults to './temp'.
     """
-    __step(ctx, f'Сравнение изменений в свойствах объекта {dir_name}')
+    step(ctx, f'Сравнение изменений в свойствах объекта {dir_name}')
     path = pathlib.Path(f'./{dir_name}/differences.yaml')
     path.touch(exist_ok=True)
     diff_file = open(path, 'w')
@@ -275,4 +275,4 @@ def compare_object_tree(ctx, window, dir_name):
 
     tree(window)
     diff_file.close()
-    __passed(ctx)
+    passed(ctx)
