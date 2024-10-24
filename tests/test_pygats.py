@@ -39,7 +39,7 @@ def fixture_variables():
 
 def test_screenshot(capsys):
     """test screenshot"""
-    pyg.__screenshot(ctx)
+    pyg.screenshot(ctx)
     cptrd = capsys.readouterr()
     assert pyg.SCREENSHOT_INDEX == 1
     print(cptrd.out)
@@ -49,7 +49,7 @@ def test_screenshot(capsys):
 def test_passed(capsys):
     """test passed"""
     assert pyg.OUTPUT_PATH == pathlib.Path('output')
-    pyg.__passed(ctx)
+    pyg.passed(ctx)
     cptrd = capsys.readouterr()
     assert pyg.STEP_INDEX == 0
     assert cptrd.out == '![Успешно](step-0-passed.png)\n\n**Успешно**\n\n'
@@ -57,7 +57,7 @@ def test_passed(capsys):
 
 def test_step():
     """test step"""
-    result = pyg.__step(ctx,"test_message")
+    result = pyg.step(ctx,"test_message")
     print(pyg.STEP_INDEX)
     assert pyg.STEP_INDEX == 1
     # print(result)
@@ -106,6 +106,6 @@ def test_check(): # wanna do __check()
     """test check"""
     none_result = pyg.check(ctx,"test with func=None")
     assert none_result == None
-    func_result = pyg.check(ctx,"test with func=__step()", pyg.__step(ctx,"test"))
-    assert func_result == pyg.__step(ctx,"test")
+    func_result = pyg.check(ctx,"test with func=step()", pyg.step(ctx,"test"))
+    assert func_result == pyg.step(ctx,"test")
 
