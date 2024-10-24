@@ -334,7 +334,7 @@ def locate_on_screen(ctx: Context, img_path: str):
     """
     try:
         coord = pyautogui.locateOnScreen(img_path, confidence=0.5)
-    except (pyautogui.ImageNotFoundException, OSError, TestException):
+    except pyautogui.ImageNotFoundException:
         failed(msg='Изображение не найдено')
     ctx.formatter.print_para(f'Изображение найдено в координатах {coord}')
     return coord
@@ -716,7 +716,7 @@ def random_string(string_length: int, character_set: Optional[str] = None):
     """
     if string_length <= 0:
         raise ValueError("string_length must be a positive integer")
-    if character_set is None or character_set == "":
+    if character_set is None:
         character_set = string.ascii_letters + ' _' + string.digits
     return ''.join(random.choice(character_set) for _ in range(string_length))
 
