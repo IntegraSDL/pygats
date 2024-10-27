@@ -20,16 +20,15 @@ def fixture_formatter():
     return MD()
 
 
-@pytest.fixture(scope="session", autouse=True)
-def fixture_create_ctx(formatter: MD):
+@pytest.fixture(name="ctx_formatter", scope="session", autouse=True)
+def create_ctx(formatter: MD):
     """ctx fixture for check for ctx creation"""
-    global ctx
     ctx = pyg.Context(formatter)
     return ctx
 
 
-@pytest.fixture(scope="function", autouse=True)
-def fixture_variables():
+@pytest.fixture(name="variables", scope="function")
+def variables():
     """a fixture for initializing variables and clearing them after tests"""
     global SCREENSHOT_INDEX, STEP_INDEX
     yield
@@ -37,8 +36,9 @@ def fixture_variables():
     STEP_INDEX = 0
 
 
-def test_screenshot(capsys):
+def test_screenshot(capsys, ctx_formatter, variables):
     """test screenshot"""
+    ctx = ctx_formatter
     pyg.screenshot(ctx)
     cptrd = capsys.readouterr()
     assert pyg.SCREENSHOT_INDEX == 1
@@ -46,8 +46,9 @@ def test_screenshot(capsys):
     assert cptrd.out == '![Screenshot](step-0-0-passed.png)\n\n'
 
     
-def test_passed(capsys):
+def test_passed(capsys, variables, ctx_formatter):
     """test passed"""
+    ctx = ctx_formatter
     assert pyg.OUTPUT_PATH == pathlib.Path('output')
     pyg.passed(ctx)
     cptrd = capsys.readouterr()
@@ -55,13 +56,11 @@ def test_passed(capsys):
     assert cptrd.out == '![Успешно](step-0-passed.png)\n\n**Успешно**\n\n'
 
 
-def test_step():
+def test_step(variables, ctx_formatter):
     """test step"""
-    result = pyg.step(ctx,"test_message")
-    print(pyg.STEP_INDEX)
+    ctx = ctx_formatter
+    pyg.step(ctx, "test_message")
     assert pyg.STEP_INDEX == 1
-    # print(result)
-    # assert result == "Step 1: test_message" #ошибка, так как result == None
 
 
 def test_failed():
@@ -78,7 +77,7 @@ def test_failed():
             (-2, "Тест 2 не пройден", pytest.raises(ValueError)),
             (3, " ", does_not_raise()),
             (4, None, does_not_raise()),
-            (5, "",does_not_raise())
+            (5, "", does_not_raise())
         ]
 )
 def test_random_string(string_length, character_set, expectation):
@@ -93,19 +92,20 @@ def test_random_string(string_length, character_set, expectation):
         "img_path, expectation",
         [
             ("pygats/output/example.png", does_not_raise()),
-            ("pygats/output.png", pytest.raises(pyg.TestException)), #test screenshot does not exist
+            ("pygats/output.png", pytest.raises(pyg.TestException)),  #test screenshot does not exist
         ]
 )
-def test_locate_on_screen(img_path, expectation):
+def test_locate_on_screen(img_path, expectation, ctx_formatter):
     """test locate_on_screen"""
+    ctx = ctx_formatter
     with expectation:
         pyg.locate_on_screen(ctx, img_path)
 
 
-def test_check(): # wanna do __check()
+def test_check(ctx_formatter): 
     """test check"""
-    none_result = pyg.check(ctx,"test with func=None")
+    ctx = ctx_formatter
+    none_result = pyg.check(ctx, "test with func=None")
     assert none_result == None
-    func_result = pyg.check(ctx,"test with func=step()", pyg.step(ctx,"test"))
-    assert func_result == pyg.step(ctx,"test")
-
+    func_result = pyg.check(ctx, "test with func=step()", pyg.step(ctx, "test"))
+    assert func_result == pyg.step(ctx, "test")
