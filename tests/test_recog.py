@@ -27,15 +27,23 @@ def test_rectangle_center_coords():
     assert abscissa_and_ordinate == (1.5, 4.5)
 
 
-def test_check_text():
+def test_check_text(capsys, generator_photo):
+    """test check_text"""
     text = rec.SearchedText("File", "eng", None)
-    img = Image.open("pygats/output/example.png")
+    img = generator_photo
+    width, height = img.size
+    assert width > 0
+    assert height > 0
     rec.check_text(ctx, img, text)
-    # assert passed
-    # cant find file
-    # empty string
+    cptrd = capsys.readouterr()
+    print(cptrd)
+    assert '![Успешно](step-1-passed.png)\n\n**Успешно**\n\n' in cptrd.out
+
+
+def test_check_text_failed(generator_photo):
+    """test check_text with word which tesseract cant find"""
     text = rec.SearchedText("Fie", "eng", None)
-    img = Image.open("pygats/output/example.png")
+    img = generator_photo
     with pytest.raises(pyg.TestException):
         rec.check_text(ctx, img, text)
         assert pyg.failed() == f"{text} не найден на изображении"
