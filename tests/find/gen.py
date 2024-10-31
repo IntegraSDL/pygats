@@ -31,7 +31,7 @@ def gen(filename, w, h, font='', size=16, text='', crop=False):
     colors = color_gen.color_generator()
     for fill_color in colors:
         draw_text.text((w, h), text, font=font, fill=fill_color)
-        img.save(f'tests/find/font_colors/{fill_color[1:]}.jpg')
+        img.save(f'tests/find/fill_colors/{fill_color[1:]}.jpg')
     #img = Image.open('tests/find/1.jpg')
     return img
 
