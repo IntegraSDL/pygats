@@ -1,6 +1,6 @@
 import time
 from PIL import Image, ImageDraw, ImageFont
-import color_gen
+from . import color_gen
 
 
 def crop_image(img, w, h):
@@ -32,7 +32,10 @@ def gen(filename, w, h, font='', size=16, text='', crop=False):
     for fill_color in colors:
         draw_text.text((w, h), text, font=font, fill=fill_color)
         img.save(f'tests/find/fill_colors/{fill_color[1:]}.jpg')
-    #img = Image.open('tests/find/1.jpg')
+        img = Image.open(f'tests/find/fill_colors/{fill_color[1:]}.jpg')
     return img
+
+
+# def get_photo():
 
 wrapper()
