@@ -20,11 +20,9 @@ def fixture_create_ctx(formatter: MD):
     ctx = pyg.Context(formatter)
     return ctx
 
-# @pytest.mark.parametrize("", gen.get_photo())
 def test_check_text(capsys, generator_photo):
     """test check_text checks if "File is exist on image"""
     text = rec.SearchedText("File", "eng", None)
-    img = generator_photo
     width, height = img.size
     assert width > 0
     assert height > 0
@@ -34,7 +32,6 @@ def test_check_text(capsys, generator_photo):
         print(f"Проверка картинки {picture}с цветом шрифта {fill_color[1:]}")
         rec.check_text(ctx, img, text)
         cptrd = capsys.readouterr()
-        print(cptrd)
         assert '![Успешно](step-1-passed.png)\n\n**Успешно**\n\n' in cptrd.out
 
 
@@ -46,3 +43,11 @@ def test_check_text_failed(capsys, generator_photo):
         rec.check_text(ctx, img, text)
         cptrd = capsys.readouterr()
         assert cptrd == f"{text} не найден на изображении"
+
+
+def test_check_text_1(capsys):
+    text = rec.SearchedText("File", "eng", None)
+    gen.bg_changer()
+    rec.check_text(ctx, "tests/find/1.jpg", text)
+    cptrd = capsys.readouterr()
+    assert '![Успешно](step-1-passed.png)\n\n**Успешно**\n\n' in cptrd.out
