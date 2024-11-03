@@ -10,7 +10,7 @@ def crop_image(img, w, h):
 
 def wrapper():
     start = time.time()
-    gen("blue", 350, 350, 'Arial_Bold', 150, "File")
+    gen("white", 350, 350, 'TimesNewRoman', 32, "File")
     seconds = int(time.time() - start)
     seconds = seconds % (24 * 3600)
     hours = seconds // 3600
@@ -31,11 +31,34 @@ def gen(filename, w, h, font='', size=16, text='', crop=False):
     colors = color_gen.color_generator()
     for fill_color in colors:
         draw_text.text((w, h), text, font=font, fill=fill_color)
-        img.save(f'tests/find/fill_colors/{fill_color[1:]}.jpg')
-        img = Image.open(f'tests/find/fill_colors/{fill_color[1:]}.jpg')
+        print(f"Drawing text with color: {fill_color}")
+        img.save(f'tests/find/fill_colors/{fill_color[1:]}.jpg', quality=95)
     return img
 
-
-# def get_photo():
-
-wrapper()
+def bg_changer(crop=False):
+    img = Image.open('tests/find/1.jpg')
+    img = img.convert("RGB")
+    datas = img.getdata()
+    new_image_data = []
+    for item in datas:
+        if item[0]>200 and item[1]<80 and item[2]<80:
+            new_image_data.append((255, 0, 0)) # 1. Красный цвет
+        elif item[1] > 200 and item[0] < 80 and item[2] < 80:
+            new_image_data.append((0, 255, 0)) # 2. Зеленый цвет
+        elif item[2] > 200 and item[0] < 80 and item[1] < 80:
+            new_image_data.append((0, 0, 255)) # 3. Синий цвет
+        elif item[0] > 200 and item[1] > 200 and item[2] < 80:
+            new_image_data.append((255, 255, 0)) # 4. Желтый цвет
+        elif item[1] > 150 and item[2] > 200 and item[0] < 80:
+            new_image_data.append((66, 170, 255)) # 5. Голубой цвет
+        elif item[0] > 100 and item[2] > 200 and item[1] < 80:
+            new_image_data.append((139,0,255)) # 6. Фиолетовый цвет
+        elif item[0] > 200 and item[1] > 200 and item[2] > 200:
+            new_image_data.append((255, 255, 255)) # 7. Белый цвет
+        elif item[0] < 80 and item[1] < 80 and item[2] < 80:
+            new_image_data.append((0, 0, 0)) # 8. Черный цвет
+        else:
+            new_image_data.append(item)
+    img.putdata(new_image_data)
+    img.save("tests/find/2.jpg")
+    img.show()
