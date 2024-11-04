@@ -47,7 +47,7 @@ def test_check_text_failed(capsys, generator_photo):
 
 def test_check_text_1(capsys):
     text = rec.SearchedText("File", "eng", None)
-    gen.bg_changer()
+    gen.bg_changer(True)
     rec.check_text(ctx, "tests/find/1.jpg", text)
     cptrd = capsys.readouterr()
     assert '![Успешно](step-1-passed.png)\n\n**Успешно**\n\n' in cptrd.out
