@@ -37,6 +37,8 @@ def gen(filename, w, h, font='', size=16, text='', crop=False):
 
 def bg_changer(crop=False):
     img = Image.open('tests/find/1.jpg')
+    if crop:
+        img = crop_image(img, 350, 350)
     img = img.convert("RGB")
     datas = img.getdata()
     new_image_data = []
