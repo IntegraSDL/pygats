@@ -1,6 +1,5 @@
 import time
 from PIL import Image, ImageDraw, ImageFont
-from . import color_gen
 
 
 def crop_image(img, w, h):
@@ -62,5 +61,5 @@ def bg_changer(crop=False):
         else:
             new_image_data.append(item)
     img.putdata(new_image_data)
-    img.save("tests/find/2.jpg")
-    img.show()
+    img.save("tests/find/2.jpg", 'JPEG')
+    # img.show()
