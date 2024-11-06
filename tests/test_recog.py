@@ -48,17 +48,18 @@ def test_check_text_1(capsys, words_for_bg):
     for expected_text in words_for_bg:
         image_path = fill_color / f"{expected_text.content}.jpg"
         print(f"Проверяем файл: {image_path}") 
-        if image_path.exists():
-            img = Image.open(image_path)
-            result = rec.check_text(ctx, img, expected_text)
-            print(f"Файл {image_path} найден.")
-            if result:
-                successful_count += 1
-            else:
+        try:
+            if image_path.exists():
+                img = Image.open(image_path)
+                result = rec.check_text(ctx, img, expected_text)
+                print(f"Файл {image_path} найден.")
+                if result:
+                    successful_count += 1
+                else:
+                    failed_count += 1
+        except pyg.TestException:
+                print(f"Файл {image_path} не найден.")
                 failed_count += 1
-        else:
-            print(f"Файл {image_path} не найден.")
-            failed_count += 1
             
     print(f"Успешно распознанных слов: {successful_count}")
     print(f"Не распознанных слов: {failed_count}")
