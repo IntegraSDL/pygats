@@ -11,9 +11,6 @@ import matplotlib.pyplot as plt
 
 # Данные
 colors = ['красный', 'зеленый', 'синий', 'желтый', 'голубой', 'фиолетовый', 'белый', 'черный']
-recognized = [62, 42, 100, 100, 100, 98, 100, 0]
-not_recognized = [38, 58, 0, 0, 0, 2, 0, 100]
-
 
 bar_width = 0.3
 x = range(len(colors))
