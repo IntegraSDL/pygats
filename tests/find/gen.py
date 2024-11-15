@@ -28,12 +28,9 @@ def gen(filename, w, h, font='', size=16, text='', crop=False):
         img = crop_image(img, 350, 50)
     font = ImageFont.truetype(f'tests/find/fonts/{font}.ttf', size=size)
     draw_text = ImageDraw.Draw(img)
-    colors = color_gen.color_generator()
-    for fill_color in colors:
-        draw_text.text((w, h), text, font=font, fill=fill_color)
-        print(f"Drawing text with color: {fill_color}")
-        img.save(f'tests/find/fill_colors/{fill_color[1:]}.jpg', quality=95)
-    return img
+    draw_text.text((w, h), text, font=font, fill=('#000000'))
+    img.save('tests/find/1.jpg')
+    img = Image.open('tests/find/1.jpg')
 
 
 def color_shade_gen(rgb: tuple, step: int, size: tuple = (1920, 1080), crop=False):
@@ -67,23 +64,19 @@ def color_shade_gen(rgb: tuple, step: int, size: tuple = (1920, 1080), crop=Fals
         new_img.putdata(new_image_data)
         new_img.save(f"tests/find/color_shades/color{color}.png", 'PNG')
 
-color_shade_gen((210, 0, 0), 5, (1280,1280))
-
-
-        # if item[0]>200 and item[1]<80 and item[2]<80:
-        #     new_image_data.append((255, 0, 0)) # 1. Красный цвет
-        # elif item[1] > 200 and item[0] < 80 and item[2] < 80:
-        #     new_image_data.append((0, 255, 0)) # 2. Зеленый цвет
-
-        # elif item[0] > 200 and item[1] > 200 and item[2] < 80:
-        #     new_image_data.append((255, 255, 0)) # 4. Желтый цвет
-        # elif item[1] > 150 and item[2] > 200 and item[0] < 80:
-        #     new_image_data.append((66, 170, 255)) # 5. Голубой цвет
-        # elif item[0] > 100 and item[2] > 200 and item[1] < 80:
-        #     new_image_data.append((139,0,255)) # 6. Фиолетовый цвет
-        # elif item[0] > 200 and item[1] > 200 and item[2] > 200:
-        #     new_image_data.append((255, 255, 255)) # 7. Белый цвет
-        # elif item[0] < 80 and item[1] < 80 and item[2] < 80:
-        #     new_image_data.append((0, 0, 0)) # 8. Черный цвет
-        # else:
-        #     new_image_data.append(item)
+# if item[0]>200 and item[1]<80 and item[2]<80:
+#     new_image_data.append((255, 0, 0)) # 1. Красный цвет
+# elif item[1] > 200 and item[0] < 80 and item[2] < 80:
+#     new_image_data.append((0, 255, 0)) # 2. Зеленый цве
+# elif item[0] > 200 and item[1] > 200 and item[2] < 80:
+#     new_image_data.append((255, 255, 0)) # 4. Желтый цвет
+# elif item[1] > 150 and item[2] > 200 and item[0] < 80:
+#     new_image_data.append((66, 170, 255)) # 5. Голубой цвет
+# elif item[0] > 100 and item[2] > 200 and item[1] < 80:
+#     new_image_data.append((139,0,255)) # 6. Фиолетовый цвет
+# elif item[0] > 200 and item[1] > 200 and item[2] > 200:
+#     new_image_data.append((255, 255, 255)) # 7. Белый цвет
+# elif item[0] < 80 and item[1] < 80 and item[2] < 80:
+#     new_image_data.append((0, 0, 0)) # 8. Черный цвет
+# else:
+#     new_image_data.append(item)
