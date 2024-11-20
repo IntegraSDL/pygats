@@ -129,3 +129,7 @@ dmypy.json
 .pyre/
 .DS_Store
 output
+
+# images
+./tests/find/color_shades
+./tests/find/fill_colors
