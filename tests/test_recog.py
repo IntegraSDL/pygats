@@ -23,7 +23,7 @@ def fixture_create_ctx(formatter: MD):
 
 @pytest.fixture(scope="function")
 def words_for_bg():
-    gen.color_shade_gen((210, 0, 0), 5, (1280,1280), True)
+    gen.color_shade_gen((85, 85, 85), (350, 350))
     file = open("tests/find/words.txt")
     lines = file.readlines()
     font = ImageFont.truetype(f'tests/find/fonts/Arial_Bold.ttf', size=27)
@@ -41,7 +41,7 @@ def words_for_bg():
             draw_text.text((100, 100),line.strip(), font=font, fill="#000000")
             text = rec.SearchedText(line.strip(), "eng", None)
             texts.append(text)
-            subfolder_name = photo.name[:8]
+            subfolder_name = photo.stem
             folder_path = Path(f'tests/find/fill_colors/{subfolder_name}')
             folder_path.mkdir(parents=True, exist_ok=True)
             new_img.save(f'tests/find/fill_colors/{subfolder_name}/{line.strip()}.png', quality=100)
@@ -79,8 +79,8 @@ def test_check_text_1(words_for_bg, capsys):
             if image_count >= 100:
                 with open('tests/find/result.txt', 'a') as file:
                     file.write(f"Папка: {folders}\n")
-                    file.write(f"Успешно распознанных слов: {successful_count} в {folders}\n")
-                    file.write(f"Не распознанных слов: {failed_count} в {folders}\n")
+                    file.write(f"Успешно распознанных слов: {successful_count}\n")
+                    file.write(f"Не распознанных слов: {failed_count}\n")
                     file.write(f"---------------------------------\n")
                 successful_count = 0
                 failed_count = 0
