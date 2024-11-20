@@ -39,7 +39,7 @@ def color_shade_gen(rgb: tuple, step: int, size: tuple = (1920, 1080), crop=Fals
     Args:
         rgb (list): List of color values in the rgb color model
         step (int): Step that determines the frequency of creating shades of color
-        size (tuple): Specifying the size of the image to be created
+        size (tuple, optional): Specifying the size of the image to be created
         crop (bool, optional): Parameter responsible for cropping the image Defaults to False.
     """
     new_image = Image.new('RGB', size, rgb)
