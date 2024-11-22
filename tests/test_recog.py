@@ -24,7 +24,7 @@ def fixture_create_ctx(formatter: MD):
 @pytest.fixture(scope="function")
 def words_for_bg():
     gen.color_shade_gen((85, 85, 85), (350, 350))
-    file = open("tests/find/words.txt")
+    file = open("tests/find/words.en.txt")
     lines = file.readlines()
     font = ImageFont.truetype(f'tests/find/fonts/Arial_Bold.ttf', size=27)
     texts = [] 
@@ -57,7 +57,6 @@ def test_check_text_1(words_for_bg, capsys):
         assert folders.is_dir()
         for expected_text in words_for_bg:
             image_path = folders / f"{expected_text.content}.png"
-            print(f"Проверяем файл: {image_path}")
             image_count += 1 
             try:
                 if image_path.exists():
@@ -67,14 +66,12 @@ def test_check_text_1(words_for_bg, capsys):
                     assert height > 0
                     result = rec.check_text(ctx, img, expected_text)
                     cptrd = capsys.readouterr()
-                    print(f"Файл {image_path} найден.")
                     if '![Успешно]' in cptrd.out:
                         successful_count += 1
                     else:
                         failed_count += 1
                         assert cptrd == f"{expected_text} не найден на изображении"
             except pyg.TestException:
-                    print(f"Файл {image_path} не найден.")
                     failed_count += 1
             if image_count >= 100:
                 with open('tests/find/result.txt', 'a') as file:
