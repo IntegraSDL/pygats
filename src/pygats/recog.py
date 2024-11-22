@@ -313,7 +313,7 @@ def find_crop_image(img: Image, crop_area: Optional[str] = 'all',
         else (0, 0, img)
 
 
-def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False): # pylint: disable=R0917
+def find_text(ctx, img: Image, txt, skip=0, extend=False, one_word=False):  # pylint: disable=R0917
     """Function finds text in image with Tesseract
 
     Args:
