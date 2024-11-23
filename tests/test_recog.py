@@ -52,6 +52,7 @@ def test_check_text_1(words_for_bg, capsys):
     successful_count = 0
     failed_count = 0
     fill_color = Path(f'tests/find/fill_colors')
+    folder_result = Path(f'tests/find/result.txt')
     for folders in fill_color.glob('*'):
         image_count = 0
         assert folders.is_dir()
@@ -74,7 +75,7 @@ def test_check_text_1(words_for_bg, capsys):
             except pyg.TestException:
                     failed_count += 1
             if image_count >= 100:
-                with open('tests/find/result.txt', 'a') as file:
+                with open(folder_result, 'a') as file:
                     file.write(f"Папка: {folders}\n")
                     file.write(f"Успешно распознанных слов: {successful_count}\n")
                     file.write(f"Не распознанных слов: {failed_count}\n")

@@ -9,6 +9,7 @@ def crop_image(img, w, h):
 
 
 def wrapper():
+    folder_result = Path(f'tests/find/result.txt')
     start = time.time()
     gen("white", 350, 350, 'TimesNewRoman', 32, "File")
     seconds = int(time.time() - start)
@@ -17,7 +18,7 @@ def wrapper():
     seconds %= 3600
     minutes = seconds // 60
     seconds %= 60
-    with open('tests/find/result.txt', 'a') as file:
+    with open(folder_result, 'a') as file:
         file.write('Время выполнения: %02d:%02d:%02d\n' % (hours, minutes, seconds))
 
 
