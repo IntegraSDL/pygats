@@ -48,4 +48,4 @@ def color_shade_gen(step: tuple = (1, 1, 1), size: tuple = (1920, 1080)):
                 new_image_data = [(red, green, blue)] * (size[0] * size[1])
                 new_img = Image.new('RGB', size)
                 new_img.putdata(new_image_data)
-                new_img.save(f"tests/find/color_shades/color:{red}-{green}-{blue}.png", 'PNG')
+                new_img.save(f"{folder_path}/color:{red}-{green}-{blue}.png", 'PNG')
