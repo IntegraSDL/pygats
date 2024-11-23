@@ -44,7 +44,7 @@ def words_for_bg():
             subfolder_name = photo.stem
             folder_path = Path(f'tests/find/fill_colors/{subfolder_name}')
             folder_path.mkdir(parents=True, exist_ok=True)
-            new_img.save(f'tests/find/fill_colors/{subfolder_name}/{line.strip()}.png', quality=100)
+            new_img.save(f'{colors_and_texts }/{subfolder_name}/{line.strip()}.png', quality=100)
     return texts
   
 
