@@ -23,7 +23,7 @@ def fixture_create_ctx(formatter: MD):
 
 @pytest.fixture(scope="function")
 def words_for_bg():
-    gen.color_shade_gen((85, 85, 85), (350, 350))
+    gen.color_shade_gen((1, 2, 3), (350, 350))
     file = open("tests/find/words.en.txt")
     lines = file.readlines()
     font = ImageFont.truetype(f'tests/find/fonts/Arial_Bold.ttf', size=27)
