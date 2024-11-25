@@ -44,16 +44,12 @@ def color_shade_gen(step: tuple = (1, 1, 1), size: tuple = (1920, 1080)):
     folder_path = Path(f'tests/find/color_shades')
     folder_path.mkdir(parents=True, exist_ok=True)
     rgb = (0, 0, 0)
-    new_image_data = [rgb] * (size[0] * size[1])
-    new_img = Image.new('RGB', size)
-    new_img.putdata(new_image_data)
-    new_img.save(f"{folder_path}/color:{rgb}.png", 'PNG')
-    for i in range(0, 255):
-        new_rgb = tuple(a + b for a, b in zip(rgb, step))
-        if new_rgb[0]>256 or new_rgb[1]>256 or new_rgb[2]>256:
-            break
-        rgb = new_rgb
+    for i in range(256):
         new_image_data = [rgb] * (size[0] * size[1])
         new_img = Image.new('RGB', size)
         new_img.putdata(new_image_data)
         new_img.save(f"{folder_path}/color:{rgb}.png", 'PNG')
+        new_rgb = tuple(a + b for a, b in zip(rgb, step))
+        if new_rgb[0]>256 or new_rgb[1]>256 or new_rgb[2]>256:
+            break
+        rgb = new_rgb
