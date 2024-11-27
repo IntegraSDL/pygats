@@ -34,7 +34,7 @@ def gen(filename, w, h, font='', size=16, text='', crop=False):
     img = Image.open('tests/find/1.jpg')
 
 
-class СolorShadeGen:
+class ColorShadeIterator:
     def __init__(self, step):
         self.step = step
         self.limit = (255, 255, 255)
@@ -60,7 +60,7 @@ def color_shade_gen(step: tuple = (1, 1, 1), size: tuple = (1920, 1080)):
     """
     folder_path = Path(f'tests/find/color_shades')
     folder_path.mkdir(parents=True, exist_ok=True)
-    color_gen = СolorShadeGen(step)
+    color_gen = ColorShadeIterator(step)
     for rgb in color_gen:
         print(rgb)
         new_image_data = [rgb] * (size[0] * size[1])
