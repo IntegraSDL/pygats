@@ -11,7 +11,7 @@ def crop_image(img, w, h):
 def wrapper():
     folder_result = Path(f'tests/find/result.txt')
     start = time.time()
-    gen("white", 350, 350, 'TimesNewRoman', 32, "File")
+    #gen("white", 350, 350, 'TimesNewRoman', 32, "File")
     seconds = int(time.time() - start)
     seconds = seconds % (24 * 3600)
     hours = seconds // 3600
@@ -34,6 +34,23 @@ def gen(filename, w, h, font='', size=16, text='', crop=False):
     img = Image.open('tests/find/1.jpg')
 
 
+class СolorShadeGen:
+    def __init__(self, step=(1, 1, 1), limit = (255, 255, 255)):
+        self.step = step
+        self.limit = limit
+        self.rgb = (0, 0, 0)
+
+    def __iter__(self):
+        return self
+ 
+    def __next__(self):
+        shade = self.rgb
+        for rgb, lim in zip(shade, self.limit):
+            if rgb > lim:
+                raise StopIteration
+        self.rgb = tuple(rgb + lim for rgb, lim in zip(shade, self.step))
+        return shade
+
 def color_shade_gen(step: tuple = (1, 1, 1), size: tuple = (1920, 1080)):
     """Function generates images with different shades of color
 
@@ -43,13 +60,10 @@ def color_shade_gen(step: tuple = (1, 1, 1), size: tuple = (1920, 1080)):
     """
     folder_path = Path(f'tests/find/color_shades')
     folder_path.mkdir(parents=True, exist_ok=True)
-    rgb = (0, 0, 0)
-    for i in range(256):
+    color_gen = СolorShadeGen(step)
+    for rgb in color_gen:
+        print(rgb)
         new_image_data = [rgb] * (size[0] * size[1])
         new_img = Image.new('RGB', size)
         new_img.putdata(new_image_data)
         new_img.save(f"{folder_path}/color:{rgb}.png", 'PNG')
-        new_rgb = tuple(a + b for a, b in zip(rgb, step))
-        if new_rgb[0]>256 or new_rgb[1]>256 or new_rgb[2]>256:
-            break
-        rgb = new_rgb
