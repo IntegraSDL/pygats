@@ -35,9 +35,9 @@ def gen(filename, w, h, font='', size=16, text='', crop=False):
 
 
 class СolorShadeGen:
-    def __init__(self, step=(1, 1, 1), limit = (255, 255, 255)):
+    def __init__(self, step):
         self.step = step
-        self.limit = limit
+        self.limit = (255, 255, 255)
         self.rgb = (0, 0, 0)
 
     def __iter__(self):
