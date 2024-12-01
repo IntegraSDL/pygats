@@ -38,7 +38,7 @@ class ColorShadeIterator:
     def __init__(self, step):
         self.step = step
         self.limit = (255, 255, 255)
-        self.rgb = (0, 0, 0)
+        self.rgb = (200, 200, 200)
 
     def __iter__(self):
         return self
