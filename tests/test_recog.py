@@ -26,7 +26,7 @@ def words_for_bg():
     gen.color_shade_gen((85, 85, 85), (350, 350))
     file = open("tests/find/words.en.txt")
     lines = file.readlines()
-    font = ImageFont.truetype(f'tests/find/fonts/Arial_Italic.ttf', size=27)
+    font = ImageFont.truetype(f'tests/find/fonts/Calibri_Bold_Italic.ttf', size=27)
     texts = [] 
     colors = Path('tests/find/color_shades')
     colors_and_texts = Path(f'tests/find/fill_colors')
