@@ -24,9 +24,9 @@ def fixture_create_ctx(formatter: MD):
 @pytest.fixture(scope="function")
 def words_for_bg():
     gen.color_shade_gen((85, 85, 85), (350, 350))
-    file = open("tests/find/words.en.txt")
+    file = open("tests/find/words.ru.txt")
     lines = file.readlines()
-    font = ImageFont.truetype(f'tests/find/fonts/Arial_Bold.ttf', size=27)
+    font = ImageFont.truetype(f'tests/find/fonts/Arial_Bold.ttf', size=20)
     texts = [] 
     colors = Path('tests/find/color_shades')
     colors_and_texts = Path(f'tests/find/fill_colors')
@@ -38,8 +38,8 @@ def words_for_bg():
                 continue
             new_img = img.copy()
             draw_text = ImageDraw.Draw(new_img)
-            draw_text.text((100, 100),line.strip(), font=font, fill="#000000")
-            text = rec.SearchedText(line.strip(), "eng", None)
+            draw_text.text((20, 100),line.strip(), font=font, fill="#000000")
+            text = rec.SearchedText(line.strip(), "rus", None)
             texts.append(text)
             subfolder_name = photo.stem
             folder_path = Path(f'{colors_and_texts}/{subfolder_name}')
