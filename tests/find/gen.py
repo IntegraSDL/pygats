@@ -1,6 +1,7 @@
 from pathlib import Path
 import time
 from PIL import Image, ImageDraw, ImageFont
+import pygats.recog as rec
 
 
 def crop_image(img, w, h):
@@ -60,8 +61,21 @@ def color_shade_gen(step: tuple = (1, 1, 1), size: tuple = (1920, 1080)):
     """
     folder_path = Path(f'tests/find/color_shades')
     folder_path.mkdir(parents=True, exist_ok=True)
+    generated_colors = []
     for rgb in ColorShadeIterator(step):
         new_image_data = [rgb] * (size[0] * size[1])
         new_img = Image.new('RGB', size)
         new_img.putdata(new_image_data)
         new_img.save(f"{folder_path}/color:{rgb}.png", 'PNG')
+        generated_colors.append(rgb)
+    return generated_colors
+
+
+def hex_to_rgb(value):
+    value = value.lstrip('#')
+    lv = len(value)
+    return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+
+
+def rgb_to_hex(rgb):
+    return '#%02x%02x%02x' % rgb
