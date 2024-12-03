@@ -53,9 +53,6 @@ def words_for_bg():
 def test_check_text_1(words_for_bg, capsys):
     successful_count = 0
     failed_count = 0
-    brightness_bg =[]
-    brightness_text= []
-    contr = []
     fill_color = Path(f'tests/find/fill_colors')
     folder_result = Path(f'tests/find/result.txt')
     for folders in fill_color.glob('*'):
