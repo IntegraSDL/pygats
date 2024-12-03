@@ -449,8 +449,9 @@ def contrast_metrics(bg_color = tuple, text_color = tuple):
     """
     rel_bright_bg = round(0.2126*bg_color[0] + 0.7152*bg_color[1] + 0.0722*bg_color[2], 4)
     rel_bright_text = round(0.2126*text_color[0] + 0.7152*text_color[1] + 0.0722*text_color[2], 4)
-    if rel_bright_bg > rel_bright_text:   
+    if rel_bright_bg > rel_bright_text:
         contrast = round((rel_bright_bg + 0.05) / (rel_bright_text + 0.05), 4)
     else:
         contrast = round((rel_bright_text + 0.05) / (rel_bright_bg + 0.05), 4)
+    
     return rel_bright_bg, rel_bright_text, contrast
