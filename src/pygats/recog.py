@@ -439,10 +439,11 @@ def contrast_metrics(bg_color=tuple, text_color=tuple):
         text_color (tuple): a tuple of rgb color model values for text on images
 
     Returns:
-           tuple: 
+           tuple:
                bright_bg (float): Relative brightness of the background color
                bright_text (float): Relative brightness of the text color
                contrast (float): Contrast ratio
+               
     Source:
         Here you can get acquainted with the formulas taken in more detail:
         "https://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef"
