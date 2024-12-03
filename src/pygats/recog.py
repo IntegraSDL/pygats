@@ -430,6 +430,7 @@ def find_regexp_text(recognized_list: list, pattern):
     return list(set(result))
 
 
+"https://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef"
 def contrast_metrics(bg_color=tuple, text_color=tuple):
     """The function determines metrics such as contrast ratio,
     relative brightness of text and background in the image
@@ -439,14 +440,10 @@ def contrast_metrics(bg_color=tuple, text_color=tuple):
         text_color (tuple): a tuple of rgb color model values for text on images
 
     Returns:
-           tuple:
-               bright_bg (float): Relative brightness of the background color
-               bright_text (float): Relative brightness of the text color
-               contrast (float): Contrast ratio
-               
-    Source:
-        Here you can get acquainted with the formulas taken in more detail:
-        "https://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef"
+        tuple:
+            bright_bg (float): Relative brightness of the background color
+            bright_text (float): Relative brightness of the text color
+            contrast (float): Contrast ratio
     """
     bright_bg = round(0.2126 * bg_color[0] + 0.7152 * bg_color[1] + 0.0722 * bg_color[2], 4)
     bright_text = round(0.2126 * text_color[0] + 0.7152 * text_color[1] + 0.0722 * text_color[2], 4)
