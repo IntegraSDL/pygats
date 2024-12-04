@@ -29,7 +29,7 @@ def create_ctx(formatter: MD):
     return ctx
 
 
-@pytest.fixture(name="variables", scope="session")
+@pytest.fixture(name="variables")
 def variables():
     """a fixture for initializing variables and clearing them after tests"""
     global SCREENSHOT_INDEX, STEP_INDEX
@@ -38,13 +38,14 @@ def variables():
     STEP_INDEX = 0
 
 
-@pytest.fixture( scope="function")
+@pytest.fixture(scope="function")
 def gen_photo():
     gen.gen("blue", 350, 350, "Arial", 50, "TEST")
     time.sleep(1)
 
 def test_screenshot(capsys, ctx_formatter, variables):
     """test screenshot"""
+    variables    
     ctx = ctx_formatter
     pyg.screenshot(ctx)
     cptrd = capsys.readouterr()
@@ -55,6 +56,7 @@ def test_screenshot(capsys, ctx_formatter, variables):
     
 def test_passed(capsys, variables, ctx_formatter):
     """test passed"""
+    variables
     ctx = ctx_formatter
     assert pyg.OUTPUT_PATH == pathlib.Path('output')
     pyg.passed(ctx)
@@ -65,6 +67,7 @@ def test_passed(capsys, variables, ctx_formatter):
 
 def test_step(variables, ctx_formatter):
     """test step"""
+    variables
     ctx = ctx_formatter
     pyg.step(ctx, "test_message")
     assert pyg.STEP_INDEX == 1
