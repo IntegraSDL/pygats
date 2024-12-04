@@ -1,11 +1,13 @@
 """Module with library tests"""
 import os
 import pathlib
+import time
+from PIL import Image
 import pytest
 import pygats.pygats as pyg
 from pygats.formatters import MarkdownFormatter as MD
 from contextlib import nullcontext as does_not_raise
-
+from tests.find import gen 
 def setup_module():
     """Setup module to prepare testing environment"""
     try:
@@ -35,6 +37,11 @@ def variables():
     SCREENSHOT_INDEX = 0
     STEP_INDEX = 0
 
+
+@pytest.fixture( scope="function")
+def gen_photo():
+    gen.gen("blue", 350, 350, "Arial", 50, "TEST")
+    time.sleep(1)
 
 def test_screenshot(capsys, ctx_formatter, variables):
     """test screenshot"""
@@ -89,16 +96,20 @@ def test_random_string(string_length, character_set, expectation):
 
 
 @pytest.mark.parametrize(
-        "img_path, expectation",
-        [
-            ("pygats/output/example.png", does_not_raise()),
-            ("pygats/output.png", pytest.raises(pyg.TestException)),
-        ]
+    "img_path, expectation",
+    [
+        ("tests/find/1.png", does_not_raise()),
+        ("pygats/failed.png", pytest.raises(pyg.TestException)),
+    ]
 )
-def test_locate_on_screen(img_path, expectation, ctx_formatter):
-    """test locate_on_screen"""
+def test_locate_on_screen(img_path, expectation, ctx_formatter, gen_photo):
+    """Test locate_on_screen"""
     ctx = ctx_formatter
+    gen_photo
     with expectation:
+        print("Проверяем изображение:", img_path)
+        if not os.path.exists(img_path):
+            print(f"Файл не найден: {img_path}")
         pyg.locate_on_screen(ctx, img_path)
 
 
