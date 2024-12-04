@@ -8,6 +8,7 @@ import pygats.pygats as pyg
 from pygats.formatters import MarkdownFormatter as MD
 from contextlib import nullcontext as does_not_raise
 from tests.find import gen 
+
 def setup_module():
     """Setup module to prepare testing environment"""
     try:
@@ -29,47 +30,37 @@ def create_ctx(formatter: MD):
     return ctx
 
 
-@pytest.fixture(name="variables", scope="function")
-def variables():
-    """a fixture for initializing variables and clearing them after tests"""
-    global SCREENSHOT_INDEX, STEP_INDEX
-    SCREENSHOT_INDEX = 0
-    STEP_INDEX = 0
-
-
 @pytest.fixture(scope="function")
 def gen_photo():
     gen.gen("blue", 350, 350, "Arial", 50, "TEST")
     time.sleep(1)
 
-def test_screenshot(capsys, ctx_formatter, variables):
+
+def test_screenshot(capsys, ctx_formatter, ):
     """test screenshot"""
-    variables    
     ctx = ctx_formatter
     pyg.screenshot(ctx)
     cptrd = capsys.readouterr()
     assert pyg.SCREENSHOT_INDEX == 1
     print(cptrd.out)
-    assert cptrd.out == '![Screenshot](step-0-0-passed.png)\n\n'
+    assert cptrd.out == '![Screenshot](step-1-0-passed.png)\n\n'
 
     
-def test_passed(capsys, variables, ctx_formatter):
+def test_passed(capsys, ctx_formatter):
     """test passed"""
-    variables
     ctx = ctx_formatter
     assert pyg.OUTPUT_PATH == pathlib.Path('output')
     pyg.passed(ctx)
     cptrd = capsys.readouterr()
-    assert pyg.STEP_INDEX == 0
-    assert cptrd.out == '![Успешно](step-0-passed.png)\n\n**Успешно**\n\n'
+    assert pyg.STEP_INDEX == 1
+    assert cptrd.out == '![Успешно](step-1-passed.png)\n\n**Успешно**\n\n'
 
 
-def test_step(variables, ctx_formatter):
+def test_step( ctx_formatter):
     """test step"""
-    variables
     ctx = ctx_formatter
     pyg.step(ctx, "test_message")
-    assert pyg.STEP_INDEX == 1
+    assert pyg.STEP_INDEX == 2
 
 
 def test_failed():
