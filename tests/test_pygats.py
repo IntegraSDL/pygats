@@ -29,7 +29,7 @@ def create_ctx(formatter: MD):
     return ctx
 
 
-@pytest.fixture(name="variables")
+@pytest.fixture(name="variables", scope="function")
 def variables():
     """a fixture for initializing variables and clearing them after tests"""
     global SCREENSHOT_INDEX, STEP_INDEX
