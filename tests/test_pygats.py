@@ -53,7 +53,7 @@ def test_passed(capsys, ctx_formatter):
     pyg.passed(ctx)
     cptrd = capsys.readouterr()
     assert pyg.STEP_INDEX == 2
-    assert cptrd.out == '![Успешно](step-1-passed.png)\n\n**Успешно**\n\n'
+    assert cptrd.out == '![Успешно](step-2-passed.png)\n\n**Успешно**\n\n'
 
 
 def test_step( ctx_formatter):
