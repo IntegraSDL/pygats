@@ -33,7 +33,6 @@ def create_ctx(formatter: MD):
 def variables():
     """a fixture for initializing variables and clearing them after tests"""
     global SCREENSHOT_INDEX, STEP_INDEX
-    yield
     SCREENSHOT_INDEX = 0
     STEP_INDEX = 0
 
