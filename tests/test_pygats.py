@@ -92,7 +92,7 @@ def test_random_string(string_length, character_set, expectation):
         "img_path, expectation",
         [
             ("pygats/output/example.png", does_not_raise()),
-            ("pygats/output.png", pytest.raises(pyg.TestException)),  #test screenshot does not exist
+            ("pygats/output.png", pytest.raises(pyg.TestException)),
         ]
 )
 def test_locate_on_screen(img_path, expectation, ctx_formatter):
