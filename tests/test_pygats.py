@@ -43,7 +43,7 @@ def test_screenshot(capsys, ctx_formatter, ):
     cptrd = capsys.readouterr()
     assert pyg.SCREENSHOT_INDEX == 1
     print(cptrd.out)
-    assert cptrd.out == '![Screenshot](step-1-0-passed.png)\n\n'
+    assert cptrd.out == '![Screenshot](step-2-0-passed.png)\n\n'
 
     
 def test_passed(capsys, ctx_formatter):
@@ -52,7 +52,7 @@ def test_passed(capsys, ctx_formatter):
     assert pyg.OUTPUT_PATH == pathlib.Path('output')
     pyg.passed(ctx)
     cptrd = capsys.readouterr()
-    assert pyg.STEP_INDEX == 1
+    assert pyg.STEP_INDEX == 2
     assert cptrd.out == '![Успешно](step-1-passed.png)\n\n**Успешно**\n\n'
 
 
@@ -60,7 +60,7 @@ def test_step( ctx_formatter):
     """test step"""
     ctx = ctx_formatter
     pyg.step(ctx, "test_message")
-    assert pyg.STEP_INDEX == 2
+    assert pyg.STEP_INDEX == 3
 
 
 def test_failed():
