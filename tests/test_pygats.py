@@ -32,7 +32,7 @@ def create_ctx(formatter: MD):
 
 @pytest.fixture(scope="function")
 def gen_photo():
-    gen.gen("blue", 350, 350, "Arial", 50, "TEST")
+    gen.gen("blue", 350, 350, "Arial", 50, "TEST", crop=True)
     time.sleep(1)
 
 
