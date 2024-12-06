@@ -28,6 +28,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y xvfb x11-apps python3-tk
         sudo apt-get install -y scrot tesseract-ocr tesseract-ocr-rus fluxbox
+        sudo apt install gnome-screenshot
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
         python_version=$(python -c 'import platform; _, minor, _ = \
