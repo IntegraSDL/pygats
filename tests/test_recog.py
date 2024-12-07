@@ -24,7 +24,7 @@ fill = "#FFFFFF"
 fill_text_data = gen.hex_to_rgb(fill)
 @pytest.fixture(scope="function")
 def words_for_bg():
-    gen.color_shade_gen((5, 5, 5), (350, 350))
+    gen.color_shade_gen((254, 254, 254), (350, 350), True, 1.0039)
     file = open("tests/find/words.en.txt")
     lines = file.readlines()
     font = ImageFont.truetype(f'tests/find/fonts/Arial_Bold.ttf', size=27)
@@ -64,7 +64,6 @@ def test_check_text_1(words_for_bg, capsys):
                 try:
                     if image_path.exists():
                         img = Image.open(image_path)
-
                         rgb_values = []
                         width, height = img.size
                         for y in range(height):
