@@ -6,7 +6,7 @@ import locales.rus.rus as rus
 def answer(msg):
     lang = locale.getlocale()
     if lang[0] == "ru_RU":
-        print(eng.message[msg])
+        print(rus.message[msg])
         return rus.message[msg]
     elif lang[0] == "en_US":
         print(eng.message[msg])
