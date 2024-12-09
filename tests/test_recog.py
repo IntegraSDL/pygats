@@ -24,7 +24,7 @@ fill = "#FFFFFF"
 fill_text_data = gen.hex_to_rgb(fill)
 @pytest.fixture(scope="function")
 def words_for_bg():
-    gen.color_shade_gen((254, 254, 254), (350, 350), True, 1.0039)
+    gen.color_shade_gen((245, 255, 253), (350, 350))
     file = open("tests/find/words.en.txt")
     lines = file.readlines()
     font = ImageFont.truetype(f'tests/find/fonts/Arial_Bold.ttf', size=27)
