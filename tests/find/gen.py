@@ -92,7 +92,7 @@ def sorting_colors(contrast_value: float = 21.0):
         for g in range(256):
             for b in range(256):
                 color = [r, g, b]
-                contrast = rec.contrast_metrics(color, (255, 255, 255))
+                contrast = rec.contrast_metrics(color, (215, 30, 106))
                 if contrast_value == contrast[2]:
                     rgb_tuple.append(color)
     print(rgb_tuple)
@@ -106,3 +106,5 @@ def hex_to_rgb(value):
 
 def rgb_to_hex(rgb):
     return '#%02x%02x%02x' % rgb
+
+sorting_colors(1.01)

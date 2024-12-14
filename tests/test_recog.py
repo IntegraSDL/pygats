@@ -20,11 +20,11 @@ def fixture_create_ctx(formatter: MD):
     ctx = pyg.Context(formatter)
     return ctx
 
-fill = "#FFFFFF"
+fill = "#D71E6A"
 fill_text_data = gen.hex_to_rgb(fill)
 @pytest.fixture(scope="function")
 def words_for_bg():
-    gen.color_shade_gen((245, 255, 253), (350, 350))
+    gen.color_shade_gen((125, 115, 6), (350, 350))
     file = open("tests/find/words.en.txt")
     lines = file.readlines()
     font = ImageFont.truetype(f'tests/find/fonts/Arial_Bold.ttf', size=27)
@@ -39,7 +39,7 @@ def words_for_bg():
                 continue
             new_img = img.copy()
             draw_text = ImageDraw.Draw(new_img)
-            draw_text.text((100, 100),line.strip(), font=font, fill="#FFFFFF")
+            draw_text.text((100, 100),line.strip(), font=font, fill="#D71E6A")
             text = rec.SearchedText(line.strip(), "eng", None)
             texts.append(text)
             subfolder_name = photo.stem
