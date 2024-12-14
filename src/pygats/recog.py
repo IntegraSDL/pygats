@@ -417,7 +417,7 @@ def find_regexp_text(recognized_list: list, pattern):
         pattern (str): regexp pattern to match
 
     Returns:
-        (roi,text, substring):
+        (roi, text, substring):
             roi(ROI): region of interest
             text (str): full text which resides in rectangle
             substring (str): substring found in text
@@ -428,3 +428,43 @@ def find_regexp_text(recognized_list: list, pattern):
         if len(match) > 0:
             result.append((roi, content, tuple(match)))
     return list(set(result))
+
+
+def contrast_metrics(bg_color=tuple, text_color=tuple):
+    """The function determines metrics such as contrast ratio,
+    relative brightness of text and background in the image.
+    "https://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef"
+    "https://www.neilbickford.com/blog/2020/10/18/computing-wcag-contrast-ratios/"
+
+    Args:
+        bg_color (tuple): tuple of rgb color model values for the image background
+        text_color (tuple): a tuple of rgb color model values for text on images
+
+    Returns:
+        tuple:
+            bright_bg (float): Relative brightness of the background color
+            bright_txt (float): Relative brightness of the text color
+            contrast (float): Contrast ratio
+    """
+    bg_col_ln = (
+        (((bg_color[0] / 255) + 0.055) / 1.055) ** 2.4,
+        (((bg_color[1] / 255) + 0.055) / 1.055) ** 2.4,
+        (((bg_color[2] / 255) + 0.055) / 1.055) ** 2.4
+    )
+    txt_col_ln = (
+        (((text_color[0] / 255) + 0.055) / 1.055) ** 2.4,
+        (((text_color[1] / 255) + 0.055) / 1.055) ** 2.4,
+        (((text_color[2] / 255) + 0.055) / 1.055) ** 2.4
+    )
+    bright_bg = round(0.2126 * bg_col_ln[0] + 0.7152 * bg_col_ln[1] + 0.0722 * bg_col_ln[2], 5)
+    bright_txt = round(0.2126 * txt_col_ln[0] + 0.7152 * txt_col_ln[1] + 0.0722 * txt_col_ln[2], 5)
+    contrast = 1.0
+    if bright_bg > bright_txt:
+        contrast = round((bright_bg + 0.05) / (bright_txt + 0.05), 3)
+        if contrast > 21.0:
+            contrast = 21
+    elif bright_bg < bright_txt:
+        contrast = round((bright_txt + 0.05) / (bright_bg + 0.05), 3)
+        if contrast > 21.0:
+            contrast = 21
+    return bright_bg, bright_txt, contrast
