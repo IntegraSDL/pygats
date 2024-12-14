@@ -450,12 +450,12 @@ def contrast_metrics(bg_color=tuple, text_color=tuple):
         (((bg_color[0] / 255) + 0.055) / 1.055) ** 2.4,
         (((bg_color[1] / 255) + 0.055) / 1.055) ** 2.4,
         (((bg_color[2] / 255) + 0.055) / 1.055) ** 2.4
-        )
+    )
     txt_col_ln = (
         (((text_color[0] / 255) + 0.055) / 1.055) ** 2.4,
         (((text_color[1] / 255) + 0.055) / 1.055) ** 2.4,
         (((text_color[2] / 255) + 0.055) / 1.055) ** 2.4
-        )
+    )
     bright_bg = round(0.2126 * bg_col_ln[0] + 0.7152 * bg_col_ln[1] + 0.0722 * bg_col_ln[2], 5)
     bright_txt = round(0.2126 * txt_col_ln[0] + 0.7152 * txt_col_ln[1] + 0.0722 * txt_col_ln[2], 5)
     contrast = 1.0
