@@ -446,18 +446,18 @@ def contrast_metrics(bg_color=tuple, text_color=tuple):
             bright_text (float): Relative brightness of the text color
             contrast (float): Contrast ratio
     """
-    bg_color_linear = (
+    bg_color_lin = (
         (((bg_color[0] / 255) + 0.055) / 1.055) ** 2.4,
         (((bg_color[1] / 255) + 0.055) / 1.055) ** 2.4,
         (((bg_color[2] / 255) + 0.055) / 1.055) ** 2.4
         )
-    text_color_linear = (
+    text_color_lin = (
         (((text_color[0] / 255) + 0.055) / 1.055) ** 2.4,
         (((text_color[1] / 255) + 0.055) / 1.055) ** 2.4,
         (((text_color[2] / 255) + 0.055) / 1.055) ** 2.4
         )
-    bright_bg = round(0.2126 * bg_color_linear[0] + 0.7152 * bg_color_linear[1] + 0.0722 * bg_color_linear[2], 5)
-    bright_text = round(0.2126 * text_color_linear[0] + 0.7152 * text_color_linear[1] + 0.0722 * text_color_linear[2], 5)
+    bright_bg = round(0.2126 * bg_color_lin[0] + 0.7152 * bg_color_lin[1] + 0.0722 * bg_color_lin[2], 5)
+    bright_text = round(0.2126 * text_color_lin[0] + 0.7152 * text_color_lin[1] + 0.0722 * text_color_lin[2], 5)
     contrast = 1.0
     if bright_bg > bright_text:
         contrast = round((bright_bg + 0.05) / (bright_text + 0.05), 3)
