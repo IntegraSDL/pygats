@@ -8,13 +8,14 @@ from formatters import MarkdownFormatter as MD
 
 ctx = pyg.Context(MD())
 
+
 def find_text():
     img = cv2.imread("./src/pygats/test1.png")
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
     rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 25))
     dilation = cv2.dilate(thresh1, rect_kernel, iterations = 1)
-    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL, 
+    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
                                                  cv2.CHAIN_APPROX_NONE)
     print(f"Найдено контуров: {len(contours)}")
     im2 = img.copy()
@@ -42,7 +43,7 @@ def pygats_search():
     lines = file.readlines()
     for line in lines:
         if not line.strip():
-                continue
+            continue
         text_count += 1 
         try:
             text = rec.SearchedText(line.strip(), "rus", None)
@@ -55,5 +56,6 @@ def pygats_search():
         if text_count >= 9:
             break
     print("успешно распознанных слов: ", good_result, "\n", "не распознанных слов: ", failed_count)
+
 
 pygats_search()
