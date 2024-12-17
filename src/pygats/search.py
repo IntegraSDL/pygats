@@ -16,7 +16,7 @@ def find_text():
     rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 25))
     dilation = cv2.dilate(thresh1, rect_kernel, iterations=1)
     contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
-                                                cv2.CHAIN_APPROX_NONE)
+                                                  cv2.CHAIN_APPROX_NONE)
     print(f"Найдено контуров: {len(contours)}")
     im2 = img.copy()
     cv2.imwrite("./src/pygats/after.png", im2)
@@ -32,7 +32,7 @@ def find_text():
             file.write(text)
             cv2.imwrite(f"./src/pygats/search_folder/{cnt}.png", cropped)
         file.close()
- 
+
 
 def pygats_search():
     file = open("tests/find/words.ru.txt")
