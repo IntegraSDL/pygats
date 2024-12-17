@@ -15,8 +15,9 @@ def find_text():
     ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
     rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 25))
     dilation = cv2.dilate(thresh1, rect_kernel, iterations=1)
-    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
-                                                cv2.CHAIN_APPROX_NONE)
+    contours, hierarchy = cv2.findContours(
+        dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+    )
     print(f"Найдено контуров: {len(contours)}")
     im2 = img.copy()
     cv2.imwrite("./src/pygats/after.png", im2)
