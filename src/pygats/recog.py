@@ -428,3 +428,25 @@ def find_regexp_text(recognized_list: list, pattern):
         if len(match) > 0:
             result.append((roi, content, tuple(match)))
     return list(set(result))
+
+
+def br_determinant(img):
+    """Function that determines the minimum and
+    maximum brightness and contrast values on the image itself
+
+    Args:
+        img (str): image that is converted from the BGR color space to YUV
+
+    Raises:
+        ValueError: raise exception in case of incorrect value
+    """
+    image = cv.imread(img)
+    Y = cv.cvtColor(image, cv.COLOR_BGR2YUV)[:, :, 0]
+    br_min = np.min(Y)
+    br_max = np.max(Y)
+    contrast = round((br_max + 0.05) / (br_min + 0.05), 3)
+    if contrast >= 21:
+        contrast = 21
+    elif contrast < 1:
+        raise ValueError('Недопустимое значение')
+    print(br_min, br_max, contrast)
