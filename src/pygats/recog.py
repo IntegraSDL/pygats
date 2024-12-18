@@ -441,9 +441,9 @@ def br_determinant(img):
     Y = cv.cvtColor(image, cv.COLOR_BGR2YUV)[:,:,0]
     br_min = np.min(Y)
     br_max = np.max(Y)
-    contrast = round((max + 0.05)/(min + 0.05), 3)
+    contrast = round((br_max + 0.05)/(br_min + 0.05), 3)
     if contrast >= 21:
         contrast = 21
     elif contrast < 1:
         raise ValueError('Недопустимое значение')
-    print(min,max,contrast)
+    print(br_min, br_max, contrast)
