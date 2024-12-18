@@ -12,7 +12,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats import step, passed, failed
+from pygats.pygats import step, passed, failed
 
 
 @dataclass
@@ -439,8 +439,8 @@ def br_determinant(img):
     """
     image = cv.imread(img)
     Y = cv.cvtColor(image, cv.COLOR_BGR2YUV)[:,:,0]
-    min = np.min(Y)
-    max = np.max(Y)
+    br_min = np.min(Y)
+    br_max = np.max(Y)
     contrast = round((max + 0.05)/(min + 0.05), 3)
     if contrast >= 21:
         contrast = 21
