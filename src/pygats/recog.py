@@ -12,7 +12,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import step, passed, failed
+from pygats import step, passed, failed
 
 
 @dataclass
@@ -428,3 +428,22 @@ def find_regexp_text(recognized_list: list, pattern):
         if len(match) > 0:
             result.append((roi, content, tuple(match)))
     return list(set(result))
+
+
+def br_determinant(img):
+    """Function that determines the minimum and 
+    maximum brightness and contrast values on the image itself
+
+    Args:
+        img (str): image that is converted from the BGR color space to YUV
+    """
+    image = cv.imread(img)
+    Y = cv.cvtColor(image, cv.COLOR_BGR2YUV)[:,:,0]
+    min = np.min(Y)
+    max = np.max(Y)
+    contrast = round((max + 0.05)/(min + 0.05), 3)
+    if contrast >= 21:
+        contrast = 21
+    elif contrast < 1:
+        raise ValueError('Недопустимое значение')
+    print(min,max,contrast)
