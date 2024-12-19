@@ -44,6 +44,9 @@ jobs:
             done < requirements.txt
           fi
           python -m pip install --editable .
+      - name: List installed packages
+        run: |
+          pip list
       - name: Lint with flake8
         run: |
 
@@ -60,6 +63,3 @@ jobs:
       - name: Test with pytest
         run: |
           DISPLAY=:0 python -m pytest
-      - name: Lint with flake8
-        run: |
-          pip list
