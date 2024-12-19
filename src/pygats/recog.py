@@ -5,6 +5,7 @@ module with data classes.
 from dataclasses import dataclass
 import re
 from typing import Optional
+from matplotlib import pyplot as plt
 import pyautogui
 import pytesseract
 import mss
@@ -12,7 +13,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import step, passed, failed
+from pygats import step, passed, failed
 
 
 @dataclass
@@ -428,3 +429,18 @@ def find_regexp_text(recognized_list: list, pattern):
         if len(match) > 0:
             result.append((roi, content, tuple(match)))
     return list(set(result))
+
+
+def find_key_points(image: str):
+    """Search for key points in the image
+
+    Args:
+        image (str): image where you need to identify areas with key points
+    """
+    img = cv.imread(image)
+    sift = cv.SIFT_create()
+    keypoints, descriptors = sift.detectAndCompute(img, None)
+    image_with_sift = cv.drawKeypoints(img, keypoints, None)
+    plt.imshow(cv.cvtColor(image_with_sift, cv.COLOR_BGR2RGB))
+    plt.title('Key points')
+    plt.show()
