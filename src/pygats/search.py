@@ -25,7 +25,6 @@ def find_text():
     sift = cv2.SIFT_create()
     keypoints, descriptors = sift.detectAndCompute(thresh1, None)
     image_with_sift = cv2.drawKeypoints(thresh1, keypoints, None)
-    
     plt.imshow(cv2.cvtColor(image_with_sift, cv2.COLOR_BGR2RGB))
     plt.title('SIFT Features')
     plt.show()
