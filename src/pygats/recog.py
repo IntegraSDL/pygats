@@ -439,7 +439,7 @@ def find_key_points(image: str):
     """
     img = cv.imread(image)
     sift = cv.SIFT_create()
-    keypoints, descriptors = sift.detectAndCompute(img, None)
+    keypoints, _ = sift.detectAndCompute(img, None)
     image_with_sift = cv.drawKeypoints(img, keypoints, None)
     plt.imshow(cv.cvtColor(image_with_sift, cv.COLOR_BGR2RGB))
     plt.title('Key points')
