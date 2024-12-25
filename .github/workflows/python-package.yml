@@ -33,7 +33,7 @@ jobs:
           python_version=$(python -c 'import platform; _, minor, _ = \
             platform.python_version_tuple(); print("minor")')
           if [[ ${python_version} -ge 9 ]]; then
-            python -m pip install -r requirements.txt
+              ython -m pip install -r requirements.txt
           else
             while read requirement; do
               if [[ $requirement == "qat==1.1.2" ]]; then
