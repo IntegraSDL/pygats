@@ -467,5 +467,4 @@ def clust_keypoints(keypoints, descriptors, clust_count: int):
     cluster = clust_count
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.2)
     _, labels, centers = cv.kmeans(descriptors, cluster, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
-    print(labels)
     return labels, centers
