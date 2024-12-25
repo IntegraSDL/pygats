@@ -389,8 +389,8 @@ def find_fuzzy_text(recognized_list, search: str):
         search (str): substring to search
 
     Returns:
-        (roi,text, substring):
-            roi(ROI): region of interest
+        (roi, text, substring):
+            roi (ROI): region of interest
             text (str): full text which resides in rectangle
     """
     result = []
@@ -418,8 +418,8 @@ def find_regexp_text(recognized_list: list, pattern):
         pattern (str): regexp pattern to match
 
     Returns:
-        (roi,text, substring):
-            roi(ROI): region of interest
+        (roi, text, substring):
+            roi (ROI): region of interest
             text (str): full text which resides in rectangle
             substring (str): substring found in text
     """
@@ -431,16 +431,41 @@ def find_regexp_text(recognized_list: list, pattern):
     return list(set(result))
 
 
-def find_key_points(image: str):
-    """Search for key points in the image
+def find_keypoints(image: str):
+    """Detects key points and calculates their
+    descriptors in a given image using the SIFT algorithm
 
     Args:
         image (str): image where you need to identify areas with key points
+
+    Returns:
+        (keypoints, descriptors):
+            keypoints (list): A list of key points found in the image
+            descriptors (float32): An array of descriptors in float32 format
     """
     img = cv.imread(image)
     sift = cv.SIFT_create()
-    keypoints, _ = sift.detectAndCompute(img, None)
-    image_with_sift = cv.drawKeypoints(img, keypoints, None)
-    plt.imshow(cv.cvtColor(image_with_sift, cv.COLOR_BGR2RGB))
-    plt.title('Key points')
-    plt.show()
+    keypoints, descriptors = sift.detectAndCompute(img, None)
+    descriptors = np.float32(descriptors)
+    return keypoints, descriptors
+
+
+def clust_keypoints(keypoints, descriptors, clust_count: int):
+    """The function clusters descriptors of key points
+    found in the image using the K-means algorithm
+
+    Args:
+        keypoints (list): A list of key points found in the image
+        descriptors (float32): An array of descriptors in float32 format
+        clust_count (int): Number of clusters for clustering key points
+
+    Returns:
+        (labels, centers):
+            labels (cv2.typing.MatLike): This is the label array where each element marked '0', '1'...
+            centers (cv2.typing.MatLike): This is array of centers of clusters.
+    """
+    cluster = clust_count
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.2)
+    _, labels, centers = cv.kmeans(descriptors, cluster, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
+    print(labels)
+    return labels, centers
