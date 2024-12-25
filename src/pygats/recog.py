@@ -5,7 +5,6 @@ module with data classes.
 from dataclasses import dataclass
 import re
 from typing import Optional
-from matplotlib import pyplot as plt
 import pyautogui
 import pytesseract
 import mss
@@ -450,7 +449,7 @@ def find_keypoints(image: str):
     return keypoints, descriptors
 
 
-def clust_keypoints(keypoints, descriptors, clust_count: int):
+def clust_keypoints(descrip, clust_count: int):
     """The function clusters descriptors of key points
     found in the image using the K-means algorithm
 
@@ -461,10 +460,10 @@ def clust_keypoints(keypoints, descriptors, clust_count: int):
 
     Returns:
         (labels, centers):
-            labels (cv2.typing.MatLike): This is the label array where each element marked '0', '1'...
+            labels (cv2.typing.MatLike): This is the label array where each element marked '0', '1'.
             centers (cv2.typing.MatLike): This is array of centers of clusters.
     """
     cluster = clust_count
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.2)
-    _, labels, centers = cv.kmeans(descriptors, cluster, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
+    _, labels, centers = cv.kmeans(descrip, cluster, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
     return labels, centers
