@@ -454,8 +454,7 @@ def clust_keypoints(descrip, clust_count: int):
     found in the image using the K-means algorithm
 
     Args:
-        keypoints (list): A list of key points found in the image
-        descriptors (float32): An array of descriptors in float32 format
+        descrip (float32): An array of descriptors in float32 format
         clust_count (int): Number of clusters for clustering key points
 
     Returns:
