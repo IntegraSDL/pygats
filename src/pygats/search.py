@@ -3,9 +3,10 @@ import cv2
 from matplotlib import pyplot as plt
 import pytesseract
 from PIL import Image
-import recog as rec
+from tests.find import gen
+import pygats.recog as rec
 import pygats as pyg
-from formatters import MarkdownFormatter as MD
+from pygats.formatters import MarkdownFormatter as MD
 
 ctx = pyg.Context(MD())
 
@@ -69,4 +70,4 @@ def pygats_search():
     print("успешно распознанных слов: ", good_result, "\n", "не распознанных слов: ", failed_count)
 
 
-find_text()
+gen.wrapper()

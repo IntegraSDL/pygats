@@ -1,7 +1,7 @@
 from pathlib import Path
 import time
 from PIL import Image, ImageDraw, ImageFont
-
+from pygats.search import find_text
 
 def crop_image(img, w, h):
     img_crop = img.crop((0, 0, w, h))
@@ -11,7 +11,7 @@ def crop_image(img, w, h):
 def wrapper():
     folder_result = Path(f'tests/find/result.txt')
     start = time.time()
-    #gen("white", 350, 350, 'TimesNewRoman', 32, "File")
+    find_text()
     seconds = int(time.time() - start)
     seconds = seconds % (24 * 3600)
     hours = seconds // 3600
