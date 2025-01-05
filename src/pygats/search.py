@@ -1,12 +1,11 @@
 from pathlib import Path
 import cv2
-from matplotlib import pyplot as plt
 import pytesseract
 from PIL import Image
-from tests.find import gen
-import pygats.recog as rec
-import pygats as pyg
-from pygats.formatters import MarkdownFormatter as MD
+import src.pygats.recog as rec
+import src.pygats.pygats as pyg
+from src.pygats.formatters import MarkdownFormatter as MD
+from src.pygats.pygats import Context
 
 ctx = pyg.Context(MD())
 
@@ -18,17 +17,12 @@ def find_text():
     rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 25))
     dilation = cv2.dilate(thresh1, rect_kernel, iterations=1)
     edges = cv2.Canny(gray, 100, 200)
-    plt.imshow(edges, cmap='gray')
-    plt.show()
     contours, hierarchy = cv2.findContours(
         dilation, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
     )
     sift = cv2.SIFT_create()
     keypoints, descriptors = sift.detectAndCompute(thresh1, None)
-    image_with_sift = cv2.drawKeypoints(thresh1, keypoints, None)
-    plt.imshow(cv2.cvtColor(image_with_sift, cv2.COLOR_BGR2RGB))
-    plt.title('SIFT Features')
-    plt.show()
+    image_with_sift = cv2.drawKeypoints(thresh1, keypoints, None)-ю
     print(f"Найдено контуров: {len(contours)}")
     im2 = img.copy()
     cv2.imwrite("./src/pygats/after.png", im2)
@@ -68,6 +62,3 @@ def pygats_search():
         if text_count >= 9:
             break
     print("успешно распознанных слов: ", good_result, "\n", "не распознанных слов: ", failed_count)
-
-
-gen.wrapper()
