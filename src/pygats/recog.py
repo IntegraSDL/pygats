@@ -199,7 +199,7 @@ def recognize_text_with_data(img, lang):
     """Functions recognize all texts on the image with Tesseract
 
     Args:
-        img (PIL.Image): input image to recognize text
+        img (Image): input image to recognize text
         lang (string): language in tesseract format
 
     Returns:
@@ -360,7 +360,7 @@ def recognize_text(img, lang):
     lines to tuple and return lists
 
     Args:
-        img (PIL.Image): image where text will be recognized
+        img (Image): image where text will be recognized
         lang (string): language of text (tesseract-ocr)
 
     Returns:
@@ -430,17 +430,18 @@ def find_regexp_text(recognized_list: list, pattern):
     return list(set(result))
 
 
-def br_determinant(img):
+def constarst(image_path):
     """Function that determines the minimum and
     maximum brightness and contrast values on the image itself
 
     Args:
-        img (str): image that is converted from the BGR color space to YUV
+        img (Image): image that is converted from the BGR color space to YUV
 
     Raises:
         ValueError: raise exception in case of incorrect value
     """
-    image = cv.imread(img)
+    image =  Image.open(image_path)
+    image = np.array(image)
     Y = cv.cvtColor(image, cv.COLOR_BGR2YUV)[:, :, 0]
     br_min = np.min(Y)
     br_max = np.max(Y)
