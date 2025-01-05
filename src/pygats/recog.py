@@ -442,6 +442,10 @@ def constarst(image_path):
     """
     image =  Image.open(image_path)
     image = np.array(image)
+    if image.shape[2] == 4:
+        image = cv.cvtColor(image, cv.COLOR_RGBA2BGR)
+    else:
+        image = cv.cvtColor(image, cv.COLOR_RGB2BGR) 
     Y = cv.cvtColor(image, cv.COLOR_BGR2YUV)[:, :, 0]
     br_min = np.min(Y)
     br_max = np.max(Y)
