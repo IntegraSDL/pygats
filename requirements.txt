@@ -10,5 +10,5 @@ opencv-python==4.10.0.84
 mss==9.0.1
 qat==1.1.2
 pyyaml==5.3.1
-pyscreeze==0.1.21
+pyscreeze==1.0.1
 matplotlib==3.10.0

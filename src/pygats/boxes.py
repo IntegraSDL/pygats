@@ -1,4 +1,4 @@
-# pytesseract boxes 
+# pytesseract boxes
 import cv2 as cv
 import pytesseract
 "https://programmersought.com/article/896710504463/"
