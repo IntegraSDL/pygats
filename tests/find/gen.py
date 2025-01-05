@@ -1,7 +1,7 @@
 from pathlib import Path
 import time
 from PIL import Image, ImageDraw, ImageFont
-from src.pygats.search import pygats_search
+from pygats.search import pygats_search
 
 def crop_image(img, w, h):
     img_crop = img.crop((0, 0, w, h))
