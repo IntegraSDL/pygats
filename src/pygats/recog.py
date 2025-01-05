@@ -435,12 +435,12 @@ def constarst(image_path):
     maximum brightness and contrast values on the image itself
 
     Args:
-        img (Image): image that is converted from the BGR color space to YUV
+        image_path (Image): image that is converted from the BGR color space to YUV
 
     Raises:
         ValueError: raise exception in case of incorrect value
     """
-    image =  Image.open(image_path)
+    image = Image.open(image_path)
     image = np.array(image)
     if image.shape[2] == 4:
         image = cv.cvtColor(image, cv.COLOR_RGBA2BGR)
