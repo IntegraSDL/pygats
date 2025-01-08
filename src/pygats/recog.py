@@ -12,7 +12,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import step, passed, failed
+from src.pygats.pygats import step, passed, failed
 
 
 @dataclass
@@ -430,28 +430,33 @@ def find_regexp_text(recognized_list: list, pattern):
     return list(set(result))
 
 
-def constarst(image_path):
+def constarst(img: Image):
     """Function that determines the minimum and
     maximum brightness and contrast values on the image itself
 
     Args:
-        image_path (Image): image that is converted from the BGR color space to YUV
+        img (Image): image that is converted from the BGR color space to YUV
 
-    Raises:
-        ValueError: raise exception in case of incorrect value
+    Returns:
+        (br_min, br_max, contrast):
+            br_min (int): minimum brightness
+            br_max (int): maximum brightness
+            contrast (int): contrast value on the image
     """
-    image = Image.open(image_path)
-    image = np.array(image)
-    if image.shape[2] == 4:
+    image = np.array(Image.open(img))
+    if len(image.shape) == 2:
+        image = cv.cvtColor(image, cv.COLOR_GRAY2BGR)
+    elif image.shape[2] == 4:
         image = cv.cvtColor(image, cv.COLOR_RGBA2BGR)
     else:
         image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
     Y = cv.cvtColor(image, cv.COLOR_BGR2YUV)[:, :, 0]
-    br_min = np.min(Y)
-    br_max = np.max(Y)
+    br_min, br_max = np.min(Y), np.max(Y)
     contrast = round((br_max + 0.05) / (br_min + 0.05), 3)
-    if contrast >= 21:
+    # https://www.w3.org/TR/WCAG21/
+    # According to WCAG, the contrast is defined in the range from 1 to 21
+    if contrast > 21:
         contrast = 21
     elif contrast < 1:
-        raise ValueError('Недопустимое значение')
-    print(br_min, br_max, contrast)
+        contrast = 1
+    return int(br_min), int(br_max), int(contrast)

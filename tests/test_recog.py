@@ -1,11 +1,13 @@
 """Module with library tests"""
 from pathlib import Path
 import pytest
-import pygats.recog as rec
-import pygats.pygats as pyg
-from pygats.formatters import MarkdownFormatter as MD
+import src.pygats.recog as rec
+import src.pygats.pygats as pyg
+import tests.find.gen as gen
+from src.pygats.formatters import MarkdownFormatter as MD
 from PIL import Image, ImageDraw, ImageFont
 from tests.find import gen
+from contextlib import nullcontext as does_not_raise
 
 @pytest.fixture(name='formatter', scope="session", autouse=True)
 def fixture_formatter():
@@ -85,3 +87,17 @@ def test_check_text_1(words_for_bg, capsys):
                 assert successful_count == 0
                 assert failed_count == 0
                 break
+
+@pytest.mark.parametrize(
+    "img_path, expectation",
+    [
+        ("tests/find/background/blue.jpg", does_not_raise()),
+        ("tests/find/background/gray.jpg", does_not_raise()),
+        ("tests/find/background/white.jpg", does_not_raise()),
+        ("tests/find/background/yellow-grad.jpg", does_not_raise()),
+        ("tests/find/background/black.jpg", does_not_raise()),
+    ]
+)
+def test_contrast(img_path, expectation, ):
+    result = rec.constarst(img_path)
+    assert 1 <= result[2] <= 21
