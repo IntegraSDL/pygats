@@ -446,6 +446,8 @@ def contrast(img: Image):
     CHANNELS_GRAYSCALE = 2
     CHANNELS_BGR = 3
     CHANNELS_RGBA = 4
+    MAX_CONTR = 21
+    MIN_CONTR = 1
     image = np.array(Image.open(img))
     if len(image.shape) == CHANNELS_GRAYSCALE:
         image = cv.cvtColor(image, cv.COLOR_GRAY2BGR)
@@ -458,8 +460,8 @@ def contrast(img: Image):
     contr = round((br_max + 0.05) / (br_min + 0.05), 3)
     # https://www.w3.org/TR/WCAG21/
     # According to WCAG, the contrast is defined in the range from 1 to 21
-    if contr > 21:
-        contr = 21
-    elif contr < 1:
-        contr = 1
+    if contr > MAX_CONTR:
+        contr = MAX_CONTR
+    elif contr < MIN_CONTR:
+        contr = MIN_CONTR
     return int(br_min), int(br_max), int(contr)
