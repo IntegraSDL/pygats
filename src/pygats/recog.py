@@ -455,8 +455,8 @@ def contrast(img: Image):
     contr = round((br_max + 0.05) / (br_min + 0.05), 3)
     # https://www.w3.org/TR/WCAG21/
     # According to WCAG, the contrast is defined in the range from 1 to 21
-    if contrast > 21:
-        contrast = 21
-    elif contrast < 1:
-        contrast = 1
+    if contr > 21:
+        contr = 21
+    elif contr < 1:
+        contr = 1
     return int(br_min), int(br_max), int(contr)
