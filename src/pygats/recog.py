@@ -438,10 +438,10 @@ def contrast(img: Image):
         img (Image): image that is converted from the BGR color space to YUV
 
     Returns:
-        (br_min, br_max, contrast):
+        (br_min, br_max, contr):
             br_min (int): minimum brightness
             br_max (int): maximum brightness
-            contrast (int): contrast value on the image
+            contr (int): contrast value on the image
     """
     image = np.array(Image.open(img))
     if len(image.shape) == 2:
@@ -452,11 +452,11 @@ def contrast(img: Image):
         image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
     Y = cv.cvtColor(image, cv.COLOR_BGR2YUV)[:, :, 0]
     br_min, br_max = np.min(Y), np.max(Y)
-    contrast = round((br_max + 0.05) / (br_min + 0.05), 3)
+    contr = round((br_max + 0.05) / (br_min + 0.05), 3)
     # https://www.w3.org/TR/WCAG21/
     # According to WCAG, the contrast is defined in the range from 1 to 21
     if contrast > 21:
         contrast = 21
     elif contrast < 1:
         contrast = 1
-    return int(br_min), int(br_max), int(contrast)
+    return int(br_min), int(br_max), int(contr)
