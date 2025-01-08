@@ -12,7 +12,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from src.pygats.pygats import step, passed, failed
+from pygats.pygats import step, passed, failed
 
 
 @dataclass
@@ -430,7 +430,7 @@ def find_regexp_text(recognized_list: list, pattern):
     return list(set(result))
 
 
-def constarst(img: Image):
+def contrast(img: Image):
     """Function that determines the minimum and
     maximum brightness and contrast values on the image itself
 
