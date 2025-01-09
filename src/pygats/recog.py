@@ -443,19 +443,11 @@ def contrast(img: Image):
             br_max (int): maximum brightness
             contr (int): contrast value on the image
     """
-    CHANNELS_GRAYSCALE = 2
-    CHANNELS_BGR = 3
-    CHANNELS_RGBA = 4
     MAX_CONTR = 21
     MIN_CONTR = 1
-    image = np.array(Image.open(img))
-    if len(image.shape) == CHANNELS_GRAYSCALE:
-        image = cv.cvtColor(image, cv.COLOR_GRAY2BGR)
-    elif image.shape[2] == CHANNELS_RGBA:
-        image = cv.cvtColor(image, cv.COLOR_RGBA2BGR)
-    elif image.shape[2] == CHANNELS_BGR:
-        image = cv.cvtColor(image, cv.COLOR_RGB2BGR)
-    Y = cv.cvtColor(image, cv.COLOR_BGR2YUV)[:, :, 0]
+    img = Image.open(img)
+    image = np.array(img.convert('YCbCr'))
+    Y = image[:, :, 0]
     br_min, br_max = np.min(Y), np.max(Y)
     contr = round((br_max + 0.05) / (br_min + 0.05), 3)
     # https://www.w3.org/TR/WCAG21/

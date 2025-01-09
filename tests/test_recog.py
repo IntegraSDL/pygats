@@ -88,6 +88,7 @@ def test_check_text_1(words_for_bg, capsys):
                 assert failed_count == 0
                 break
 
+
 @pytest.mark.parametrize(
     "img_path, expectation",
     [
@@ -96,8 +97,9 @@ def test_check_text_1(words_for_bg, capsys):
         ("tests/find/background/white.jpg", does_not_raise()),
         ("tests/find/background/yellow-grad.jpg", does_not_raise()),
         ("tests/find/background/black.jpg", does_not_raise()),
+        ("tests/find/background/black-white.jpg", does_not_raise()),
     ]
 )
 def test_contrast(img_path, expectation, ):
-    result = rec.constarst(img_path)
+    result = rec.contrast(img_path)
     assert 1 <= result[2] <= 21
