@@ -432,7 +432,8 @@ def find_regexp_text(recognized_list: list, pattern):
 
 def contrast(img: Image):
     """Function that determines the minimum and
-    maximum brightness and contrast values on the image itself
+    maximum brightness and contrast values on the image itself.
+    The metrics are calculated using the YCbCr color model.
 
     Args:
         img (Image): image that is converted from the BGR color space to YUV
