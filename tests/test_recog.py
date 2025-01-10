@@ -94,8 +94,8 @@ def test_check_text_1(words_for_bg, capsys):
         ("tests/find/background/gray.jpg"),
         ("tests/find/background/white.jpg"),
         ("tests/find/background/yellow-grad.jpg"),
-        ("tests/find/background/black.jpg"),
-        ("tests/find/background/black-white.jpg"),
+        ("tests/find/background/black.png"),
+        ("tests/find/background/black-white.png"),
     ]
 )
 def test_contrast(img_path):
