@@ -447,13 +447,12 @@ def contrast(img: Image):
     """
     MAX_CONTR = 21
     MIN_CONTR = 1
-    os.path.exists(img)
-    img = Image.open(img)
-    image = np.array(img.convert('YCbCr'))
-    Y = image[:, :, 0]
-    br_min, br_max = np.min(Y), np.max(Y)
-    contr = round((br_max + 0.05) / (br_min + 0.05), 3)
-    # https://www.w3.org/TR/WCAG21/
-    # According to WCAG, the contrast is defined in the range from 1 to 21
-    contr = min(MAX_CONTR, max(MIN_CONTR, contr))
-    return int(br_min), int(br_max), int(contr)
+    with Image.open(img) as img:    
+        image = np.array(img.convert('YCbCr'))
+        Y = image[:, :, 0]
+        br_min, br_max = np.min(Y), np.max(Y)
+        contr = round((br_max + 0.05) / (br_min + 0.05), 3)
+        # https://www.w3.org/TR/WCAG21/
+        # According to WCAG, the contrast is defined in the range from 1 to 21
+        contr = min(MAX_CONTR, max(MIN_CONTR, contr))
+        return int(br_min), int(br_max), int(contr)
