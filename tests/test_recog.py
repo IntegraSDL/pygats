@@ -7,7 +7,6 @@ import tests.find.gen as gen
 from src.pygats.formatters import MarkdownFormatter as MD
 from PIL import Image, ImageDraw, ImageFont
 from tests.find import gen
-from contextlib import nullcontext as does_not_raise
 
 @pytest.fixture(name='formatter', scope="session", autouse=True)
 def fixture_formatter():
@@ -90,16 +89,16 @@ def test_check_text_1(words_for_bg, capsys):
 
 
 @pytest.mark.parametrize(
-    "img_path, expectation",
+    "img_path",
     [
-        ("tests/find/background/blue.jpg", does_not_raise()),
-        ("tests/find/background/gray.jpg", does_not_raise()),
-        ("tests/find/background/white.jpg", does_not_raise()),
-        ("tests/find/background/yellow-grad.jpg", does_not_raise()),
-        ("tests/find/background/black.jpg", does_not_raise()),
-        ("tests/find/background/black-white.jpg", does_not_raise()),
+        ("tests/find/background/blue.jpg"),
+        ("tests/find/background/gray.jpg"),
+        ("tests/find/background/white.jpg"),
+        ("tests/find/background/yellow-grad.jpg"),
+        ("tests/find/background/black.jpg"),
+        ("tests/find/background/black-white.jpg"),
     ]
 )
-def test_contrast(img_path, expectation, ):
+def test_contrast(img_path):
     result = rec.contrast(img_path)
     assert 1 <= result[2] <= 21
