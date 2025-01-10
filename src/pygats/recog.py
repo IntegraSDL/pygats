@@ -430,13 +430,13 @@ def find_regexp_text(recognized_list: list, pattern):
     return list(set(result))
 
 
-def contrast(img: Image):
+def contrast(img):
     """Function that determines the minimum and
     maximum brightness and contrast values on the image itself.
     The metrics are calculated using the YCbCr color model.
 
     Args:
-        img (Image): image that is converted from the BGR color space to YUV
+        img (PIL.Image): image that is converted from the BGR color space to YUV
 
     Returns:
         (br_min, br_max, contr):
@@ -452,6 +452,6 @@ def contrast(img: Image):
         br_min, br_max = np.min(Y), np.max(Y)
         contr = round((br_max + 0.05) / (br_min + 0.05), 3)
         # https://www.w3.org/TR/WCAG21/
-        # According to WCAG, the contrast is defined in the range from 1 to 21
+        # According to WCAG, the contrast is defined in the range from 1 to 21  
         contr = min(MAX_CONTR, max(MIN_CONTR, contr))
         return int(br_min), int(br_max), int(contr)
