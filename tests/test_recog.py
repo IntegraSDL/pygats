@@ -3,7 +3,6 @@ from pathlib import Path
 import pytest
 import pygats.recog as rec
 import pygats.pygats as pyg
-import tests.find.gen as gen
 from pygats.formatters import MarkdownFormatter as MD
 from PIL import Image, ImageDraw, ImageFont
 from tests.find import gen
