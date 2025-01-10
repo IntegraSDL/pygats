@@ -3,7 +3,6 @@ module with data classes.
 """
 
 from dataclasses import dataclass
-import os
 import re
 from typing import Optional
 import pyautogui
@@ -447,8 +446,8 @@ def contrast(img: Image):
     """
     MAX_CONTR = 21
     MIN_CONTR = 1
-    with Image.open(img) as img:    
-        image = np.array(img.convert('YCbCr'))
+    with Image.open(img) as image:
+        image = np.array(image.convert('YCbCr'))
         Y = image[:, :, 0]
         br_min, br_max = np.min(Y), np.max(Y)
         contr = round((br_max + 0.05) / (br_min + 0.05), 3)
