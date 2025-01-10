@@ -452,6 +452,6 @@ def contrast(img):
         br_min, br_max = np.min(Y), np.max(Y)
         contr = round((br_max + 0.05) / (br_min + 0.05), 3)
         # https://www.w3.org/TR/WCAG21/
-        # According to WCAG, the contrast is defined in the range from 1 to 21  
+        # According to WCAG, the contrast is defined in the range from 1 to 21
         contr = min(MAX_CONTR, max(MIN_CONTR, contr))
         return int(br_min), int(br_max), int(contr)
