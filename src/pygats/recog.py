@@ -3,6 +3,7 @@ module with data classes.
 """
 
 from dataclasses import dataclass
+import os
 import re
 from typing import Optional
 import pyautogui
@@ -12,7 +13,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import step, passed, failed
+from src.pygats.pygats import step, passed, failed
 
 
 @dataclass
@@ -446,6 +447,7 @@ def contrast(img: Image):
     """
     MAX_CONTR = 21
     MIN_CONTR = 1
+    os.path.exists(img)
     img = Image.open(img)
     image = np.array(img.convert('YCbCr'))
     Y = image[:, :, 0]
