@@ -199,7 +199,7 @@ def recognize_text_with_data(img, lang):
     """Functions recognize all texts on the image with Tesseract
 
     Args:
-        img (Image): input image to recognize text
+        img (PIL.Image): input image to recognize text
         lang (string): language in tesseract format
 
     Returns:
@@ -360,7 +360,7 @@ def recognize_text(img, lang):
     lines to tuple and return lists
 
     Args:
-        img (Image): image where text will be recognized
+        img (PIL.Image): image where text will be recognized
         lang (string): language of text (tesseract-ocr)
 
     Returns:
@@ -436,7 +436,7 @@ def contrast(img: Image):
     The metrics are calculated using the YCbCr color model.
 
     Args:
-        img (Image): image that is converted from the BGR color space to YUV
+        img (PIL.Image): image that is converted from the BGR color space to YUV
 
     Returns:
         (br_min, br_max, contr):
