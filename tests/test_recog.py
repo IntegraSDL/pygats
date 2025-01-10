@@ -1,10 +1,10 @@
 """Module with library tests"""
 from pathlib import Path
 import pytest
-import src.pygats.recog as rec
-import src.pygats.pygats as pyg
+import pygats.recog as rec
+import pygats.pygats as pyg
 import tests.find.gen as gen
-from src.pygats.formatters import MarkdownFormatter as MD
+from pygats.formatters import MarkdownFormatter as MD
 from PIL import Image, ImageDraw, ImageFont
 from tests.find import gen
 
