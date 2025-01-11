@@ -12,7 +12,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from src.pygats.pygats import step, passed, failed
+from pygats.pygats import step, passed, failed
 
 
 @dataclass
