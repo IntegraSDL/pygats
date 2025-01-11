@@ -436,7 +436,7 @@ def contrast(img: Image):
     The metrics are calculated using the YCbCr color model.
 
     Args:
-        img (PIL.Image): image that is converted from the BGR color space to YUV
+        img (Image): Pil.Image that is converted from the BGR color space to YUV
 
     Returns:
         (br_min, br_max, contr):
