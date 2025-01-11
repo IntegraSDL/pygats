@@ -12,7 +12,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import step, passed, failed
+from src.pygats.pygats import step, passed, failed
 
 
 @dataclass
@@ -430,7 +430,7 @@ def find_regexp_text(recognized_list: list, pattern):
     return list(set(result))
 
 
-def contrast(img):
+def contrast(img: Image):
     """Function that determines the minimum and
     maximum brightness and contrast values on the image itself.
     The metrics are calculated using the YCbCr color model.
@@ -444,14 +444,13 @@ def contrast(img):
             br_max (int): maximum brightness
             contr (int): contrast value on the image
     """
-    MAX_CONTR = 21
-    MIN_CONTR = 1
-    with Image.open(img) as image:
-        image = np.array(image.convert('YCbCr'))
-        Y = image[:, :, 0]
-        br_min, br_max = np.min(Y), np.max(Y)
-        contr = round((br_max + 0.05) / (br_min + 0.05), 3)
-        # https://www.w3.org/TR/WCAG21/
-        # According to WCAG, the contrast is defined in the range from 1 to 21
-        contr = min(MAX_CONTR, max(MIN_CONTR, contr))
-        return int(br_min), int(br_max), int(contr)
+    MAX_CONTRAST = 21
+    MIN_CONTRAST = 1
+    image = np.array(img.convert('YCbCr'))
+    Y = image[:, :, 0]
+    br_min, br_max = np.min(Y), np.max(Y)
+    contr = round((br_max + 0.05) / (br_min + 0.05), 3)
+    # https://www.w3.org/TR/WCAG21/
+    # According to WCAG, the contrast is defined in the range from 1 to 21
+    contr = min(MAX_CONTRAST, max(MIN_CONTRAST, contr))
+    return int(br_min), int(br_max), int(contr)

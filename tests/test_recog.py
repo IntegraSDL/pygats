@@ -97,5 +97,6 @@ def test_check_text_1(words_for_bg, capsys):
     ]
 )
 def test_contrast(img_path):
-    result = rec.contrast(img_path)
+    img = Image.open(img_path)
+    result = rec.contrast(img)
     assert 1 <= result[2] <= 21
