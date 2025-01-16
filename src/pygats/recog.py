@@ -434,6 +434,7 @@ def contrast(img: Image):
     """Function that determines the minimum and
     maximum brightness and contrast values on the image itself.
     The metrics are calculated using the YCbCr color model.
+    Image.convert supports all possible conversions between “L”, “RGB” and “CMYK”.
 
     Args:
         img (Image): Pil.Image that is converted from the BGR color space to YUV
@@ -453,4 +454,4 @@ def contrast(img: Image):
     # https://www.w3.org/TR/WCAG21/
     # According to WCAG, the contrast is defined in the range from 1 to 21
     contr = min(MAX_CONTRAST, max(MIN_CONTRAST, contr))
-    return int(br_min), int(br_max), int(contr)
+    return int(br_min), int(br_max), float(contr)

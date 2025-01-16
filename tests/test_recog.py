@@ -88,15 +88,15 @@ def test_check_text_1(words_for_bg, capsys):
 
 
 @pytest.mark.parametrize(
-    "img_path",
+    "img_path, expected_value",
     [
-        ("tests/find/background/blue.jpg"),
-        ("tests/find/background/gray.jpg"),
-        ("tests/find/background/white.jpg"),
-        ("tests/find/background/yellow-grad.jpg")
+        ("tests/find/background/blue.jpg", 3.767),
+        ("tests/find/background/gray.jpg", 3.568),
+        ("tests/find/background/white.jpg", 1.0),
+        ("tests/find/background/yellow-grad.jpg", 5.297)
     ]
 )
-def test_contrast(img_path):
+def test_contrast(img_path, expected_value):
     img = Image.open(img_path)
     result = rec.contrast(img)
-    assert 1 <= result[2] <= 21
+    assert result[2] == expected_value
