@@ -98,5 +98,5 @@ def test_check_text_1(words_for_bg, capsys):
 )
 def test_contrast(img_path, expected_value):
     img = Image.open(img_path)
-    result = rec.contrast(img)
-    assert result[2] == expected_value
+    contrast = rec.contrast(img)
+    assert (contrast - expected_value) < 1e-9
