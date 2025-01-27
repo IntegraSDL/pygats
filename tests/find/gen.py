@@ -1,7 +1,7 @@
 from pathlib import Path
 import time
 from PIL import Image, ImageDraw, ImageFont
-from pygats.search import pygats_search
+
 
 def crop_image(img, w, h):
     img_crop = img.crop((0, 0, w, h))
@@ -11,7 +11,7 @@ def crop_image(img, w, h):
 def wrapper():
     folder_result = Path(f'tests/find/result.txt')
     start = time.time()
-    pygats_search()
+    #gen("white", 350, 350, 'TimesNewRoman', 32, "File")
     seconds = int(time.time() - start)
     seconds = seconds % (24 * 3600)
     hours = seconds // 3600
@@ -66,5 +66,3 @@ def color_shade_gen(step: tuple = (1, 1, 1), size: tuple = (1920, 1080)):
         new_img = Image.new('RGB', size)
         new_img.putdata(new_image_data)
         new_img.save(f"{folder_path}/color:{rgb}.png", 'PNG')
-
-wrapper()
