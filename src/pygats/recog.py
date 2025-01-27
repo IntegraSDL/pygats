@@ -428,3 +428,31 @@ def find_regexp_text(recognized_list: list, pattern):
         if len(match) > 0:
             result.append((roi, content, tuple(match)))
     return list(set(result))
+
+
+def contrast(img: Image):
+    """Function that determines the minimum and
+    maximum brightness and contrast values on the image itself.
+    The metrics are calculated using the YCbCr color model.
+    Image.convert supports all possible conversions between “L”, “RGB” and “CMYK”.
+    https://pillow.readthedocs.io/en/latest/reference/Image.html#PIL.Image.Image.convert
+
+    Args:
+        img (Image): Pil.Image that is converted from the BGR color space to YUV
+
+    Returns:
+        (br_min, br_max, contr):
+            br_min (int): minimum brightness
+            br_max (int): maximum brightness
+            contr (int): contrast value on the image
+    """
+    MAX_CONTRAST = 21
+    MIN_CONTRAST = 1
+    image = np.array(img.convert('YCbCr'))
+    Y = image[:, :, 0]
+    br_min, br_max = np.min(Y), np.max(Y)
+    contr = round((br_max + 0.05) / (br_min + 0.05), 3)
+    # https://www.w3.org/TR/WCAG21/
+    # According to WCAG, the contrast is defined in the range from 1 to 21
+    contr = min(MAX_CONTRAST, max(MIN_CONTRAST, contr))
+    return float(contr)

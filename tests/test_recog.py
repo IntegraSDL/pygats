@@ -1,6 +1,7 @@
 """Module with library tests"""
 from pathlib import Path
 import pytest
+import math
 import pygats.recog as rec
 import pygats.pygats as pyg
 from pygats.formatters import MarkdownFormatter as MD
@@ -85,3 +86,18 @@ def test_check_text_1(words_for_bg, capsys):
                 assert successful_count == 0
                 assert failed_count == 0
                 break
+
+
+@pytest.mark.parametrize(
+    "img_path, expected_value",
+    [
+        ("tests/find/background/blue.jpg", 3.767),
+        ("tests/find/background/gray.jpg", 3.568),
+        ("tests/find/background/white.jpg", 1.0),
+        ("tests/find/background/yellow-grad.jpg", 5.297)
+    ]
+)
+def test_contrast(img_path, expected_value):
+    img = Image.open(img_path)
+    contrast = rec.contrast(img)
+    assert math.isclose(contrast, expected_value, rel_tol=1e-09, abs_tol=0.0)
