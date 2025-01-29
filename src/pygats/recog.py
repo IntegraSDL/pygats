@@ -456,3 +456,41 @@ def contrast(img: Image):
     # According to WCAG, the contrast is defined in the range from 1 to 21
     contr = min(MAX_CONTRAST, max(MIN_CONTRAST, contr))
     return float(contr)
+
+
+def find_keypoints(img: Image):
+    """Detects key points and calculates their
+    descriptors in a given image using the SIFT algorithm
+    Args:
+        img (Image): Pil.Image where you need to identify areas with key points
+    Returns:
+        (keypoints, descriptors):
+            keypoints (list): A list of key points found in the image
+            descriptors (float32): An array of descriptors in float32 format
+    """
+    img = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
+    sift = cv.SIFT_create()
+    keypoints, descriptors = sift.detectAndCompute(img, None)
+    coord_list = []
+    for kp in keypoints:
+        x, y = kp.pt
+        coord_list.append([x, y])
+    return keypoints, descriptors, coord_list
+
+def clusters(coord_list, K: int):
+    """The function clusters descriptors of key points
+    found in the image using the K-means algorithm
+    Args:
+        descrip (float32): An array of descriptors in float32 format
+        clust_count (int): Number of clusters for clustering key points
+    Returns:
+        (labels, centers):
+            labels (cv2.typing.MatLike): This is the label array where each element marked '0', '1'.
+            centers (cv2.typing.MatLike): This is array of centers of clusters.
+    """
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.2)
+    data = np.array(coord_list, dtype=np.float32)
+    _, labels, centers = cv.kmeans(data, K, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
+    centers = np.uint8(centers)
+    labels = labels.flatten()
+    return labels, centers
