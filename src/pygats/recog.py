@@ -468,16 +468,17 @@ def find_keypoints(img: Image):
             keypoints (list): A list of key points found in the image
             descriptors (float32): An array of descriptors in float32 format
     """
-    img = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
+    gray = cv.cvtColor(np.array(img), cv.COLOR_BGR2GRAY)
     sift = cv.SIFT_create()
-    keypoints, descriptors = sift.detectAndCompute(img, None)
+    keypoints, descriptors = sift.detectAndCompute(gray, None)
     coord_list = []
     for kp in keypoints:
         x, y = kp.pt
         coord_list.append([x, y])
+    coord_list = np.array(coord_list, dtype=np.float32)
     return keypoints, descriptors, coord_list
 
-def clusters(coord_list, K: int):
+def descriptors_cluster(descriptors, K: int):
     """The function clusters descriptors of key points
     found in the image using the K-means algorithm
     Args:
@@ -489,8 +490,56 @@ def clusters(coord_list, K: int):
             centers (cv2.typing.MatLike): This is array of centers of clusters.
     """
     criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.2)
-    data = np.array(coord_list, dtype=np.float32)
-    _, labels, centers = cv.kmeans(data, K, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
+    _, labels, centers = cv.kmeans(descriptors, K, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
     centers = np.uint8(centers)
     labels = labels.flatten()
     return labels, centers
+
+
+def rectangle_cluster(coord_list, K: int):
+    """The function clusters descriptors of key points
+    found in the image using the K-means algorithm
+    Args:
+        descrip (float32): An array of descriptors in float32 format
+        clust_count (int): Number of clusters for clustering key points
+    Returns:
+        (labels, centers):
+            labels (cv2.typing.MatLike): This is the label array where each element marked '0', '1'.
+            centers (cv2.typing.MatLike): This is array of centers of clusters.
+    """
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 100, 0.2)
+    _, labels, centers = cv.kmeans(coord_list, K, None, criteria, 10, cv.KMEANS_RANDOM_CENTERS)
+    centers = np.uint8(centers)
+    labels = labels.flatten()
+    return labels, centers
+
+
+def draw_clustered_keypoints(img: Image, keypoints, labels):
+    img_cv = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
+    colors = [(0, 0, 255), (0, 255, 0), (255, 0, 0)]
+    for kp, cluster in zip(keypoints, labels):
+        cv.drawKeypoints(img_cv, [kp], img_cv, 
+                        color=colors[cluster % 3],
+                        flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    return Image.fromarray(cv.cvtColor(img_cv, cv.COLOR_BGR2RGB))
+
+
+def draw_clustered_rectangles(K, coord_list, labels, img, keypoints):
+    img_cv = cv.cvtColor(np.array(img), cv.COLOR_RGB2BGR)
+    result = img_cv.copy()
+    colors = [(0, 0, 255), (0, 255, 0), (255, 0, 0)]
+    for kp, cluster in zip(keypoints, labels):
+        cv.drawKeypoints(result, [kp], result, 
+                        color=colors[cluster % 3],
+                        flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    for i in range(K):
+        cluster_points = coord_list[labels.flatten() == i]
+        if len(cluster_points) > 0:
+            x_min = int(np.min(cluster_points[:, 0]))
+            y_min = int(np.min(cluster_points[:, 1]))
+            x_max = int(np.max(cluster_points[:, 0]))
+            y_max = int(np.max(cluster_points[:, 1]))
+            cv.rectangle(result, (x_min, y_min), (x_max, y_max), (255, 255, 0), 2)
+    cv.imshow('SIFT K-Means Clustering', result)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
