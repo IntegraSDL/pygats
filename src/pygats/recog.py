@@ -12,7 +12,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import step, passed, failed
+from pygats import step, passed, failed
 
 
 @dataclass
@@ -456,3 +456,20 @@ def contrast(img: Image):
     # According to WCAG, the contrast is defined in the range from 1 to 21
     contr = min(MAX_CONTRAST, max(MIN_CONTRAST, contr))
     return float(contr)
+
+
+def image_comparison(query_img: Image, train_img: Image ):    
+    query_img = cv.imread(query_img)
+    train_img = cv.imread(train_img)
+    query_img_bw = cv.cvtColor(query_img,cv.COLOR_BGR2GRAY)
+    train_img_bw = cv.cvtColor(train_img, cv.COLOR_BGR2GRAY)
+    orb = cv.ORB_create()
+    queryKeypoints, queryDescriptors = orb.detectAndCompute(query_img_bw,None)
+    trainKeypoints, trainDescriptors = orb.detectAndCompute(train_img_bw,None)
+    matcher = cv.BFMatcher()
+    matches = matcher.match(queryDescriptors,trainDescriptors)
+    final_img = cv.drawMatches(query_img, queryKeypoints, 
+    train_img, trainKeypoints, matches, None)
+    final_img = cv.resize(final_img, (1980, 1080))
+    cv.imshow("Matches", final_img)
+    cv.waitKey(0)
