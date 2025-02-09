@@ -485,22 +485,21 @@ def find_keypoints(img: Image):
 
 
 def hdbscan_cluster(coord_list, min_cluster_size: Optional[int] = 5,
-                    min_samples: Union[int, float] = None, 
+                    min_samples: Union[int, float] = None,
                     cluster_selection_epsilon: Optional[float] = 0.0):
-    """Function that performs clusterization of keypoints using their coordinates and the HDBSCAN method
-    The function is used for found coordinates and key points.
+    """Function that performs clusterization of keypoints using their coordinates and HDBSCAN
+    The function is used for found coordinates and keypoints.
     https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html#r6f313792b2b7-5
     
     Args:
         coord_list (_type_): Array of coordinates of keypoints
-        min_cluster_size (int): The minimum number of samples in a group for that group to be considered a cluster;
-        min_samples (int | float): The parameter k used to calculate the distance between a point x_p and its k-th nearest neighbor
-        cluster_selection_epsilon (float): The parameter k used to calculate the distance between a point x_p and its k-th nearest neighbor
-
+        min_cluster_size (int): Min number of samples that allows to consider a group as a cluster;
+        min_samples (int | float): Calculate the distance between a point and its nearest neighbor
+        cluster_selection_epsilon (float): Distance threshold
     Returns:
         (labels, coord_rect):
-            labels (numpy.ndarray): Cluster labels for each point in the dataset given to fit(). Noisy samples are given the label -1.
-            coord_rect (tuple): Coordinates of clusters of key points that have the shape of rectangles
+            labels (numpy.ndarray): Cluster labels for each point in the dataset given to fit()
+            coord_rect (tuple): Coordinates of clusters shaped like rectangles
     """
     clusterer = hdbscan.HDBSCAN(
         min_cluster_size=min_cluster_size,
