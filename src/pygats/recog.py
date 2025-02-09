@@ -496,6 +496,7 @@ def hdbscan_cluster(coord_list, min_cluster_size: Optional[int] = 5,
         min_cluster_size (int): Min number of samples that allows to consider a group as a cluster;
         min_samples (int | float): Calculate the distance between a point and its nearest neighbor
         cluster_selection_epsilon (float): Distance threshold
+        
     Returns:
         (labels, coord_rect):
             labels (numpy.ndarray): Cluster labels for each point in the dataset given to fit()
