@@ -4,7 +4,8 @@ module with data classes.
 
 from dataclasses import dataclass
 import re
-from typing import Optional
+from typing import Optional, Union
+import hdbscan
 import pyautogui
 import pytesseract
 import mss
@@ -12,7 +13,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import step, passed, failed
+from pygats import step, passed, failed
 
 
 @dataclass
@@ -456,3 +457,68 @@ def contrast(img: Image):
     # According to WCAG, the contrast is defined in the range from 1 to 21
     contr = min(MAX_CONTRAST, max(MIN_CONTRAST, contr))
     return float(contr)
+
+
+def find_keypoints(img: Image):
+    """Function that uses the SIFT algorithm to find keypoints in an image.
+    The function returns three values, one of which contains the coordinates of the key points,
+    which simplifies further use of the data.
+
+    Args:
+        img (Image): Pil.Image which is used to search for keypoints
+
+    Returns:
+        (keypoints, descriptors, coord_list):
+            keypoints (tuple): The detected keypoints
+            descriptors (numpy.ndarray): Computed descriptors
+            coord_list (numpy.ndarray): Array of coordinates of keypoints
+    """
+    gray = cv.cvtColor(np.array(img), cv.COLOR_BGR2GRAY)
+    sift = cv.SIFT_create()
+    keypoints, descriptors = sift.detectAndCompute(gray, None)
+    coord_list = []
+    for kp in keypoints:
+        x, y = kp.pt
+        coord_list.append([x, y])
+    coord_list = np.array(coord_list)
+    return keypoints, descriptors, coord_list
+
+
+def hdbscan_cluster(coord_list, min_cluster_size: Optional[int] = 5,
+                    min_samples: Union[int, float] = None, 
+                    cluster_selection_epsilon: Optional[float] = 0.0):
+    """Function that performs clusterization of keypoints using their coordinates and the HDBSCAN method
+    The function is used for found coordinates and key points.
+    https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html#r6f313792b2b7-5
+    
+    Args:
+        coord_list (_type_): Array of coordinates of keypoints
+        min_cluster_size (int): The minimum number of samples in a group for that group to be considered a cluster;
+        min_samples (int | float): The parameter k used to calculate the distance between a point x_p and its k-th nearest neighbor
+        cluster_selection_epsilon (float): The parameter k used to calculate the distance between a point x_p and its k-th nearest neighbor
+
+    Returns:
+        (labels, coord_rect):
+            labels (numpy.ndarray): Cluster labels for each point in the dataset given to fit(). Noisy samples are given the label -1.
+            coord_rect (tuple): Coordinates of clusters of key points that have the shape of rectangles
+    """
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=min_cluster_size,
+        min_samples=min_samples,
+        cluster_selection_epsilon=cluster_selection_epsilon,
+        gen_min_span_tree=True
+    )
+    clusterer.fit(coord_list)
+    labels = clusterer.labels_
+    coord_rect = []
+    for label in set(labels):
+        cluster_points = coord_list[labels == label]
+        if label != -1 and len(cluster_points) > 0:
+            x_coordinates = [point[0] for point in cluster_points]
+            y_coordinates = [point[1] for point in cluster_points]
+            x_min = int(min(x_coordinates))
+            y_min = int(min(y_coordinates))
+            x_max = int(max(x_coordinates))
+            y_max = int(max(y_coordinates))
+            coord_rect.append((x_min, y_min, x_max, y_max))
+    return labels, tuple(coord_rect)
