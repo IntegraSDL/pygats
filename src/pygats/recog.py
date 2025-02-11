@@ -13,7 +13,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats.pygats import step, passed, failed
+from pygats import step, passed, failed
 
 
 @dataclass
@@ -484,7 +484,7 @@ def find_keypoints(img: Image):
     return keypoints, descriptors, coord_list
 
 
-def hdbscan_cluster(coord_list, min_cluster_size: Optional[int] = 5,
+def hdbscan_cluster(coord_list, min_cluster_size: Optional[int] = 5, # coord_list : numpy.ndarray
                     min_samples: Union[int, float] = None,
                     cluster_selection_epsilon: Optional[float] = 0.0):
     """Function that performs clusterization of keypoints using their coordinates and HDBSCAN
@@ -521,4 +521,4 @@ def hdbscan_cluster(coord_list, min_cluster_size: Optional[int] = 5,
             x_max = int(max(x_coordinates))
             y_max = int(max(y_coordinates))
             coord_rect.append((x_min, y_min, x_max, y_max))
-    return labels, tuple(coord_rect)
+    return labels, coord_rect
