@@ -63,9 +63,9 @@ class KeypointsCluster:
         __repr__(): Returns a string representation of the KeypointCluster instance,
                     including keypoints, labels, and rectangle coordinates.
     """
-    keypoints = list
-    labels = list
-    coord_rect = tuple
+    keypoints: list
+    labels: list
+    coord_rect: tuple
 
     def __repr__(self):
         return (f"keypoints={self.keypoints,}\n"
