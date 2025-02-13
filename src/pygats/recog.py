@@ -4,7 +4,8 @@ module with data classes.
 
 from dataclasses import dataclass
 import re
-from typing import Optional
+from typing import Optional, Union
+import hdbscan
 import pyautogui
 import pytesseract
 import mss
@@ -47,6 +48,29 @@ class ROI:
                 tuple: coordinates of the rectangle center
         """
         return self.x + self.w / 2, self.y + self.h / 2
+
+
+@dataclass
+class KeypointsCluster:
+    """
+    Data class for storing a cluster of keypoints, labels, and rectangle coordinates.
+    keypoints (list): A list of keypoints representing the cluster.
+    labels (list): A list of labels associated with the keypoints.
+    coord_rect (list): Coordinates of the rectangle that bounds the cluster.
+                                     Expected format is (x_min, y_min, x_max, y_max).
+
+    Methods:
+        __repr__(): Returns a string representation of the KeypointCluster instance,
+                    including keypoints, labels, and rectangle coordinates.
+    """
+    keypoints: list
+    labels: list
+    coord_rect: tuple
+
+    def __repr__(self):
+        return (f"keypoints={self.keypoints,}\n"
+                f"labels={self.labels}\n"
+                f"coord_rect={self.coord_rect}")
 
 
 def find_cropped_text(ctx, img: Image, txt: SearchedText,
@@ -456,3 +480,80 @@ def contrast(img: Image):
     # According to WCAG, the contrast is defined in the range from 1 to 21
     contr = min(MAX_CONTRAST, max(MIN_CONTRAST, contr))
     return float(contr)
+
+
+def find_keypoints(img: Image):
+    """Function that uses the SIFT algorithm to find keypoints in an image.
+    The function returns three values, one of which contains the coordinates of the key points,
+    which simplifies further use of the data.
+
+    Args:
+        img (Image): Pil.Image which is used to search for keypoints
+
+    Returns:
+        (keypoints, descriptors, coord_list):
+            keypoints (tuple): The detected keypoints
+            descriptors (numpy.ndarray): Computed descriptors
+            coord_list (numpy.ndarray): Array of coordinates of keypoints
+    """
+    gray = cv.cvtColor(np.array(img), cv.COLOR_BGR2GRAY)
+    sift = cv.SIFT_create()
+    keypoints, descriptors = sift.detectAndCompute(gray, None)
+    coord_list = []
+    for kp in keypoints:
+        x, y = kp.pt
+        coord_list.append([x, y])
+    coord_list = np.array(coord_list)
+    return keypoints, descriptors, coord_list
+
+
+def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: Optional[int] = 5,  # pylint: disable=R0914
+                    min_samples: Union[int, float] = None,
+                    cluster_selection_epsilon: Optional[float] = 0.0):
+    """Function that performs clusterization of keypoints using their coordinates and HDBSCAN
+    The function is used for found coordinates and keypoints.
+    https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html#r6f313792b2b7-5
+
+    Args:
+        keypoints (tuple): Distinctive points in an image
+        coord_list (np.ndarray): Array of coordinates of keypoints
+        min_cluster_size (int): Min number of samples that allows to consider a group as a cluster;
+        min_samples (int | float): Calculate the distance between a point and its nearest neighbor
+        cluster_selection_epsilon (float): Distance threshold
+
+    Returns:
+        (clusters):
+            clusters(list): list of cluster objects containing detailed information about
+            labels, keypoints and rectangles
+
+    """
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=min_cluster_size,
+        min_samples=min_samples,
+        cluster_selection_epsilon=cluster_selection_epsilon,
+        gen_min_span_tree=True
+    )
+    clusterer.fit(coord_list)
+    labels = clusterer.labels_
+    clusters = []
+    for label in set(labels):
+        if label != -1:
+            cluster_points = coord_list[labels == label]
+            keypoints_in_cluster = []
+            labels_in_cluster = []
+            if len(cluster_points) > 0:
+                x_coordinates = [point[0] for point in cluster_points]
+                y_coordinates = [point[1] for point in cluster_points]
+                x_min = int(min(x_coordinates))
+                y_min = int(min(y_coordinates))
+                x_max = int(max(x_coordinates))
+                y_max = int(max(y_coordinates))
+                coord_rect = (x_min, y_min, x_max, y_max)
+                for kp in keypoints:
+                    x, y = kp.pt
+                    if x_min <= x <= x_max and y_min <= y <= y_max:
+                        keypoints_in_cluster.append(kp)
+                        labels_in_cluster.append(int(label))
+                cluster = KeypointsCluster(keypoints_in_cluster, labels_in_cluster, coord_rect)
+                clusters.append(cluster)
+    return clusters
