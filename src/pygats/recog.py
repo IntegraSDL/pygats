@@ -50,46 +50,27 @@ class ROI:
         return self.x + self.w / 2, self.y + self.h / 2
 
 
+@dataclass
 class KeypointsCluster:
     """
-    Class for representing a cluster with keypoints, labels, and rectangle coordinates.
-
-    Attributes:
-        keypoints (list or None): A list of keypoints representing the cluster.
-        labels (list or None): A list of labels associated with the keypoints.
-        coord_rect (list or None): Coordinates of the rectangle that bounds the cluster.
+    Data class for storing a cluster of keypoints, labels, and rectangle coordinates.
+    keypoints (list): A list of keypoints representing the cluster.
+    labels (list): A list of labels associated with the keypoints.
+    coord_rect (list): Coordinates of the rectangle that bounds the cluster.
                                      Expected format is (x_min, y_min, x_max, y_max).
 
     Methods:
         __repr__(): Returns a string representation of the KeypointCluster instance,
                     including keypoints, labels, and rectangle coordinates.
-        add_cluster(): Add a keypoints, labels, coord_rect to the cluster.
     """
-
-    def __init__(self, keypoints: Optional[list] = None, labels: Optional[list] = None,
-                 coord_rect: Optional[list] = None):
-        self.keypoints = keypoints
-        self.labels = labels
-        self.coord_rect = coord_rect
+    keypoints = list
+    labels = list
+    coord_rect = list
 
     def __repr__(self):
         return (f"keypoints={self.keypoints,}\n"
                 f"labels={self.labels}\n"
                 f"coord_rect={self.coord_rect}")
-
-    def add_cluster(self, keypoints: Optional[list] = None, labels: Optional[list] = None,
-                    coord_rect: Optional[list] = None):
-        """Function that add a keypoints, labels, coord_rect to the cluster.
-
-        Args:
-            keypoints (list or None): A list of keypoints representing the cluster.
-            labels (list or None): A list of labels associated with the keypoints.
-            coord_rect (list or None): Coordinates of the rectangle that bounds the cluster.
-                                     Expected format is (x_min, y_min, x_max, y_max).
-        """
-        self.keypoints.append(keypoints)
-        self.keypoints.append(labels)
-        self.keypoints.append(coord_rect)
 
 
 def find_cropped_text(ctx, img: Image, txt: SearchedText,
