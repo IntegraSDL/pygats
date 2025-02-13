@@ -57,7 +57,7 @@ class KeypointsCluster:
     Attributes:
         keypoints (list or None): A list of keypoints representing the cluster.
         labels (list or None): A list of labels associated with the keypoints.
-        coord_rect (list or None): Coordinates of the rectangle that bounds the cluster. 
+        coord_rect (list or None): Coordinates of the rectangle that bounds the cluster.
                                      Expected format is (x_min, y_min, x_max, y_max).
 
     Methods:
@@ -65,17 +65,22 @@ class KeypointsCluster:
                     including keypoints, labels, and rectangle coordinates.
     """
 
-    def __init__(self, keypoints: Optional[list] = None, labels: Optional[list] = None, 
+    def __init__(self, keypoints: Optional[list] = None, labels: Optional[list] = None,
                  coord_rect: Optional[list] = None):
         self.keypoints = keypoints
         self.labels = labels
         self.coord_rect = coord_rect
 
     def __repr__(self):
-        return (f"keypoints={self.keypoints}\n"
+        return (f"keypoints={self.keypoints,}\n"
                 f"labels={self.labels}\n"
                 f"coord_rect={self.coord_rect}")
-
+    
+    def add_cluster(self, keypoint, labels, coord_rect):
+            """Add a keypoints, labels, coord_rect to the cluster."""
+            self.keypoints.append(keypoint)
+            self.keypoints.append(labels)
+            self.keypoints.append(coord_rect)
 
 def find_cropped_text(ctx, img: Image, txt: SearchedText,
                       skip: Optional[int] = 0, one_word: Optional[bool] = False):
@@ -511,7 +516,7 @@ def find_keypoints(img: Image):
     return keypoints, descriptors, coord_list
 
 
-def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: Optional[int] = 5,
+def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: Optional[int] = 5,  # pylint: disable=R0914
                     min_samples: Union[int, float] = None,
                     cluster_selection_epsilon: Optional[float] = 0.0):
     """Function that performs clusterization of keypoints using their coordinates and HDBSCAN
