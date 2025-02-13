@@ -13,7 +13,7 @@ import numpy as np
 import cv2 as cv
 from Levenshtein import ratio
 from PIL import Image
-from pygats import step, passed, failed
+from pygats.pygats import step, passed, failed
 
 
 @dataclass
@@ -48,6 +48,33 @@ class ROI:
                 tuple: coordinates of the rectangle center
         """
         return self.x + self.w / 2, self.y + self.h / 2
+
+
+class KeypointsCluster:
+    """
+    Class for representing a cluster with keypoints, labels, and rectangle coordinates.
+
+    Attributes:
+        keypoints (list or None): A list of keypoints representing the cluster.
+        labels (list or None): A list of labels associated with the keypoints.
+        coord_rect (list or None): Coordinates of the rectangle that bounds the cluster. 
+                                     Expected format is (x_min, y_min, x_max, y_max).
+
+    Methods:
+        __repr__(): Returns a string representation of the KeypointCluster instance,
+                    including keypoints, labels, and rectangle coordinates.
+    """
+
+    def __init__(self, keypoints: Optional[list] = None, labels: Optional[list] = None, 
+                 coord_rect: Optional[list] = None):
+        self.keypoints = keypoints
+        self.labels = labels
+        self.coord_rect = coord_rect
+
+    def __repr__(self):
+        return (f"keypoints={self.keypoints}\n"
+                f"labels={self.labels}\n"
+                f"coord_rect={self.coord_rect}")
 
 
 def find_cropped_text(ctx, img: Image, txt: SearchedText,
@@ -484,7 +511,7 @@ def find_keypoints(img: Image):
     return keypoints, descriptors, coord_list
 
 
-def hdbscan_cluster(coord_list, min_cluster_size: Optional[int] = 5, # coord_list : numpy.ndarray
+def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: Optional[int] = 5,
                     min_samples: Union[int, float] = None,
                     cluster_selection_epsilon: Optional[float] = 0.0):
     """Function that performs clusterization of keypoints using their coordinates and HDBSCAN
@@ -492,15 +519,17 @@ def hdbscan_cluster(coord_list, min_cluster_size: Optional[int] = 5, # coord_lis
     https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html#r6f313792b2b7-5
 
     Args:
-        coord_list (_type_): Array of coordinates of keypoints
+        keypoints (tuple): Distinctive points in an image 
+        coord_list (np.ndarray): Array of coordinates of keypoints
         min_cluster_size (int): Min number of samples that allows to consider a group as a cluster;
         min_samples (int | float): Calculate the distance between a point and its nearest neighbor
         cluster_selection_epsilon (float): Distance threshold
 
     Returns:
-        (labels, coord_rect):
-            labels (numpy.ndarray): Cluster labels for each point in the dataset given to fit()
-            coord_rect (tuple): Coordinates of clusters shaped like rectangles
+        (clusters):
+            clusters(list): list of cluster objects containing detailed information about
+            labels, keypoints and rectangles
+            
     """
     clusterer = hdbscan.HDBSCAN(
         min_cluster_size=min_cluster_size,
@@ -510,15 +539,26 @@ def hdbscan_cluster(coord_list, min_cluster_size: Optional[int] = 5, # coord_lis
     )
     clusterer.fit(coord_list)
     labels = clusterer.labels_
-    coord_rect = []
+    clusters = []
     for label in set(labels):
-        cluster_points = coord_list[labels == label]
-        if label != -1 and len(cluster_points) > 0:
-            x_coordinates = [point[0] for point in cluster_points]
-            y_coordinates = [point[1] for point in cluster_points]
-            x_min = int(min(x_coordinates))
-            y_min = int(min(y_coordinates))
-            x_max = int(max(x_coordinates))
-            y_max = int(max(y_coordinates))
-            coord_rect.append((x_min, y_min, x_max, y_max))
-    return labels, coord_rect
+        if label != -1:
+            cluster_points = coord_list[labels == label]
+            coord_rect = []
+            keypoints_in_cluster = []
+            labels_in_cluster = []
+            if len(cluster_points) > 0:
+                x_coordinates = [point[0] for point in cluster_points]
+                y_coordinates = [point[1] for point in cluster_points]
+                x_min = int(min(x_coordinates))
+                y_min = int(min(y_coordinates))
+                x_max = int(max(x_coordinates))
+                y_max = int(max(y_coordinates))
+                coord_rect.append((x_min, y_min, x_max, y_max))
+                for kp in keypoints:
+                    x, y = kp.pt
+                    if x_min <= x <= x_max and y_min <= y <= y_max:
+                        keypoints_in_cluster.append(kp)
+                        labels_in_cluster.append(int(label))
+                cluster = KeypointsCluster(keypoints_in_cluster, labels_in_cluster, coord_rect)
+                clusters.append(cluster)
+    return clusters
