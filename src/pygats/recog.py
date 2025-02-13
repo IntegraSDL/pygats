@@ -63,6 +63,7 @@ class KeypointsCluster:
     Methods:
         __repr__(): Returns a string representation of the KeypointCluster instance,
                     including keypoints, labels, and rectangle coordinates.
+        add_cluster(): Add a keypoints, labels, coord_rect to the cluster.
     """
 
     def __init__(self, keypoints: Optional[list] = None, labels: Optional[list] = None,
@@ -75,12 +76,11 @@ class KeypointsCluster:
         return (f"keypoints={self.keypoints,}\n"
                 f"labels={self.labels}\n"
                 f"coord_rect={self.coord_rect}")
-    
+
     def add_cluster(self, keypoint, labels, coord_rect):
-            """Add a keypoints, labels, coord_rect to the cluster."""
-            self.keypoints.append(keypoint)
-            self.keypoints.append(labels)
-            self.keypoints.append(coord_rect)
+        self.keypoints.append(keypoint)
+        self.keypoints.append(labels)
+        self.keypoints.append(coord_rect)
 
 def find_cropped_text(ctx, img: Image, txt: SearchedText,
                       skip: Optional[int] = 0, one_word: Optional[bool] = False):
