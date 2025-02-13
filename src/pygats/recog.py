@@ -78,7 +78,7 @@ class KeypointsCluster:
                 f"coord_rect={self.coord_rect}")
 
     def add_cluster(self, keypoints: Optional[list] = None, labels: Optional[list] = None,
-                     coord_rect: Optional[list] = None):
+                    coord_rect: Optional[list] = None):
         """Function that add a keypoints, labels, coord_rect to the cluster.
 
         Args:
@@ -90,6 +90,7 @@ class KeypointsCluster:
         self.keypoints.append(keypoints)
         self.keypoints.append(labels)
         self.keypoints.append(coord_rect)
+
 
 def find_cropped_text(ctx, img: Image, txt: SearchedText,
                       skip: Optional[int] = 0, one_word: Optional[bool] = False):
@@ -533,7 +534,7 @@ def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: 
     https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html#r6f313792b2b7-5
 
     Args:
-        keypoints (tuple): Distinctive points in an image 
+        keypoints (tuple): Distinctive points in an image
         coord_list (np.ndarray): Array of coordinates of keypoints
         min_cluster_size (int): Min number of samples that allows to consider a group as a cluster;
         min_samples (int | float): Calculate the distance between a point and its nearest neighbor
@@ -543,7 +544,7 @@ def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: 
         (clusters):
             clusters(list): list of cluster objects containing detailed information about
             labels, keypoints and rectangles
-            
+
     """
     clusterer = hdbscan.HDBSCAN(
         min_cluster_size=min_cluster_size,
