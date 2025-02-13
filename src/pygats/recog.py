@@ -65,7 +65,7 @@ class KeypointsCluster:
     """
     keypoints = list
     labels = list
-    coord_rect = list
+    coord_rect = tuple
 
     def __repr__(self):
         return (f"keypoints={self.keypoints,}\n"
@@ -539,7 +539,6 @@ def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: 
     for label in set(labels):
         if label != -1:
             cluster_points = coord_list[labels == label]
-            coord_rect = []
             keypoints_in_cluster = []
             labels_in_cluster = []
             if len(cluster_points) > 0:
@@ -549,7 +548,7 @@ def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: 
                 y_min = int(min(y_coordinates))
                 x_max = int(max(x_coordinates))
                 y_max = int(max(y_coordinates))
-                coord_rect.append((x_min, y_min, x_max, y_max))
+                coord_rect = (x_min, y_min, x_max, y_max)
                 for kp in keypoints:
                     x, y = kp.pt
                     if x_min <= x <= x_max and y_min <= y <= y_max:
