@@ -77,8 +77,17 @@ class KeypointsCluster:
                 f"labels={self.labels}\n"
                 f"coord_rect={self.coord_rect}")
 
-    def add_cluster(self, keypoint, labels, coord_rect):
-        self.keypoints.append(keypoint)
+    def add_cluster(self, keypoints: Optional[list] = None, labels: Optional[list] = None,
+                     coord_rect: Optional[list] = None):
+        """Function that add a keypoints, labels, coord_rect to the cluster.
+
+        Args:
+            keypoints (list or None): A list of keypoints representing the cluster.
+            labels (list or None): A list of labels associated with the keypoints.
+            coord_rect (list or None): Coordinates of the rectangle that bounds the cluster.
+                                     Expected format is (x_min, y_min, x_max, y_max).
+        """
+        self.keypoints.append(keypoints)
         self.keypoints.append(labels)
         self.keypoints.append(coord_rect)
 
