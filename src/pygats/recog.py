@@ -496,7 +496,10 @@ def find_keypoints(img: Image):
             descriptors (numpy.ndarray): Computed descriptors
             coord_list (numpy.ndarray): Array of coordinates of keypoints
     """
-    gray = cv.cvtColor(np.array(img), cv.COLOR_BGR2GRAY)
+    if img.mode == "L":
+        gray = np.array(img)
+    else:
+        gray = cv.cvtColor(np.array(img), cv.COLOR_BGR2GRAY)
     sift = cv.SIFT_create()
     keypoints, descriptors = sift.detectAndCompute(gray, None)
     coord_list = []

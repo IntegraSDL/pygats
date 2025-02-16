@@ -23,6 +23,16 @@ def fixture_create_ctx(formatter: MD):
 
 
 @pytest.fixture(scope="function")
+def gen_photo():
+    img = Image.open(f'tests/find/background/blue.jpg')
+    font = ImageFont.truetype(f'tests/find/fonts/Arial.ttf', size=50)
+    draw_text = ImageDraw.Draw(img)
+    draw_text.text((350, 350), "TEST", font=font, fill=('#000000'))
+    img.save('tests/find/1.png')
+    return img
+
+
+@pytest.fixture(scope="function")
 def words_for_bg():
     gen.color_shade_gen((85, 85, 85), (350, 350))
     file = open("tests/find/words.en.txt")
@@ -101,3 +111,25 @@ def test_contrast(img_path, expected_value):
     img = Image.open(img_path)
     contrast = rec.contrast(img)
     assert math.isclose(contrast, expected_value, rel_tol=1e-09, abs_tol=0.0)
+
+
+@pytest.mark.parametrize(
+    "img_path",
+    [
+        ("tests/find/background/yellow-grad.jpg"),
+        ("tests/find/background/white.jpg"),
+    ]
+)
+def test_find_keypoints_failed(img_path):
+    img = Image.open(img_path)
+    img.transpose(Image.ROTATE_90)
+    keypoints, _, _ = rec.find_keypoints(img)
+    assert keypoints == ()
+
+
+def test_find_keypoints_success(gen_photo):
+    gen_photo
+    img = Image.open("tests/find/1.png")
+    img.transpose(Image.ROTATE_90)
+    keypoints, _, _ = rec.find_keypoints(img)
+    assert len(keypoints) > 0
