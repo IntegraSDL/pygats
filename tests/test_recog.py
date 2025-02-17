@@ -1,12 +1,14 @@
 """Module with library tests"""
 from pathlib import Path
+import numpy as np
 import pytest
 import math
-import pygats.recog as rec
-import pygats.pygats as pyg
-from pygats.formatters import MarkdownFormatter as MD
+import src.pygats.recog as rec
+import src.pygats.pygats as pyg
+from src.pygats.formatters import MarkdownFormatter as MD
 from PIL import Image, ImageDraw, ImageFont
 from tests.find import gen
+import cv2 as cv
 
 @pytest.fixture(name='formatter', scope="session", autouse=True)
 def fixture_formatter():
@@ -20,6 +22,16 @@ def fixture_create_ctx(formatter: MD):
     global ctx
     ctx = pyg.Context(formatter)
     return ctx
+
+
+@pytest.fixture(scope="function")
+def gen_photo():
+    img = Image.open(f'tests/find/background/blue.jpg')
+    font = ImageFont.truetype(f'tests/find/fonts/Arial.ttf', size=50)
+    draw_text = ImageDraw.Draw(img)
+    draw_text.text((350, 350), "TEST", font=font, fill=('#000000'))
+    img.save('tests/find/1.png')
+    return img
 
 
 @pytest.fixture(scope="function")
@@ -101,3 +113,52 @@ def test_contrast(img_path, expected_value):
     img = Image.open(img_path)
     contrast = rec.contrast(img)
     assert math.isclose(contrast, expected_value, rel_tol=1e-09, abs_tol=0.0)
+
+
+@pytest.mark.parametrize(
+    "img_path",
+    [
+        ("tests/find/background/yellow-grad.jpg"),
+        ("tests/find/background/white.jpg"),
+    ]
+)
+def test_find_keypoints_failed(img_path):
+    img = Image.open(img_path)
+    img.transpose(Image.ROTATE_90)
+    keypoints, _, _ = rec.find_keypoints(img)
+    assert keypoints == ()
+
+
+def test_find_keypoints_success(gen_photo):
+    gen_photo
+    img = Image.open("tests/find/1.png")
+    img.transpose(Image.ROTATE_90)
+    keypoints, _, _ = rec.find_keypoints(img)
+    assert len(keypoints) > 0
+
+
+def test_hdbscan_cluster(gen_photo):
+    img_with_keypoints = Path('tests/find/img_with_keypoints')
+    img_with_keypoints.mkdir(parents=True, exist_ok=True)
+    img_path = "tests/find/background/test.jpg"
+    img = Image.open(img_path)
+    keypoints, _, coord_list = rec.find_keypoints(img)
+    img_cv = cv.imread(img_path)
+    for cluster_selection_epsilon in range(2, 30, 1):
+        clusters = rec.hdbscan_cluster(keypoints, coord_list,
+            min_cluster_size=10,
+            min_samples=5,
+            cluster_selection_epsilon=cluster_selection_epsilon
+        )
+        img_with_clusters = img_cv.copy()
+        for cluster in clusters:
+            keypoints_cluster = cluster.keypoints
+            coord_rect = cluster.coord_rect
+            if keypoints_cluster:
+                img_with_clusters = cv.drawKeypoints(
+                    img_with_clusters, keypoints_cluster, img_with_clusters,
+                    flags=cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+                x_min, y_min, x_max, y_max = coord_rect
+                cv.rectangle(img_with_clusters, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2)
+        output_path = img_with_keypoints / f'min_samples-{cluster_selection_epsilon}.png'
+        cv.imwrite(str(output_path), img_with_clusters)
