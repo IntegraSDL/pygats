@@ -1,5 +1,5 @@
 project = 'pyGATs'
-copyright = '2023, Vladimir Sysoev'
+copyright = '2025, Vladimir Sysoev'
 author = 'Vladimir Sysoev'
 
 release = '0.0'
