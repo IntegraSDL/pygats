@@ -509,7 +509,8 @@ def find_keypoints(img: Image):
 
 def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: Optional[int] = 5,  # pylint: disable=R0914
                     min_samples: Union[int, float] = None,
-                    cluster_selection_epsilon: Optional[float] = 0.0):
+                    cluster_selection_epsilon: Optional[float] = 0.0,
+                    m: Optional[float] = 0.0, n: Optional[float] = 0.0):
     """Function that performs clusterization of keypoints using their coordinates and HDBSCAN
     The function is used for found coordinates and keypoints.
     https://scikit-learn.org/stable/modules/generated/sklearn.cluster.HDBSCAN.html#r6f313792b2b7-5
@@ -520,6 +521,8 @@ def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: 
         min_cluster_size (int): Min number of samples that allows to consider a group as a cluster;
         min_samples (int | float): Calculate the distance between a point and its nearest neighbor
         cluster_selection_epsilon (float): Distance threshold
+        m (float): additional value for enlarging the field by the x coordinate
+        n (float): additional value for enlarging the field by the x coordinate
 
     Returns:
         (clusters):
@@ -548,7 +551,7 @@ def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: 
                 y_min = int(min(y_coordinates))
                 x_max = int(max(x_coordinates))
                 y_max = int(max(y_coordinates))
-                coord_rect = (x_min, y_min, x_max, y_max)
+                coord_rect = (x_min - m, y_min - n , x_max + m , y_max + n)
                 for kp in keypoints:
                     x, y = kp.pt
                     if x_min <= x <= x_max and y_min <= y <= y_max:
