@@ -4,7 +4,7 @@ pygats
 
 .. automodule:: recog
 
-.. autoclass:: recog.SearchedText
+.. autoclass:: pygats.recog.SearchedText
      :members:
 
 .. autofunction:: step
