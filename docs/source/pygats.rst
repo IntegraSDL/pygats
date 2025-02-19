@@ -2,12 +2,12 @@
 pygats
 ##########
 
-.. automodule:: pygats.pygats
+.. automodule:: pygats
 
-.. autoclass:: pygats.Context
+.. autoclass:: Context
      :members:
 
-.. autoclass:: pygats.TestException
+.. autoclass:: TestException
      :members:
 
 .. autofunction:: platform_specific_image
