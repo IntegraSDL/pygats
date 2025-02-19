@@ -507,7 +507,7 @@ def find_keypoints(img: Image):
     return keypoints, descriptors, coord_list
 
 
-def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: Optional[int] = 5,  # pylint: disable=R0914, R0913
+def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: Optional[int] = 5,  # pylint: disable=R0914, R0913, R0917
                     min_samples: Union[int, float] = None,
                     cluster_selection_epsilon: Optional[float] = 0.0,
                     m: Optional[float] = 0.0, n: Optional[float] = 0.0):
