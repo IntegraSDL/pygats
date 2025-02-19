@@ -2,7 +2,7 @@
 pygats
 ##########
 
-.. automodule:: pygats
+.. automodule:: pygats.pygats
 
 .. autoclass:: pygats.Context
      :members:
