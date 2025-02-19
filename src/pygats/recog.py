@@ -551,7 +551,7 @@ def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: 
                 x_max = int(max(x_coordinates))
                 y_max = int(max(y_coordinates))
                 coord_rect = (x_min - margins[0], y_min - margins[1],
-                               x_max + margins[0], y_max + margins[1])
+                              x_max + margins[0], y_max + margins[1])
                 for kp in keypoints:
                     x, y = kp.pt
                     if x_min <= x <= x_max and y_min <= y <= y_max:
