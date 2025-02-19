@@ -2,9 +2,9 @@
 pygats
 ##########
 
-.. automodule:: pygats.recog
+.. automodule:: recog
 
-.. autoclass:: pygats.recog.SearchedText
+.. autoclass:: recog.SearchedText
      :members:
 
 .. autofunction:: step
