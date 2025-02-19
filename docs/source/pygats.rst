@@ -4,10 +4,10 @@ pygats
 
 .. automodule:: pygats
 
-.. autoclass:: Context
+.. autoclass:: pygats.Context
      :members:
 
-.. autoclass:: TestException
+.. autoclass:: pygats.TestException
      :members:
 
 .. autofunction:: platform_specific_image
