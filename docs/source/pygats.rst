@@ -1,8 +1,11 @@
 ﻿##########
-pygats
+Main functions and classes
 ##########
 
 .. automodule:: pygats
+
+.. autoclass:: pygats.Suite
+     :members:
 
 .. autoclass:: pygats.Context
      :members:
