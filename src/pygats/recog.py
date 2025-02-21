@@ -557,3 +557,30 @@ def hdbscan_cluster(keypoints: tuple, coord_list: np.ndarray, min_cluster_size: 
                 cluster = KeypointsCluster(keypoints_in_cluster, labels_in_cluster, coord_rect)
                 clusters.append(cluster)
     return clusters
+
+
+def image_difference(img_1: Image, img_2: Image):
+    """Function that calculates the difference between two images and returns the coordinates of
+    rectangles enclosing the areas where these differences are observed.
+
+    Args:
+        img_1 (Image): First image
+        img_2 (Image): Second image
+
+    Returns:
+        (coord_rect):
+            coord_rect(tuple): Tuple with the coordinates of all the bounding boxes
+            that enclose the regions of difference between the two images
+
+    """
+    gray_1 = cv.cvtColor(np.array(img_1), cv.COLOR_BGR2GRAY)
+    gray_2 = cv.cvtColor(np.array(img_2), cv.COLOR_BGR2GRAY)
+    diff = cv.absdiff(gray_1, gray_2)
+    _, thresh = cv.threshold(diff, 30, 255, cv.THRESH_BINARY)
+    contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    coord_rect = []
+    for contour in contours:
+        (x, y, w, h) = cv.boundingRect(contour)
+        coord = (x, y, x + w, y + h)
+        coord_rect.append(coord)
+    return tuple(coord_rect)
