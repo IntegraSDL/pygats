@@ -465,10 +465,8 @@ def contrast(img: Image):
         img (Image): Pil.Image that is converted from the BGR color space to YUV
 
     Returns:
-        (br_min, br_max, contr):
-            br_min (int): minimum brightness
-            br_max (int): maximum brightness
-            contr (int): contrast value on the image
+        (contr):
+            contr (float): contrast value on the image
     """
     MAX_CONTRAST = 21
     MIN_CONTRAST = 1
