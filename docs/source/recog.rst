@@ -1,5 +1,5 @@
 ﻿##########
-pygats
+Recognition functions
 ##########
 
 .. automodule:: pygats.recog
