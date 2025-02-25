@@ -3,9 +3,9 @@ from pathlib import Path
 import numpy as np
 import pytest
 import math
-import src.pygats.recog as rec
-import src.pygats.pygats as pyg
-from src.pygats.formatters import MarkdownFormatter as MD
+import pygats.recog as rec
+import pygats.pygats as pyg
+from pygats.formatters import MarkdownFormatter as MD
 from PIL import Image, ImageDraw, ImageFont
 from tests.find import gen
 import cv2 as cv
@@ -27,9 +27,9 @@ def fixture_create_ctx(formatter: MD):
 @pytest.fixture(scope="function")
 def gen_photo():
     img = Image.open(f'tests/find/background/blue.jpg')
-    font = ImageFont.truetype(f'tests/find/fonts/Arial.ttf', size=50)
+    font = ImageFont.truetype(f'tests/find/fonts/Arial.ttf', size=70)
     draw_text = ImageDraw.Draw(img)
-    draw_text.text((350, 350), "TEST", font=font, fill=('#000000'))
+    draw_text.text((350, 350), "TEST", font=font, fill=('#FFFFFF'))
     img.save('tests/find/1.png')
     return img
 
@@ -40,7 +40,7 @@ def words_for_bg():
     file = open("tests/find/words.en.txt")
     lines = file.readlines()
     font = ImageFont.truetype(f'tests/find/fonts/Arial_Bold.ttf', size=27)
-    texts = [] 
+    texts = []
     colors = Path('tests/find/color_shades')
     colors_and_texts = Path(f'tests/find/fill_colors')
     colors_and_texts.mkdir(parents=True, exist_ok=True)
@@ -57,7 +57,7 @@ def words_for_bg():
             subfolder_name = photo.stem
             folder_path = Path(f'{colors_and_texts}/{subfolder_name}')
             folder_path.mkdir(parents=True, exist_ok=True)
-            new_img.save(f'{colors_and_texts }/{subfolder_name}/{line.strip()}.png', quality=100)
+            new_img.save(f'{colors_and_texts}/{subfolder_name}/{line.strip()}.png', quality=100)
     return texts
   
 
@@ -133,24 +133,29 @@ def test_find_keypoints_success(gen_photo):
     gen_photo
     img = Image.open("tests/find/1.png")
     img.transpose(Image.ROTATE_90)
-    keypoints, _, _ = rec.find_keypoints(img)
+    keypoints, _, coord_list = rec.find_keypoints(img)
+    for kp in keypoints:
+        x, y = kp.pt
+        assert [x, y] in coord_list
     assert len(keypoints) > 0
 
 
 def test_hdbscan_cluster(gen_photo):
+    gen_photo
     img_with_keypoints = Path('tests/find/img_with_keypoints')
     img_with_keypoints.mkdir(parents=True, exist_ok=True)
-    img_path = "tests/find/background/test.jpg"
+    img_path = "./tests/find/1.png"
     img = Image.open(img_path)
     keypoints, _, coord_list = rec.find_keypoints(img)
     img_cv = cv.imread(img_path)
     for cluster_selection_epsilon in range(2, 30, 1):
         clusters = rec.hdbscan_cluster(keypoints, coord_list,
-            min_cluster_size=10,
-            min_samples=5,
+            min_cluster_size=2,
+            min_samples=1,
             cluster_selection_epsilon=cluster_selection_epsilon
         )
         img_with_clusters = img_cv.copy()
+        assert len(clusters) > 0
         for cluster in clusters:
             keypoints_cluster = cluster.keypoints
             coord_rect = cluster.coord_rect
