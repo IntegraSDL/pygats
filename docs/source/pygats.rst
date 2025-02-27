@@ -2,9 +2,9 @@
 Main functions and classes
 ##########
 
-.. automodule:: pygats
+.. automodule:: pygats.pygats
 
-.. autoclass:: pygats.Suite
+.. autoclass:: pygats.pygats.Suite
      :members:
 
 .. autoclass:: pygats.Context
