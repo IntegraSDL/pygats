@@ -1,13 +1,16 @@
 ﻿##########
-pygats
+Main functions and classes
 ##########
 
 .. automodule:: pygats.pygats
 
-.. autoclass:: pygats.pygats.Context
+.. .. autoclass:: pygats.pygats.Suite
+..      :members:
+
+.. autoclass:: pygats.Context
      :members:
 
-.. autoclass:: pygats.pygats.TestException
+.. autoclass:: pygats.TestException
      :members:
 
 .. autofunction:: platform_specific_image
