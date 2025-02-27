@@ -2,7 +2,7 @@
 Recognition functions
 ##########
 
-.. automodule:: pygats.recog
+.. automodule:: recog
 
 .. autoclass:: pygats.recog.SearchedText
      :members:
