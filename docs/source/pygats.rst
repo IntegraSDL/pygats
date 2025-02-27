@@ -2,7 +2,7 @@
 Main functions and classes
 ##########
 
-.. automodule:: pygats.pygats
+.. automodule:: src.pygats.pygats
 
 .. .. autoclass:: pygats.pygats.Suite
 ..      :members:
@@ -10,7 +10,7 @@ Main functions and classes
 .. autoclass:: pygats.pygats.Context
      :members:
 
-.. autoclass:: pygats.pygats.TestException
+.. autoclass:: pygats.TestException
      :members:
 
 .. autofunction:: platform_specific_image
