@@ -4,10 +4,10 @@ Main functions and classes
 
 .. automodule:: pygats.pygats
 
-.. autoclass:: pygats.pygats.Suite
-     :members:
+.. .. autoclass:: pygats.pygats.Suite
+..      :members:
 
-.. autoclass:: pygats.Context
+.. autoclass:: pygats.pygats.Context
      :members:
 
 .. autoclass:: pygats.TestException
