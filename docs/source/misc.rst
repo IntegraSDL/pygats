@@ -2,4 +2,4 @@
 misc. functions
 ##########
 
-.. automodule:: src.pygats.misc
+.. automodule:: pygats.misc
