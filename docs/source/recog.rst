@@ -4,12 +4,12 @@ Recognition functions
 
 .. automodule:: recog
 
-.. autoclass:: pygats.recog.SearchedText
+.. autoclass:: recog.SearchedText
      :members:
 
-.. autofunction:: pygats.recog.step
+.. autofunction:: recog.step
 
-.. autofunction:: pygats.recog.check_text
+.. autofunction:: recog.check_text
 
 .. autofunction:: check_text_on_screen
 

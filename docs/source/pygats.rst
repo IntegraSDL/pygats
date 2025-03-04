@@ -10,7 +10,7 @@ Main functions and classes
 .. autoclass:: pygats.Context
      :members:
 
-.. autoclass:: pygats.pygats.TestException
+.. autoclass:: pygats.TestException
      :members:
 
 .. autofunction:: platform_specific_image
