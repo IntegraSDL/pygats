@@ -9,7 +9,7 @@
 import os
 import sys
 from pathlib import Path
-src_path = Path('/home/muervos/pygats_folder_2/pygats/src/pygats').resolve()
+src_path = Path('./src').resolve()
 sys.path.insert(0, str(src_path))
 
 project = 'pyGATs'
