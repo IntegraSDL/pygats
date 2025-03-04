@@ -2,7 +2,7 @@
 formatters
 ##########
 
-.. automodule:: formatters
+.. automodule:: pygats.formatters
 
-.. autoclass:: formatters.MarkdownFormatter
+.. autoclass:: pygats.formatters.MarkdownFormatter
      :members:
