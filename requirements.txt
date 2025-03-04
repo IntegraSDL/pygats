@@ -7,6 +7,7 @@ pytest==7.2.2
 hdbscan==0.8.40
 python_Levenshtein==0.20.9
 colorama==0.4.6
+sphinx-rtd-theme
 opencv-python==4.10.0.84
 mss==9.0.1
 qat==1.1.2
