@@ -7,9 +7,9 @@ Recognition functions
 .. autoclass:: pygats.recog.SearchedText
      :members:
 
-.. autofunction:: step
+.. autofunction:: pygats.recog.step
 
-.. autofunction:: check_text
+.. autofunction:: pygats.recog.check_text
 
 .. autofunction:: check_text_on_screen
 
