@@ -9,8 +9,7 @@
 import os
 import sys
 from pathlib import Path
-src_path = Path('./src').resolve()
-sys.path.insert(0, str(src_path))
+sys.path.insert(0, str(Path('../..', 'src').resolve()))
 
 project = 'pyGATs'
 copyright = '2025, Vladimir Sysoev'
