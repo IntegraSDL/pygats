@@ -2,4 +2,4 @@
 misc. functions
 ##########
 
-.. automodule:: pygats.misc :members
+.. automodule:: pygats.misc
