@@ -5,7 +5,7 @@ Module for qt applications interacting
 from typing import Optional
 import qat
 import pathlib
-from pygats.pygats import step, passed, failed
+from pygats_folder.pygats import step, passed, failed
 
 
 def register_application(name: str, path: str, args: Optional[str] = ''):

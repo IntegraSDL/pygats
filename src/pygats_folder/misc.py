@@ -7,7 +7,7 @@ These functions might be removed from library in the future.
 import time
 import subprocess
 import os
-from pygats.pygats import alt_with_key, passed
+from pygats_folder.pygats import alt_with_key, passed
 
 
 def setup_test_env(ctx, cmd, out_log, err_log):
