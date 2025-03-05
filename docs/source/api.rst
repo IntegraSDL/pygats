@@ -7,7 +7,7 @@ Package modules
 .. toctree ::
     :maxdepth: 4
 
-    formatters
-    pygats
-    recog
-    misc
+    pygats.formatters
+    pygats.pygats
+    pygats.recog
+    pygats.misc
