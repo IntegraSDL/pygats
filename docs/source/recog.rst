@@ -6,3 +6,6 @@ Recognition functions
 
 .. autoclass:: pygats.recog.SearchedText
      :members:
+
+.. autoclass:: pygats.recog.ROI
+     :members:
