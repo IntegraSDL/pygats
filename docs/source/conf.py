@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, os.path.abspath('../../src'))
 
-autodoc_mock_imports = ['pyautogui', 'mouseinfo']
+autodoc_mock_imports = ['pyautogui', 'mouseinfo', 'python_Levenshtein']
 
 project = 'pyGATs'
 copyright = '2025, Vladimir Sysoev'
