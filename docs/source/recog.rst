@@ -2,5 +2,5 @@
 Recognition functions
 ##########
 
-.. automodule:: recog
+.. automodule:: pygats.recog
      :members:
