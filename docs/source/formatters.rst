@@ -2,5 +2,5 @@
 formatters
 ##########
 
-.. automodule:: pygats.formatters
+.. automodule:: formatters
      :members:
