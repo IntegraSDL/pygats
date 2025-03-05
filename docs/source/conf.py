@@ -9,7 +9,7 @@
 import os
 import sys
 from pathlib import Path
-sys.path.insert(0, os.path.abspath('../../pygats'))
+sys.path.insert(0, os.path.abspath('../../src'))
 
 autodoc_mock_imports = ['pyautogui', 'mouseinfo']
 
@@ -42,3 +42,4 @@ root_doc = 'index'
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+add_module_names = False
