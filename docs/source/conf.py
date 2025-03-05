@@ -9,7 +9,7 @@
 import os
 import sys
 from pathlib import Path
-sys.path.insert(0, os.path.abspath('../../../src/pygats'))
+sys.path.insert(0, os.path.abspath('../../src/pygats'))
 
 autodoc_mock_imports = ['pyautogui', 'mouseinfo']
 
