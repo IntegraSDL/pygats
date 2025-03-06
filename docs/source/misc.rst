@@ -1,5 +1,6 @@
 ﻿##########
-formatters
+misc. functions
 ##########
 
 .. automodule:: pygats.misc
+    :members:

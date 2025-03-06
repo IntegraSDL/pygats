@@ -24,7 +24,8 @@ dependencies = [
     'opencv-python',
     'numpy',
     'colorama',
-    'mss'
+    'mss',
+    'hdbscan'
 ]
 license = {file = "LICENSE"}
 

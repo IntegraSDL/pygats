@@ -4,4 +4,4 @@ tesseract, markdown and other staff to automate end-to-end and exploratory
 testing.
 """
 
-__all__ = ["formatters", "pygats", "misc"]
+__all__ = ["formatters", "pygats", "misc", "recog"]
