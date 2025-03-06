@@ -7,7 +7,7 @@ These functions might be removed from library in the future.
 import time
 import subprocess
 import os
-from pygats import alt_with_key, passed
+import pygats.pygats as pyg
 
 
 def setup_test_env(ctx, cmd, out_log, err_log):
@@ -39,7 +39,7 @@ def setup_test_env(ctx, cmd, out_log, err_log):
             cwd=dir_name) as test_proc:
         time.sleep(1)
         if test_proc is not None:
-            passed(ctx)
+            pyg.passed(ctx)
         return test_proc
 
 
@@ -53,6 +53,6 @@ def teardown_test_env(ctx, test_proc):
         test_proc (subprocess.Popen class): object manage testing process
     """
     ctx.formatter.print_header(2, 'Завершение работы стенда')
-    alt_with_key(ctx, 'f4')
+    pyg.alt_with_key(ctx, 'f4')
     test_proc.kill()
-    passed(ctx)
+    pyg.passed(ctx)
