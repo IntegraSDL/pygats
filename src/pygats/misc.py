@@ -7,7 +7,7 @@ These functions might be removed from library in the future.
 import time
 import subprocess
 import os
-import pygats.pygats as pyg
+from pygats import pygats as pyg
 
 
 def setup_test_env(ctx, cmd, out_log, err_log):
