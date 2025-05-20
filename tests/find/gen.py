@@ -23,7 +23,6 @@ def wrapper():
 
 
 def gen(filename, w, h, font='', size=16, text='', crop=False):
-    global count
     img = Image.open(f'tests/find/background/{filename}.jpg')
     if crop:
         img = crop_image(img, 600, 600)
