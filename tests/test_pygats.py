@@ -98,6 +98,7 @@ def test_random_string(string_length, character_set, expectation):
 def test_locate_on_screen(img_path, expectation, ctx_formatter):
     """Test locate_on_screen"""
     ctx = ctx_formatter
+    dummy = gen_photo
     with expectation:
         print("Проверяем изображение:", img_path)
         if not os.path.exists(img_path):
