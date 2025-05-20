@@ -95,10 +95,9 @@ def test_random_string(string_length, character_set, expectation):
         ("pygats/failed.png", pytest.raises(pyg.TestException)),
     ]
 )
-def test_locate_on_screen(img_path, expectation, ctx_formatter, gen_photo):
+def test_locate_on_screen(img_path, expectation, ctx_formatter):
     """Test locate_on_screen"""
     ctx = ctx_formatter
-    gen_photo()
     with expectation:
         print("Проверяем изображение:", img_path)
         if not os.path.exists(img_path):
